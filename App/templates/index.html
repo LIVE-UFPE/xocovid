@@ -1,0 +1,48 @@
+{% if items_json %}
+
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  </head>
+
+  <body>
+
+    <div id="app">
+      <v-app>
+        <v-content>
+          <v-container>Hello world</v-container>
+        </v-content>
+      </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script type='text/javascript'>
+      var people = {{ items_json|safe }};
+    </script>
+    <script>
+      var app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        vuetify: new Vuetify(),
+        data: {
+            message: 'Hello Vue!',
+            people: people,
+        },
+        methods: {
+            greet: function(name) {
+                console.log('Hello from ' + name + '!')
+            }
+        }
+      });
+    </script>
+
+  </body>
+  </html>
+{% else %}
+  <p>No items available.</p>
+{% endif %}

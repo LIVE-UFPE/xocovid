@@ -17,4 +17,4 @@ def index(request):
     context = {}
     context["items_json"] = json.dumps(items)
 
-    return render(request, 'vue_list.html', context)
+    return render(request, 'index.html', context)

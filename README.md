@@ -29,3 +29,9 @@
         2. Backend/nome_do_serviço
         3. Bugfix/bug_a_ser_corrigido
         4. Frontend/nome_do_componente_ou_elemento
+
+### Notas de Documentação
+
+* A rota front-end começa no `.\App\templates\index.html`
+* O ideal é que documentemos cada elemento que não seja "óbvio" conhecer o mesmo
+* Outro ideal é documentar a "rota" que o programa segue, a fim de educar outros que não possuem o mesmo grau de conhecimento, como no primeiro bullet point desse parágrafo, por exemplo
