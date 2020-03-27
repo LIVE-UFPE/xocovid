@@ -2,7 +2,7 @@
 
 ### Dependências
 
-> Python 3.x; Node 12.x; Django 3.x; Bootstrap 4
+> Python 3.x; Node 12.x; Django 3.x; Vue 2.x
 
 ### Instruções de uso
 
