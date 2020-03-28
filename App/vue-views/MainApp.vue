@@ -12,10 +12,7 @@
 // import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
-  name: 'App',
-  components: {
-    
-  }
+  name: 'main-app',
 }
 </script>
 

@@ -7,11 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   </head>
 
   <body>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <script type='text/javascript'>
       var people = {{ items_json|safe }};
     </script>
@@ -20,27 +20,29 @@
       import App from './views/App.vue'
     </script> {% endcomment %}
 
+    <div id="app">
+      <v-app>
+        <v-content>
+          <v-container fluid fill-height class="justify-center">
+            Como carregar outras páginas? hmmmmm
+            {% comment %} <App></App> {% endcomment %}
+          </v-container>
+        </v-content>
+      </v-app>
+    </div>
 
     <script>
-      var app = new Vue({
+      //import MainApp from '/App/vue-views/MainApp.vue'
+
+      const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
         vuetify: new Vuetify(),
         components: {
-          App
+          //MainApp
         },
       });
     </script>
-
-
-    <v-app id="app">
-      <v-content>
-        <v-container fluid fill-height class="justify-center">
-          Como carregar outras páginas? hmmmmm
-          {% comment %} <App></App> {% endcomment %}
-        </v-container>
-      </v-content>
-    </v-app>
 
   </body>
   </html>
