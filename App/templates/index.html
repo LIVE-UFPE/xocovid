@@ -1,4 +1,16 @@
 {% if items_json %}
+  {% comment %} 
+  O problema atual vem da dificuldade de importar um arquivo JS(Vue, na verdade) como um elemento HTML,
+  de acordo como é feito em Vue:
+
+  em Vue, o componente é exportado na tag script. o componente que importa o outro, faz por meio de um simples
+  "import ComponentName from 'PATH/ComponentName.vue' " no mesmo script que instancia/exporta o componente atual.
+  especificado na seção components: {} do componente atual, é só usar o que foi importado como se fosse um
+  elemento HTML comum.
+
+  Uma alternativa pode ser registrar componentes locais na tag script
+  {% endcomment %}
+
 
   <!DOCTYPE html>
   <html>
@@ -13,7 +25,7 @@
 
   <body>
     <script type='text/javascript'>
-      var people = {{ items_json|safe }};
+      // var people = {{ items_json|safe }}; // ! usado na instancia Vue, no objeto data
     </script>
 
     {% comment %} <script type="module">
