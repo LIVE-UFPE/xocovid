@@ -5,14 +5,34 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-#Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
-
+#! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
+# ? index é uma function view. uma função que retorna a view requisitada
 def index(request):
     return render(request, 'index.html')
 
 @login_required
 def tela_exemplo(request, id):
     return render(request, 'exemplo/tela_exemplo.html', {'id':id,})
+
+    
+"""
+! Funcionamento das views
+
+Views nada mais é que um módulo python que agrupa um conjunto de ações.
+views em django são divididas em dois tipos: views baseadas em FUNCTION e views baseadas em CLASS
+
+* Function based View
+views baseadas em funções sao feitas usando uma função em python:
+    1. função recebe como argumento um objeto HttpRequest
+    2. função retorna um objeto HttpResponse
+
+são divididas em 4 estratégias básicas (CRUD):
+? Create // Retrieve // Update // Delete
+CRUD é a base de qualquer framework
+
+! Só que tem mais um detalhe!!!
+para acessar essa função, devemos especificar uma rota através do sistema de rotas do Django.
+"""
 
 @login_required
 def user_logout(request):

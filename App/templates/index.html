@@ -2,6 +2,7 @@
 {% block body_block %}
   <v-card >
     <v-card-title>Bem vindo ao XoCovid!</v-card-title>
+    <main-app></main-app> <!-- ISSO E UM EXEMPLO DE UTILIZACAO DE VUE -->
     {% if user.is_authenticated %}
     <v-card-subtitle>Olá {{ user.username }}</v-card-subtitle>
     <v-btn href="{% url 'App:tela_exemplo' id=50  %}">Clique aqui pra ir para a tela de exemplo</v-btn>
