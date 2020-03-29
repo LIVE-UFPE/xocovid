@@ -22,7 +22,7 @@
 
 ### Desenvolvimento
 
-> Cada membro do time deverá trabalhar em sua branch e, após o término do desenvolvimento de cada etapa(feature), deverá efetuar commit para a master.
+> Cada membro do time deverá trabalhar em sua branch e, após o término do desenvolvimento de cada etapa(feature), deverá efetuar commit para a master
 
      Tipos de branch
         1. Feature/nome_da_feature
