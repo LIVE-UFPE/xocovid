@@ -1,34 +1,118 @@
-{% if items_json %}
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script type='text/javascript'>
-    var people = {{ items_json|safe }}
-  </script>
-
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
   <div id="app">
-    [[message]]
+    <v-app>
+      <!-- --------TAB BAR--------->
+      <template>
+        <div>
+          <v-app-bar
+            color="#1E9CF8"
+            dense
+            dark
+            flat
+          >
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            
+            <v-toolbar-title>XÔ COVID</v-toolbar-title>
+      
+            <v-spacer></v-spacer>
+      
+            <v-menu
+              left
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+      
+              <v-list>
+                <v-list-item
+                  v-for="n in 5"
+                  :key="n"
+                  @click="() => {}"
+                >
+                  <v-list-item-title>Option {{ n }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-app-bar>
+        </div>
+      </template>
+      <!-- --------CARD MENU--------->
+      <div class="text-center" style="position: absolute;bottom: 30px;right: 110px;left: 110px;">
+        <template>
+        <v-bottom-navigation
+          grow
+          height="100"
+          background-color="white"
+          color="#1E9CF8"
+        >
+          <v-btn>
+            <span style="color:#1E9CF8">Mais informações</span>
+            <v-icon size="55" color="#1E9CF8">mdi-file</v-icon>
+          </v-btn>
+          <v-btn disabled style="background-color: white !important;" >
+            <div class="text-center">
+              <v-list-item-subtitle style="color:#1E9CF8">11/03/2020</v-list-item-subtitle>
+            </div> 
+          </v-btn>
 
-    <ul>
-      <li v-for="person in people">
-        <a v-bind:href="person.url">[[ person.name ]]</a> <button v-on:click="greet(person.name)">hey</button>
-      </li>
-    </ul>
+          <v-btn>
+            <span style="color:#1E9CF8">Voltar</span>
+            <v-icon size="55" color="#1E9CF8">mdi-chevron-left</v-icon>
+          </v-btn>
+      
+          <v-btn disabled style="background-color: white !important;" >
+            <div class="text-center">
+              <v-list-item-title style="color:#1E9CF8"><b>21/03/2020</b></v-list-item-title>
+            </div> 
+          </v-btn>
+      
+          <v-btn>
+            <span style="color:#1E9CF8">Avançar</span>
+            <v-icon size="55" color="#1E9CF8">mdi-chevron-right</v-icon>
+          </v-btn>
+          <v-btn disabled style="background-color: white !important;" >
+            <div class="text-center">
+              <v-list-item-subtitle style="color:#1E9CF8">31/03/2020</v-list-item-subtitle>
+            </div> 
+          </v-btn>
+          
+          <v-btn>
+            <span style="color:#1E9CF8">Alterar base de dados</span>
+            <div class="text-center">
+              <v-list-item-title style="color:#1E9CF8">Ministério da Saúde</v-list-item-title>
+            </div>
+            
+          </v-btn>
+        </v-bottom-navigation>
+      </template>
+    </div>
+    <!-- --------CARD MENU 2--------->
+    
+    
+      
+  
+      
+    </v-app>
   </div>
-
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script>
-    var app = new Vue({
-      delimiters: ['[[', ']]'],
+    new Vue({
       el: '#app',
-      data: {
-          message: 'Hello Vue!',
-          people: people,
-      },
-      methods: {
-          greet: function(name) {
-              console.log('Hello from ' + name + '!')
-          }
-      }
-    });
+      vuetify: new Vuetify(),
+    })
   </script>
-{% else %}
-  <p>No items available.</p>
-{% endif %}
+</body>
+</html>
