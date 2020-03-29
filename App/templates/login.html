@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block body_block %}
+<v-card>
+    <v-card-title>Login</v-card-title>
+    <v-form
+        ref="form"
+        v-model="valid"
+        lazy-validation
+        method="POST"
+    >
+    {% csrf_token %}
+
+        <v-text-field
+            label="Login"
+            required
+            name="username"
+        ></v-text-field>
+
+        <v-text-field
+            label="Senha"
+            required
+            name="password"
+            :type="'password'"
+        ></v-text-field>
+
+        <v-btn>
+            <input type="submit" name="" value="Entrar">
+        </v-btn>
+    </v-form>
+</v-card>
+{% endblock %}

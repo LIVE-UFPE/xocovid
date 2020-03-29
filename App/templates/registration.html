@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body_block %}
+<v-card>
+    <v-card-title>Registre-se aqui</v-card-title>
+    <v-card-subtitle>Preencha o formulário.</v-card-subtitle>
+    <v-form
+        ref="form"
+        v-model="valid"
+        lazy-validation
+        method="POST"
+    >
+    {% csrf_token %}
+
+        <v-text-field
+            label="Nome"
+            required
+            name="username"
+        ></v-text-field>
+
+        <v-text-field
+            label="Senha"
+            required
+            name="password"
+            :type="'password'"
+        ></v-text-field>
+
+        <v-text-field
+            label="Email"
+            required
+            name="email"
+        ></v-text-field>
+
+        <v-btn>
+            <input type="submit" name="" value="Registrar">
+        </v-btn>
+    </v-form>
+</v-card>
+{% endblock %}
