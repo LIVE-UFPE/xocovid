@@ -54,6 +54,9 @@ def user_login(request):
     else:
         return render(request, 'login.html', {})
 
+def home(request):
+    return render(request, 'home.html')
+
 """
 ! Funcionamento das views
 
