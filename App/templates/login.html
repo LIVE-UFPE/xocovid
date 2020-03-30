@@ -13,8 +13,8 @@
                 > {% csrf_token %}
                     <v-text-field 
                         required 
-                        placeholder="Email"
-                        v-model="email"
+                        placeholder="Username"
+                        name="username"
                         outlined 
                         full-width
                         height="100px" 
@@ -25,7 +25,7 @@
                     <v-text-field
                         required 
                         placeholder="Senha"
-                        v-model="password"
+                        name="password"
                         outlined 
                         full-width
                         type="password"
@@ -37,7 +37,6 @@
                     <v-btn
                         color="primary"
                         class="mt-8 mb-0"
-                        @click="submit"
                         height="100px"
                         width="100%"
                     >
