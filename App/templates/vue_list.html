@@ -1,5 +1,8 @@
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
@@ -67,7 +70,7 @@
 
           <v-btn>
             <span style="color:#1E9CF8">Voltar</span>
-            <v-icon size="55" color="#1E9CF8">mdi-chevron-left</v-icon>
+            <v-icon size="55" color="#1E9CF8">mdi-chevron-left-box</v-icon>
           </v-btn>
       
           <v-btn disabled style="background-color: white !important;" >
@@ -78,7 +81,7 @@
       
           <v-btn>
             <span style="color:#1E9CF8">Avançar</span>
-            <v-icon size="55" color="#1E9CF8">mdi-chevron-right</v-icon>
+            <v-icon size="55" color="#1E9CF8">mdi-chevron-right-box</v-icon>
           </v-btn>
           <v-btn disabled style="background-color: white !important;" >
             <div class="text-center">
@@ -86,33 +89,119 @@
             </div> 
           </v-btn>
           
-          <v-btn>
-            <span style="color:#1E9CF8">Alterar base de dados</span>
-            <div class="text-center">
-              <v-list-item-title style="color:#1E9CF8">Ministério da Saúde</v-list-item-title>
-            </div>
-            
-          </v-btn>
+          <v-bottom-sheet v-model="sheet" >
+            <template v-slot:activator="{ on }">
+              <v-btn v-on='on'>
+                <span style="color:#1E9CF8">Alterar base de dados</span>
+                <div class="text-center">
+                  <v-list-item-title style="color:#1E9CF8">Ministério da Saúde</v-list-item-title>
+                </div>
+              </v-btn>
+            </template>
+            <v-sheet class="text-center" height="200px">
+              <!-- <v-btn
+                class="mt-6"
+                flat
+                color="blue"
+                @click="sheet = !sheet"
+                v-on='o'
+              >close</v-btn> -->
+              <v-container>
+                <v-row>
+                  <v-col
+                    cols="6"
+                  >
+                    <v-card
+                      class="mx-auto"
+                      elevation="2"
+                      flat
+                    >
+                    <v-list-item three-line>
+                      <v-list-item-content>
+                        <!-- <div class="overline mb-2">OVERLINE</div> -->
+                        <v-list-item>
+                          <v-tooltip top color="#1E9CF8">
+                            <template v-slot:activator="{ on }">
+                              <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
+                            </template>
+                            <span>A base de dados é de responsabilidade do Ministério da Saúde.</span>
+                          </v-tooltip>
+                        </v-list-item>
+
+                        <v-list-item-title class="headline mb-1">Ministério da Saúde</v-list-item-title>   
+                        <v-list-item-subtitle class="mb-2">Base de dados oficial disponibilizada pelo Ministério da Saúde</v-list-item-subtitle>
+                    
+                        <div class="justify-center">
+                            <v-btn outlined color="#1E9CF8">
+                              Selecionar
+                            </v-btn>
+                        </div>
+                      </v-list-item-content>
+                    </v-card>
+                  </v-col>
+                
+                  <v-col
+                    cols="6"
+                  >
+                      <v-card
+                      class="mx-auto"
+                      elevation="2"
+                      flat
+                    >
+                    <v-list-item three-line>
+                      <v-list-item-content>
+                        <!-- <div class="overline mb-2">OVERLINE</div> -->
+                        <v-list-item>
+                          <v-tooltip top color="#1E9CF8">
+                            <template v-slot:activator="{ on }">
+                              <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
+                            </template>
+                            <span>A base de dados é de responsabilidade do Ministério da Saúde.</span>
+                          </v-tooltip>
+                        </v-list-item>
+
+                        <v-list-item-title class="headline mb-1">Base Colaborativa</v-list-item-title>   
+                        <v-list-item-subtitle class="mb-2">Base de dados não oficial disponibilizada por usuários da plataforma</v-list-item-subtitle>
+                    
+                        <div class="justify-center">
+                            <v-btn outlined color="#1E9CF8">
+                              Selecionar
+                            </v-btn>
+                        </div>
+                      </v-list-item-content>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+
+            </v-sheet>
+          </v-bottom-sheet>
+          
+
+          
+
         </v-bottom-navigation>
       </template>
     </div>
     <!-- --------CARD MENU 2--------->
     
-    
-      
-  
-      
     </v-app>
   </div>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-  <script>
+  
+  
+</body>
+<script>
     new Vue({
       el: '#app',
       vuetify: new Vuetify(),
     })
   </script>
-</body>
+  <script>
+    export default {
+      data: () => ({
+        checkbox: true,
+        sheet: false,
+      }),
+    }
+</script>
 </html>
