@@ -1,6 +1,60 @@
 {% extends 'base.html' %}
 {% block body_block %}
-<v-card>
+    <v-container fluid class="primary d-flex flex-column justify-center align-center" fill-height :style="{fontFamily: 'Barlow, Helvetica, Arial, sans-serif',textAlign: 'center'}">
+        <v-card raised color="secondary" max-width="705px" max-height="809px" width="705px" height="809px" fluid class="d-flex px-7" :style="{paddingTop: '104px',borderRadius: '23px'}" >
+            <v-row class="mx-12 d-block" align="end" justify="center" no-gutters > 
+                <p class="text-center font-weight-bold ma-0" :style="{fontSize: '60px',color: '#1E9CF8'}" >Logo</p> <!-- // ! Replacement for logo  -->
+                
+                <v-form
+                    ref="form"
+                    lazy-validation
+                    method="POST"
+                    v-bind:style="{paddingTop: '77px'}"
+                > {% csrf_token %}
+                    <v-text-field 
+                        required 
+                        placeholder="Email"
+                        v-model="email"
+                        outlined 
+                        full-width
+                        height="100px" 
+                        single-line solo
+                    ></v-text-field> 
+                    <!-- // TODO detail more -->
+
+                    <v-text-field
+                        required 
+                        placeholder="Senha"
+                        v-model="password"
+                        outlined 
+                        full-width
+                        type="password"
+                        height="100px" 
+                        single-line solo
+                    ></v-text-field> 
+
+
+                    <v-btn
+                        color="primary"
+                        class="mt-8 mb-0"
+                        @click="submit"
+                        height="100px"
+                        width="100%"
+                    >
+
+                        <input type="submit" name="" value="Entrar">
+                        <!-- // TODO fix alignment -->
+                    </v-btn>
+                    
+                    <v-btn text class="mt-7 sub-botao d-block" width="100%" >Cadastrar</v-btn>
+                    <v-btn text class="mt-6 sub-botao d-block" width="100%" >Esqueci minha senha</v-btn>
+                </v-form>
+            </v-row>
+        </v-card>
+    </v-container>
+{% endblock %}
+
+{% comment %} <v-card>
     <v-card-title>Login</v-card-title>
     <v-form
         ref="form"
@@ -27,5 +81,4 @@
             <input type="submit" name="" value="Entrar">
         </v-btn>
     </v-form>
-</v-card>
-{% endblock %}
+</v-card> {% endcomment %}

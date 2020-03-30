@@ -15,35 +15,74 @@
         <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
         <script src="https://unpkg.com/http-vue-loader"></script>
         <!-- esse /\ é o import que permite usar componentes em vue -->
-    
+
+        <style>
+        .v-text-field, .v-btn {
+    font-size: 30px !important;
+    border-radius: 10px;
+}
+
+.sub-botao{
+    font-size: 25px !important;
+    font-weight: lighter;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+#top {
+  font-family: Barlow, Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+.round-border {
+  border-radius: 23px !important;
+}
+        </style>    
     </head>
     <body>
 
-        <div id="app">
-            <v-toolbar>        
-                <a class="navbar-brand" href="{% url 'index' %}">
-                    <v-toolbar-title>XoCovid</v-toolbar-title>
-                </a>
-        
-                <v-spacer></v-spacer>
-                {% if user.is_authenticated %}
-                <v-btn href="{% url 'logout' %}">
-                    Logout
-                </v-btn>
-                {% else %}
-                <v-btn href="{% url 'App:register' %}">
-                    Registre-se
-                </v-btn>
-                <v-btn href="{% url 'App:user_login' %}">
-                    Login
-                </v-btn>
-                {% endif %}
-            </v-toolbar>
-            <div class="container">
+        <v-app id="app">
+            <v-content>
+                <v-toolbar>        
+                    <a class="navbar-brand" href="{% url 'index' %}">
+                        <v-toolbar-title>XoCovid</v-toolbar-title>
+                    </a>
+            
+                    <v-spacer></v-spacer>
+                    {% if user.is_authenticated %}
+                    <v-btn href="{% url 'logout' %}">
+                        Logout
+                    </v-btn>
+                    {% else %}
+                    <v-btn href="{% url 'App:register' %}">
+                        Registre-se
+                    </v-btn>
+                    <v-btn href="{% url 'App:user_login' %}">
+                        Login
+                    </v-btn>
+                    {% endif %}
+                </v-toolbar>
+            
+                
                 {% block body_block %}
                 {% endblock %}
-            </div>
-        </div>
+                
+            </v-content>
+        </v-app>
+        
     </body>
 </html>
 
@@ -51,11 +90,26 @@
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
-        vuetify: new Vuetify(),
+        vuetify: new Vuetify({
+            theme: {
+                themes: {
+                    light: {
+                        primary: '#1E9CF8', // Blue
+                        secondary: '#FFFFFF', //White
+                        accent: '#82B1FF',
+                        error: '#FF5252',
+                        info: '#2196F3',
+                        success: '#4CAF50',
+                        warning: '#FFC107'
+                    },
+                },
+            },
+        }),
         components: {
             // ? esse é o metodo para importar componentes em Vue
-            'main-app': httpVueLoader("{% static 'vue-views/main-app.vue' %}")
+            'login': httpVueLoader("{% static 'vue-views/login.vue' %}")
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         }
     });
+    // TODO master stylesheet
 </script>
