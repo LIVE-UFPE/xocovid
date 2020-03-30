@@ -6,7 +6,7 @@
     <v-card-subtitle>Olá {{ user.username }}</v-card-subtitle>
     <v-btn href="{% url 'App:tela_exemplo' id=50  %}">Clique aqui pra ir para a tela de exemplo</v-btn>
     {% else %}
-    <v-card-subtitle>Se registre ou faça o login</v-card-subtitle>
+    <v-card-subtitle>Registre-se ou faça o login</v-card-subtitle>
     {% endif %}
   </v-card>
 {% endblock %}

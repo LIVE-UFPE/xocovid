@@ -1,4 +1,5 @@
 {% load static %}
+<!-- Link: /App/ -->
 <!DOCTYPE html>
 <html>
     <head>
@@ -9,76 +10,57 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     
         <!-- * Vue imports -->
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
         <script src="https://unpkg.com/http-vue-loader"></script>
         <!-- esse /\ é o import que permite usar componentes em vue -->
 
         <style>
-        .v-text-field, .v-btn {
-    font-size: 30px !important;
-    border-radius: 10px;
-}
+            .v-text-field, .v-btn {
+        
+                border-radius: 10px;
+            }
 
-.sub-botao{
-    font-size: 25px !important;
-    font-weight: lighter;
-    text-transform: none;
-    letter-spacing: normal;
-}
+            .sub-botao{
+                font-size: 25px !important;
+                font-weight: lighter;
+                text-transform: none;
+                letter-spacing: normal;
+            }
 
-#top {
-  font-family: Barlow, Helvetica, Arial, sans-serif;
-  text-align: center;
-}
+            #top {
+            font-family: Barlow, Helvetica, Arial, sans-serif;
+            text-align: center;
+            }
 
-#nav {
-  padding: 30px;
-}
+            #nav {
+            padding: 30px;
+            }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+            #nav a {
+            font-weight: bold;
+            color: #2c3e50;
+            }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+            #nav a.router-link-exact-active {
+            color: #42b983;
+            }
 
-.round-border {
-  border-radius: 23px !important;
-}
+            .round-border {
+            border-radius: 23px !important;
+            }
         </style>    
     </head>
     <body>
-
-        <v-app id="app">
-            <v-content>
-                <v-toolbar>        
-                    <a class="navbar-brand" href="{% url 'index' %}">
-                        <v-toolbar-title>XoCovid</v-toolbar-title>
-                    </a>
-            
-                    <v-spacer></v-spacer>
-                    {% if user.is_authenticated %}
-                    <v-btn href="{% url 'logout' %}">
-                        Logout
-                    </v-btn>
-                    {% else %}
-                    <v-btn href="{% url 'App:user_login' %}">
-                        Login
-                    </v-btn>
-                    {% endif %}
-                </v-toolbar>
-            
-                
-                {% block body_block %}
-                {% endblock %}
-                
-            </v-content>
+        <v-app id="app" >
+            {% block body_block %}
+            {% endblock %}
         </v-app>
-        
     </body>
 </html>
 
@@ -105,7 +87,10 @@
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'vue-views/login.vue' %}")
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
-        }
+        },
+        data: () => ({
+            sheet: false,
+        }),
     });
     // TODO master stylesheet
 </script>
