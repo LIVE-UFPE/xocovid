@@ -26,7 +26,7 @@ def user_logout(request):
 def register(request):
     registered = False
     context = {}
-
+    print(request)
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
         if user_form.is_valid():
@@ -40,23 +40,25 @@ def register(request):
     return render(request,'registration.html',context)
 
 def user_login(request):
-    if request.method == 'POST':
-        print('tested2')
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user:
-            if user.is_active:
-                login(request,user)
-                return HttpResponseRedirect(reverse('home'))
-            else:
-                return HttpResponse("Your account was inactive.")
-        else:
-            print("Someone tried to login and failed.")
-            print("They used username: {} and password: {}".format(username,password))
-            return HttpResponse("Invalid login details given")
+    if request.user.is_authenticated:
+        return render(request, 'home.html')
     else:
-        return render(request, 'login.html', {})
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(username=username, password=password)
+            if user:
+                if user.is_active:
+                    login(request,user)
+                    return HttpResponseRedirect(reverse('home'))
+                else:
+                    return HttpResponse("Your account was inactive.")
+            else:
+                print("Someone tried to login and failed.")
+                print("They used username: {} and password: {}".format(username,password))
+                return HttpResponse("Invalid login details given")
+        else:
+            return render(request, 'login.html', {})
 
 """
 ! Funcionamento das views
