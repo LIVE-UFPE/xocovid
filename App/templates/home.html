@@ -17,7 +17,7 @@
             <v-toolbar-title>XÔ COVID</v-toolbar-title>
       
             <v-spacer></v-spacer>
-      
+
             <v-menu
               left
               bottom
@@ -32,12 +32,15 @@
                 <v-list-item
                   v-for="n in 5"
                   :key="n"
-                  @click="() => {}"
+                  @click="load_option(n)"
                 >
-                  <v-list-item-title>Option {{ n }}</v-list-item-title>
+                  <v-list-item-title>Option [[n]]</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
+            <v-btn href="logout/" class="ma-2" text icon color="blue lighten-5">
+              <v-icon>cancel</v-icon>
+            </v-btn>
           </v-app-bar>
         </div>
       </template>

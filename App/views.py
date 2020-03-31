@@ -11,13 +11,17 @@ def index(request):
     return render(request, 'index.html')
 
 @login_required
+def home(request):
+    return render(request, 'home.html')
+
+@login_required
 def tela_exemplo(request, id):
     return render(request, 'exemplo/tela_exemplo.html', {'id':id,})
 
 @login_required
 def user_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('user_login'))
 
 def register(request):
     registered = False
@@ -44,7 +48,7 @@ def user_login(request):
         if user:
             if user.is_active:
                 login(request,user)
-                return HttpResponseRedirect(reverse('index'))
+                return HttpResponseRedirect(reverse('home'))
             else:
                 return HttpResponse("Your account was inactive.")
         else:
@@ -53,9 +57,6 @@ def user_login(request):
             return HttpResponse("Invalid login details given")
     else:
         return render(request, 'login.html', {})
-
-def home(request):
-    return render(request, 'home.html')
 
 """
 ! Funcionamento das views
