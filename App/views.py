@@ -24,18 +24,17 @@ def user_logout(request):
     return HttpResponseRedirect(reverse('user_login'))
 
 def register(request):
-    registered = False
-    context = {}
-    print(request)
+    context = {'register_error':'false'}
+
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
         if user_form.is_valid():
             user = user_form.save()
             user.set_password(user.password)
             user.save()
-            registered = True
+            return HttpResponseRedirect(reverse('user_login'))
         else:
-            print(user_form.errors,profile_form.errors)
+            context['register_error'] = 'true'
     
     return render(request,'registration.html',context)
 
@@ -56,9 +55,9 @@ def user_login(request):
             else:
                 print("Someone tried to login and failed.")
                 print("They used username: {} and password: {}".format(username,password))
-                return HttpResponse("Invalid login details given")
+                return render(request, 'login.html', {'login_error':'true'})
         else:
-            return render(request, 'login.html', {})
+            return render(request, 'login.html', {'login_error':'false'})
 
 """
 ! Funcionamento das views
