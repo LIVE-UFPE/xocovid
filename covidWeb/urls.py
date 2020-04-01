@@ -18,8 +18,6 @@ from django.urls import include, path
 from django.conf.urls import url,include
 from App import views
 
-from App import views
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.user_login,name='user_login'),
@@ -27,3 +25,5 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('home', views.home, name="home"),
 ]
+
+#views.listener(repeat=10, repeat_until=None)
