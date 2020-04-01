@@ -80,33 +80,37 @@ def listener():
     lastId = Listener.objects.get(id=1).lastId
     nextId = lastId + 1
 
-    id = int(sheet.cell(4 + nextId, 1).value)
-    if id != None:
-        lastId+=1
-        endereco = sheet.cell(4 + nextId, 17).value
-        municipio = sheet.cell(4 + nextId, 16).value
-        estado = sheet.cell(4 + nextId, 14).value
-        pais = sheet.cell(4 + nextId, 13).value
+    try: 
+        id = int(sheet.cell(4 + nextId, 1).value)
+        if id != None:
+            lastId+=1
+            endereco = sheet.cell(4 + nextId, 17).value
+            municipio = sheet.cell(4 + nextId, 16).value
+            estado = sheet.cell(4 + nextId, 14).value
+            pais = sheet.cell(4 + nextId, 13).value
 
-        endereco_completo = endereco + ' ' + municipio + ' ' + estado + ' ' + pais
-        enderecoJSON = requestData(request=endereco_completo, type='google')
-        if enderecoJSON:
-            country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=enderecoJSON['results'])
-            try:
-                if latitude:
-                    newNotification = Notification.objects.get(id = nextId)
-                    newNotification.latitude = float(latitude)
-                    newNotification.longitude = float(longitude)
-                    newNotification.save()
-            except:
-                if latitude:
-                    n = Notification(id = nextId, latitude = float(latitude), longitude = float(longitude))
-                    n.save()
+            endereco_completo = endereco + ' ' + municipio + ' ' + estado + ' ' + pais
+            enderecoJSON = requestData(request=endereco_completo, type='google')
+            if enderecoJSON:
+                country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=enderecoJSON['results'])
+                try:
+                    if latitude:
+                        newNotification = Notification.objects.get(id = nextId)
+                        newNotification.latitude = float(latitude)
+                        newNotification.longitude = float(longitude)
+                        newNotification.save()
+                except:
+                    if latitude:
+                        n = Notification(id = nextId, latitude = float(latitude), longitude = float(longitude))
+                        n.save()
 
-        newListener = Listener.objects.get(id=1)
-        newListener.lastId = nextId
-        newListener.save()
-        print("Listener parado")
+            newListener = Listener.objects.get(id=1)
+            newListener.lastId = nextId
+            newListener.save()
+    except:
+        print('Nenhum dado disponível')
+
+    print("Listener parado")
 
 def requestData(request=None, type='google'):
 	if type=='google':
