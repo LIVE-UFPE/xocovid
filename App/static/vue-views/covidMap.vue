@@ -23,13 +23,15 @@ module.exports = {
             //TODO fazer isso aq, agr é o centro de recife
             this.position = L.latLng(-8.046, -34.927);
         }else{
-            // get position
+            // get position, runs asyncly
             navigator.geolocation.getCurrentPosition(pos => {
                 console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
                 this.position = L.latLng(pos.coords.latitude,pos.coords.longitude);
+                this.mymap = L.map('mapid').setView(this.position, 13.5);
 
             }, err => {
-                console.log('outro erro');
+                console.log(`erro pegando localização: ${err}
+                considerando o centro de recife`);
             })
         }
         
