@@ -66,6 +66,9 @@
             }
         </style>    
     </head>
+    <script>
+        var pins = {{ items_json|safe }};
+    </script>
     <body>
         <v-app id="app" >
             <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
@@ -77,8 +80,6 @@
 </html>
 
 <script>
-    var pins = {{ items_json|safe }};
-
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
