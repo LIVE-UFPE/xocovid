@@ -26,4 +26,4 @@ urlpatterns = [
     path('home', views.home, name="home"),
 ]
 
-#views.listener(repeat=3600, repeat_until=None)
+#views.listener(repeat=10, repeat_until=None)
