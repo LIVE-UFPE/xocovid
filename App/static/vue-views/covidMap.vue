@@ -17,7 +17,7 @@ module.exports = {
         } 
     },
     mounted: function (){
-        // TODO resolve location
+        // * atualmente, nao pegar a localização resulta em pegar o meio de recife
         if(!("geolocation" in navigator)){
             console.log('fazer oq qd n tem localizaçao??');
             //TODO fazer isso aq, agr é o centro de recife

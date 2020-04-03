@@ -98,7 +98,8 @@
         components: {
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'vue-views/login.vue' %}"),
-            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}")
+            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}"),
+            'graficos-vue': httpVueLoader("{% static 'vue-views/graficos.vue' %}")
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
