@@ -6,14 +6,20 @@
 
 ### Instruções de uso
 
-1. Abra o terminal e, na pasta do projeto, digite o comando
+1. Abra o terminal e, na pasta do projeto, digite o comando como administrador ou superuser
+    
+    ```cmd
+        pip3 install -r requirements.txt
+    ```
+
+2. Digite o comando
 
     ```JavaScript
         python3 manage.py runserver
     ```
     Para executar o projeto.
 
-2. Após alterações na base de dados do Django, executar migração com os seguintes comandos
+3. Após alterações na base de dados do Django, executar migração com os seguintes comandos
 
     ```JavaScript
         python3 manage.py makemigrations
