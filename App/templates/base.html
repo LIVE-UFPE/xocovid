@@ -77,6 +77,8 @@
 </html>
 
 <script>
+    var pins = {{ items_json|safe }};
+
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -104,7 +106,8 @@
         data: () => ({
             sheet: false,
             base: 0,
-            activeBtn: 1
+            activeBtn: 1,
+            pins: pins
         }),
     });
     // TODO master stylesheet

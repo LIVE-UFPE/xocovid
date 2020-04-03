@@ -16,6 +16,9 @@ module.exports = {
             position: L.latLng(-8.046, -34.927),
         } 
     },
+    props: {
+        pins: Array
+    },
     mounted: function (){
         // TODO resolve location
         if(!("geolocation" in navigator)){
@@ -35,6 +38,7 @@ module.exports = {
             })
         }
         
+
         this.mymap = L.map('mapid',{zoomControl: false,}).setView(this.position, 13.5);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -46,12 +50,20 @@ module.exports = {
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(this.mymap);
 
-        this.circle = L.circle([-8.044, -34.927], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: 750
-        }).addTo(this.mymap);
+        // DEBUG cluster de pins
+        // this.circle = L.circle([-8.044, -34.927], {
+        //     color: 'red',
+        //     fillColor: '#f03',
+        //     fillOpacity: 0.5,
+        //     radius: 750
+        // }).addTo(this.mymap);
+
+        let pinsLen = pins.length;
+        for( var i = 0; i < pinsLen; i++){
+            let coord = L.latLng(pins[i].latitude, pins[i].longitude);
+            L.marker(coord,{title: 'Caso confirmado de COVID-19'}).addTo(this.mymap);
+        }
+        console.log(`adicionando um total de ${pinsLen} no mapa`)
 
         // L.polygon([
         //     [-8.05, -33.927],
