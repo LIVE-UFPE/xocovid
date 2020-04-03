@@ -3,7 +3,7 @@
 <html>
   <div id="app">
     <v-app>
-      <!-- --------TAB BAR--------->
+      <!-- --------TAB BAR------- -->
       <template>
         <div>
           <v-app-bar
@@ -11,7 +11,7 @@
             dense
             dark
             flat
-            
+            style="z-index: 1"
           >
           <!-- style="" -->
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
@@ -55,7 +55,7 @@
           max-height="500"
           width="220"
           outlined
-          style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);"
+          style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
         >
           <v-list-item three-line>
             <v-list-item-content>
@@ -110,14 +110,14 @@
       </div>
       <!-- Card Popup-->
       <!-- Esse componente deverá ser colocado como popup na api do mapa -->
-      <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
+      {% comment %} <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
         <v-card
           class="mx-auto pb-2"
           max-height="500"
           height="400"
           width="500"
           outlined
-          style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);"
+          style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
         >
           <v-list-item three-line >
             <v-list-item-content >
@@ -193,9 +193,9 @@
             </v-list-item-content>
           </v-list-item>
         </v-card>
-      </div>
-      <!-- --------CARD MENU--------->
-      <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;">
+      </div> {% endcomment %}
+      <!-- --------CARD MENU------- -->
+      <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
         <template>
           <v-bottom-navigation
             grow
@@ -203,6 +203,7 @@
             background-color="white"
             color="#1E9CF8"
             :value="activeBtn"
+            style="z-index: 1"
           >
             <v-btn>
               <span style="color:#1E9CF8">Mais informações</span>
@@ -328,12 +329,12 @@
           </v-bottom-navigation>
         </template>
       </div>
-    <!-- --------CARD MENU 2--------->
-      </v-app>
-    </div>
-  </html>
+    <!-- --------CARD MENU 2------- -->
+    <!-- Map -->
+      <covid-map :pins="pins" ></covid-map>
+    </v-app>
+  </div>
+</html>
 
-  
-  
-  {% endblock %}
+{% endblock %}
 

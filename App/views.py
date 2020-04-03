@@ -11,6 +11,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from django.contrib.staticfiles.storage import staticfiles_storage
 import json
 import requests
+from django.db.models import Manager
+from django.db.models.query import QuerySet
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -21,7 +23,18 @@ def index(request):
 
 @login_required
 def home(request):
-    return render(request, 'home.html')
+    context = {}
+    pins = []
+    notifications = list(Notification.objects.all())
+    for notification in notifications:
+        pins.append({
+            "latitude": notification.latitude,
+            "longitude": notification.longitude
+        })
+    # print(type(pins[0]))
+
+    context["items_json"] = json.dumps(pins)
+    return render(request, 'home.html',context)
 
 @login_required
 def tela_exemplo(request, id):
