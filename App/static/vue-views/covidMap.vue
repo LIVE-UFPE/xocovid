@@ -74,9 +74,8 @@ module.exports = {
         // blur - amount of blur, 15 by default
         // gradient - color gradient config, e.g. {0.4: 'blue', 0.65: 'lime', 1: 'red'}
         L.heatLayer(pins_heat,{
-            gradient: {0.3: 'green', 0.53: 'yellow', 0.76: 'red'},
-            minOpacity: 0.3,
-            // maxZoom: 16
+            gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
+            minOpacity: 0.37,
         }).addTo(this.mymap);
 
         // DEBUG mapa com pins
