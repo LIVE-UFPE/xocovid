@@ -6,8 +6,6 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Notification
 from django.contrib.staticfiles.storage import staticfiles_storage
-import json
-import requests
 from django.db.models import Manager
 from django.db.models.query import QuerySet
 from .tasks import listener
