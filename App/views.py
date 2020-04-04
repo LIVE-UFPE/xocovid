@@ -9,6 +9,9 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager
 from django.db.models.query import QuerySet
 from .tasks import listener
+import json
+import requests
+from datetime import date
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -22,12 +25,26 @@ def home(request):
     context = {}
     pins = []
     notifications = list(Notification.objects.all())
+    # DEBUG counter for null types
+    null_notes = 0
     for notification in notifications:
-        pins.append({
-            "latitude": notification.latitude,
-            "longitude": notification.longitude
-        })
-    # print(type(pins[0]))
+        # if type(notification.data_notificacao) != type(NoneType()):
+        try:
+            if type(notification.latitude) is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
+                null_notes += 1
+                raise TypeError('')
+        except TypeError:
+            print('error pegando Notificação, algum dado é Null')
+        else:
+            pins.append({
+                "latitude": notification.latitude,
+                "longitude": notification.longitude,
+                "data_notificacao": notification.data_notificacao.ctime() if type(notification.data_notificacao) is not type(None) else 'Wed Dec  4 00:00:00 2002',
+                "bairro": notification.bairro,
+            })
+
+    # DEBUG type test
+    print("De",len(notifications),",",null_notes,"tem dados nulos")
 
     context["items_json"] = json.dumps(pins)
     return render(request, 'home.html',context)
