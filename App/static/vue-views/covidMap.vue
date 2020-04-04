@@ -50,6 +50,7 @@ module.exports = {
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(this.mymap);
 
+
         // DEBUG cluster de pins
         // this.circle = L.circle([-8.044, -34.927], {
         //     color: 'red',
@@ -59,10 +60,30 @@ module.exports = {
         // }).addTo(this.mymap);
 
         let pinsLen = pins.length;
+        let pins_heat = []
         for( var i = 0; i < pinsLen; i++){
             let coord = L.latLng(pins[i].latitude, pins[i].longitude);
-            L.marker(coord,{title: 'Caso confirmado de COVID-19'}).addTo(this.mymap);
+            pins_heat.push(coord)
         }
+
+
+        // minOpacity - the minimum opacity the heat will start at
+        // maxZoom - zoom level where the points reach maximum intensity (as intensity scales with zoom), equals maxZoom of the map by default
+        // max - maximum point intensity, 1.0 by default
+        // radius - radius of each "point" of the heatmap, 25 by default
+        // blur - amount of blur, 15 by default
+        // gradient - color gradient config, e.g. {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+        L.heatLayer(pins_heat,{
+            gradient: {0.3: 'green', 0.53: 'yellow', 0.76: 'red'},
+            minOpacity: 0.3,
+            // maxZoom: 16
+        }).addTo(this.mymap);
+
+        // DEBUG mapa com pins
+        // for( var i = 0; i < pinsLen; i++){
+        //     let coord = L.latLng(pins[i].latitude, pins[i].longitude);
+        //     L.marker(coord,{title: 'Caso confirmado de COVID-19'}).addTo(this.mymap);
+        // }
         console.log(`adicionando um total de ${pinsLen} no mapa`)
 
         // L.polygon([

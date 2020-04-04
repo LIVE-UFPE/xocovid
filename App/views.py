@@ -41,6 +41,7 @@ def home(request):
                 "longitude": notification.longitude,
                 "data_notificacao": notification.data_notificacao.ctime() if type(notification.data_notificacao) is not type(None) else 'Wed Dec  4 00:00:00 2002',
                 "bairro": notification.bairro,
+                # TODO adicionar entradas futuramente relevantes
             })
 
     # DEBUG type test
