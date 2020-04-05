@@ -108,7 +108,6 @@ module.exports = {
             let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
             let qtd_pins_excluidos = 0
             
-            // TODO será que convém pegar a data e formatar pra "ignorar" a hora?
             // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
             for( var i = 0; i < pinsLen; i++){
 

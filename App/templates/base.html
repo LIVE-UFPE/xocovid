@@ -157,6 +157,7 @@
             dateBack: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() - 1 );
+                test.setHours(23,59,58);
                 this.datedb = test;
                 console.log("voltando um dia!("+this.datedb.toLocaleString('en-GB')+")");
             },
@@ -164,7 +165,7 @@
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() + 1 );
                 // tentou avançar além de hoje
-                if(test > new Date()) {
+                if(test > new Date().setHours(23,59,59)) {
                     console.log("não podemos avançar além de hoje pois a IA não foi integrada!")
                 }else{
                     this.datedb = test;
