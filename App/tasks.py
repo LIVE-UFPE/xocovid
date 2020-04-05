@@ -85,6 +85,98 @@ def listener():
                     df.at[index,'Data Atualização'] = datetime.datetime.strptime(row['Data Atualização'].split(' ')[0],'%m/%d/%y')
 
         for index, row in df.iterrows():
+            address = str(row['Endereço completo'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
+            addressJSON = requestData(request=address, type='google')
+            if pandas.notnull(addressJSON):
+                print("Pre processando notificacao de ID: "+str(row['ID']))
+
+                country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
+
+                if pandas.notnull(country):
+                    df.at[index,'País de residência'] = country
+                if pandas.notnull(state):
+                    df.at[index,'Estado de residência'] = state
+                if pandas.notnull(city):
+                    df.at[index,'Município'] = city
+
+                df.at[index,'Bairro'] = neighborhood
+                df.at[index,'Latitude'] = latitude
+                df.at[index,'Longitude'] = longitude
+
+                if pandas.notnull(cep):
+                    df.at[index,'CEP residência'] = cep
+            else:
+                print('Erro na busca do google maps')
+
+        for index, row in df.iterrows():
+            if (pandas.isnull(row['Município']) or pandas.isnull(row['Estado de residência']) or pandas.isnull(row['País de residência']) or pandas.isnull(row['Latitude']) or pandas.isnull(row['Bairro'])) and pandas.notnull(row['CEP residência']):
+                print("Pre processando notificacao de ID: "+str(row['ID']))
+
+                CEP = str(row['CEP residência'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
+                addressJSON = requestData(request=CEP, type='google')
+                if pandas.notnull(addressJSON):
+                    country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
+
+                    if pandas.isnull(row['Bairro']):
+                        addressJSON = requestData(request=str(row['CEP residência']), type='cep')
+                        neighborhood = addressJSON['bairro']
+                        df.at[index,'Bairro'] = neighborhood
+
+                    if pandas.isnull(row['Latitude']):
+                        df.at[index,'Latitude'] = latitude
+                        df.at[index,'Longitude'] = longitude
+                    if pandas.notnull(country):
+                        df.at[index,'País de residência'] = country
+                    if pandas.notnull(state):
+                        df.at[index,'Estado de residência'] = state
+                    if pandas.notnull(city):
+                        df.at[index,'Município'] = city
+                else:
+                    print('Erro na busca do google maps')
+
+        for index, row in df.iterrows():
+            if pandas.notnull(row['Sexo']):
+                df.at[index,'Sexo'] = str(row['Sexo']).title()
+            if pandas.notnull(row['País de residência']):
+                df.at[index,'País de residência'] = str(row['País de residência']).title()
+            if pandas.notnull(row['Estado de residência']):
+                df.at[index,'Estado de residência'] = str(row['Estado de residência']).title()
+            if pandas.notnull(row['Município']):
+                df.at[index,'Município'] = str(row['Município']).title()
+            if pandas.notnull(row['Endereço completo']):
+                df.at[index,'Endereço completo'] = str(row['Endereço completo']).title()
+            if pandas.notnull(row['Paciente foi hospitalizado?']):
+                df.at[index,'Paciente foi hospitalizado?'] = str(row['Paciente foi hospitalizado?']).title()
+            if pandas.notnull(row['Paciente foi submetido a ventilação mecânica?']):
+                df.at[index,'Paciente foi submetido a ventilação mecânica?'] = str(row['Paciente foi submetido a ventilação mecânica?']).title()    
+            if pandas.notnull(row['Situação de saúde do paciente no momento da notificação']):
+                df.at[index,'Situação de saúde do paciente no momento da notificação'] = str(row['Situação de saúde do paciente no momento da notificação']).title()
+            if pandas.notnull(row['Foi realizada coleta de amostra do paciente?']):
+                df.at[index,'Foi realizada coleta de amostra do paciente?'] = str(row['Foi realizada coleta de amostra do paciente?']).title()    
+            if pandas.notnull(row['Foi para outro local de transmissão?']):
+                df.at[index,'Foi para outro local de transmissão?'] = str(row['Foi para outro local de transmissão?']).title()    
+            if pandas.notnull(row['Outro local de transmissão, descrever (cidade, região, país)']):
+                df.at[index,'Outro local de transmissão, descrever (cidade, região, país)'] = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
+            if pandas.notnull(row['Estado de notificação (UF)']):
+                df.at[index,'Estado de notificação (UF)'] = str(row['Estado de notificação (UF)']).title()
+            if pandas.notnull(row['Município de notificação']):
+                df.at[index,'Município de notificação'] = str(row['Município de notificação']).title()
+            if pandas.notnull(row['Coleta de exames']):
+                df.at[index,'Coleta de exames'] = str(row['Coleta de exames']).title()
+            if pandas.notnull(row['Classificação final']):
+                df.at[index,'Classificação final'] = str(row['Classificação final']).title()
+            if pandas.notnull(row['Resultado']):
+                df.at[index,'Resultado'] = str(row['Resultado']).title()
+            if pandas.notnull(row['INTERNADO']):
+                df.at[index,'INTERNADO'] = str(row['INTERNADO']).title()
+            if pandas.notnull(row['EVOLUÇÃO']):
+                df.at[index,'EVOLUÇÃO'] = str(row['EVOLUÇÃO']).title()
+            if pandas.notnull(row['Bairro']):
+                df.at[index,'Bairro'] = str(row['Bairro']).title()
+
+        df = df.replace({np.nan: None})
+
+        for index, row in df.iterrows():
             try:
                 notification = Notification.objects.get(id = int(row['ID']))
             except Notification.DoesNotExist:
@@ -94,7 +186,7 @@ def listener():
             notification.data_atualizacao = row['Data Atualização']
             notification.data_notificacao = row['Data da notificação']
             notification.sexo = str(row['Sexo']).title()
-            if row['Idade']:
+            if pandas.notnull(row['Idade']):
                 notification.idade = int(row['Idade'])
             notification.cep = str(row['CEP residência'])
             notification.pais_residencia = str(row['País de residência']).title()
@@ -116,105 +208,6 @@ def listener():
             notification.latitude = row['Latitude']
             notification.longitude = row['Longitude']
             notification.save()
-
-        for index, row in df.iterrows():
-            address = str(row['Endereço completo'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
-            addressJSON = requestData(request=address, type='google')
-            if pandas.notnull(addressJSON):
-                notification = Notification.objects.get(id = int(row['ID']))
-                print("Pre processando notificacao de ID: "+str(row['ID']))
-
-                country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
-
-                if pandas.notnull(country):
-                    df.at[index,'País de residência'] = country
-                    notification.pais_residencia = country
-                if pandas.notnull(state):
-                    df.at[index,'Estado de residência'] = state
-                    notification.estado_residencia = state
-                if pandas.notnull(city):
-                    df.at[index,'Município'] = city
-                    notification.pais_municipio = city
-
-                df.at[index,'Bairro'] = neighborhood
-                notification.bairro = neighborhood
-                df.at[index,'Latitude'] = latitude
-                notification.latitude = latitude
-                df.at[index,'Longitude'] = longitude
-                notification.longitude = longitude
-
-                if pandas.notnull(cep):
-                    df.at[index,'CEP residência'] = cep
-                    notification.cep = cep
-            else:
-                print('Erro na busca do google maps')
-            notification.save() 
-
-        for index, row in df.iterrows():
-            if (pandas.isnull(row['Município']) or pandas.isnull(row['Estado de residência']) or pandas.isnull(row['País de residência']) or pandas.isnull(row['Latitude']) or pandas.isnull(row['Bairro'])) and pandas.notnull(row['CEP residência']):
-                notification = Notification.objects.get(id = int(row['ID']))
-                print("Pre processando notificacao de ID: "+str(row['ID']))
-
-                CEP = str(row['CEP residência'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
-                addressJSON = requestData(request=CEP, type='google')
-                if pandas.notnull(addressJSON):
-                    country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
-
-                    if pandas.isnull(row['Bairro']):
-                        addressJSON = requestData(request=str(row['CEP residência']), type='cep')
-                        neighborhood = addressJSON['bairro']
-                        df.at[index,'Bairro'] = neighborhood
-                        notification.bairro = neighborhood
-
-                    if pandas.isnull(row['Latitude']):
-                        df.at[index,'Latitude'] = latitude
-                        notification.latitude = latitude
-                        df.at[index,'Longitude'] = longitude
-                        notification.longitude = longitude
-                    if pandas.notnull(country):
-                        df.at[index,'País de residência'] = country
-                        notification.pais_residencia = country
-                    if pandas.notnull(state):
-                        df.at[index,'Estado de residência'] = state
-                        notification.estado_residencia = state
-                    if pandas.notnull(city):
-                        df.at[index,'Município'] = city
-                        notification.municipio = city
-                else:
-                    print('Erro na busca do google maps')
-            notification.save() 
-
-        for index, row in df.iterrows():
-            if pandas.notnull(row['País de residência']):
-                df.at[index,'País de residência'] = str(row['País de residência']).title()
-            if pandas.notnull(row['Estado de residência']):
-                df.at[index,'Estado de residência'] = str(row['Estado de residência']).title()
-            if pandas.notnull(row['Município']):
-                df.at[index,'Município'] = str(row['Município']).title()
-            if pandas.notnull(row['Endereço completo']):
-                df.at[index,'Endereço completo'] = str(row['Endereço completo']).title()
-            if pandas.notnull(row['Endereço completo']):
-                df.at[index,'Endereço completo'] = str(row['Endereço completo']).title()
-            if pandas.notnull(row['Situação de saúde do paciente no momento da notificação']):
-                df.at[index,'Situação de saúde do paciente no momento da notificação'] = str(row['Situação de saúde do paciente no momento da notificação']).title()
-            if pandas.notnull(row['Outro local de transmissão, descrever (cidade, região, país)']):
-                df.at[index,'Outro local de transmissão, descrever (cidade, região, país)'] = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
-            if pandas.notnull(row['Estado de notificação (UF)']):
-                df.at[index,'Estado de notificação (UF)'] = str(row['Estado de notificação (UF)']).title()
-            if pandas.notnull(row['Município de notificação']):
-                df.at[index,'Município de notificação'] = str(row['Município de notificação']).title()
-            if pandas.notnull(row['Coleta de exames']):
-                df.at[index,'Coleta de exames'] = str(row['Coleta de exames']).title()
-            if pandas.notnull(row['Coleta de exames']):
-                df.at[index,'Classificação final'] = str(row['Classificação final']).title()
-            if pandas.notnull(row['Classificação final']):
-                df.at[index,'Resultado'] = str(row['Resultado']).title()
-            if pandas.notnull(row['INTERNADO']):
-                df.at[index,'INTERNADO'] = str(row['INTERNADO']).title()
-            if pandas.notnull(row['EVOLUÇÃO']):
-                df.at[index,'EVOLUÇÃO'] = str(row['EVOLUÇÃO']).title()
-
-        df = df.replace({None: np.nan})
 
         df.to_csv(PATH_FILES+'base_preprocessada.csv')
         os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok'+BASE_NAME)
