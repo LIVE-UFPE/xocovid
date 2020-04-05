@@ -39,7 +39,7 @@ def home(request):
             pins.append({
                 "latitude": notification.latitude,
                 "longitude": notification.longitude,
-                "data_notificacao": notification.data_notificacao.ctime() if type(notification.data_notificacao) is not type(None) else 'Wed Dec  4 00:00:00 2002',
+                "data_notificacao": notification.data_notificacao.isoformat() if type(notification.data_notificacao) is not type(None) else '2000-01-01',
                 "bairro": notification.bairro,
                 # TODO adicionar entradas futuramente relevantes
             })

@@ -14,10 +14,13 @@ module.exports = {
             circle: null,
             polygon: null,
             position: L.latLng(-8.046, -34.927),
+            heatmap: null,
         } 
     },
+    // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
     props: {
-        pins: Array
+        pins: Array,
+        datedb: Date,
     },
     mounted: function (){
         // TODO resolve location
@@ -51,6 +54,29 @@ module.exports = {
         }).addTo(this.mymap);
 
 
+        let pinsLen = this.pins.length;
+        let pins_heat = []
+        for( var i = 0; i < pinsLen; i++){
+            let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
+            pins_heat.push(coord)
+        }
+
+        // minOpacity - the minimum opacity the heat will start at
+        // maxZoom - zoom level where the points reach maximum intensity (as intensity scales with zoom), equals maxZoom of the map by default
+        // max - maximum point intensity, 1.0 by default
+        // radius - radius of each "point" of the heatmap, 25 by default
+        // blur - amount of blur, 15 by default
+        // gradient - color gradient config, e.g. {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+        this.heatmap = L.heatLayer(pins_heat,{
+            gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
+            minOpacity: 0.37,
+        });
+
+        this.heatmap.addTo(this.mymap);
+
+        console.log(`adicionando um total de ${pinsLen} no mapa`)
+
+
         // DEBUG cluster de pins
         // this.circle = L.circle([-8.044, -34.927], {
         //     color: 'red',
@@ -59,37 +85,45 @@ module.exports = {
         //     radius: 750
         // }).addTo(this.mymap);
 
-        let pinsLen = pins.length;
-        let pins_heat = []
-        for( var i = 0; i < pinsLen; i++){
-            let coord = L.latLng(pins[i].latitude, pins[i].longitude);
-            pins_heat.push(coord)
-        }
-
-
-        // minOpacity - the minimum opacity the heat will start at
-        // maxZoom - zoom level where the points reach maximum intensity (as intensity scales with zoom), equals maxZoom of the map by default
-        // max - maximum point intensity, 1.0 by default
-        // radius - radius of each "point" of the heatmap, 25 by default
-        // blur - amount of blur, 15 by default
-        // gradient - color gradient config, e.g. {0.4: 'blue', 0.65: 'lime', 1: 'red'}
-        L.heatLayer(pins_heat,{
-            gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
-            minOpacity: 0.37,
-        }).addTo(this.mymap);
-
         // DEBUG mapa com pins
         // for( var i = 0; i < pinsLen; i++){
         //     let coord = L.latLng(pins[i].latitude, pins[i].longitude);
         //     L.marker(coord,{title: 'Caso confirmado de COVID-19'}).addTo(this.mymap);
         // }
-        console.log(`adicionando um total de ${pinsLen} no mapa`)
+    },
+    computed: {
+        // * abreviado de datewatch: function (){}
+        datewatch() {
+            return this.datedb;
+        },
+    },
+    watch: {
+        // ? mudar o array de entrada do heatmap de acordo com o botão pressionado em home.html
+        // * abreviado de datewatch: function (){}
+        datewatch() {
+            let pinsLen = this.pins.length;
+            let pins_heat = [];
+            let data_notification = new Date();
+            // DEBUG lista pro console.log
+            let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
+            
+            // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
+            for( var i = 0; i < pinsLen; i++){
 
-        // L.polygon([
-        //     [-8.05, -33.927],
-        //     [-8.055, -32.927],
-        //     [-8.060, -33.927]
-        // ]).addTo(mymap);
+                // TODO think of UTC issue
+                data_notification = new Date(this.pins[i].data_notificacao);
+                // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
+                if (data_notification <= this.datedb){
+                    let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
+                    pins_heat.push(coord)
+                }else{
+                    cons_log += 'pin com data ' + data_notification.toISOString() + '\n'
+                }
+            }
+
+            this.heatmap.setLatLngs(pins_heat);
+            console.log(cons_log)
+        }
     }
 }
 </script>
