@@ -215,18 +215,18 @@
               </div> 
             </v-btn>
   
-            <v-btn >
+            <v-btn @click="dateBack">
               <span style="color:#1E9CF8">Voltar</span>
               <v-icon size="55" color="#1E9CF8">mdi-chevron-left-box</v-icon>
             </v-btn>
         
             <v-btn disabled style="background-color: white !important;" >
               <div class="text-center">
-                <v-list-item-title style="color:#1E9CF8;font-size: x-large;"><b>21/03/2020</b></v-list-item-title>
+                <v-list-item-title style="color:#1E9CF8;font-size: x-large;"><b>[[datedb.toLocaleString('en-GB').substring(0,10)]]</b></v-list-item-title>
               </div> 
             </v-btn>
         
-            <v-btn>
+            <v-btn @click="dateForward">
               <span style="color:#1E9CF8;">Avançar</span>
               <v-icon size="55" color="#1E9CF8">mdi-chevron-right-box</v-icon>
             </v-btn>
@@ -331,7 +331,7 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <covid-map :pins="pins" ></covid-map>
+      <covid-map :pins="pins" :datedb="datedb" ></covid-map>
     </v-app>
   </div>
 </html>
