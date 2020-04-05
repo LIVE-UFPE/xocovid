@@ -76,7 +76,7 @@ def register(request):
 
 @login_required
 def graphs(request):
-    return render(request, 'graphs.html')
+    return render(request, 'graphs.html', {'items_json':'1'})
 
 def user_login(request):
     if request.user.is_authenticated:
