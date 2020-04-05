@@ -156,12 +156,21 @@
             // ? "event" is the native DOM event == "event" é o evento relacionado a esse método, se existente. se o event é o @click de um button, você pode acessar o elemento e suas propriedades, por exemplo 
             dateBack: function (event) {
                 let test = new Date(this.datedb);
-                //console.log("test = "+test+" e datedb = "+this.datedb+' - 1');
                 test.setDate( test.getDate() - 1 );
-                //console.log("test = "+test+" e datedb = "+this.datedb+' - 2');
                 this.datedb = test;
                 console.log("voltando um dia!("+this.datedb.toLocaleString('en-GB')+")");
             },
+            dateForward: function (event) {
+                let test = new Date(this.datedb);
+                test.setDate( test.getDate() + 1 );
+                // tentou avançar além de hoje
+                if(test > new Date()) {
+                    console.log("não podemos avançar além de hoje pois a IA não foi integrada!")
+                }else{
+                    this.datedb = test;
+                    console.log("avançando um dia!("+this.datedb.toLocaleString('en-GB')+")");
+                }
+            }
         }
     });
     // TODO master stylesheet

@@ -106,6 +106,7 @@ module.exports = {
             let data_notification = new Date();
             // DEBUG lista pro console.log
             let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
+            let qtd_pins_excluidos = 0
             
             // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
             for( var i = 0; i < pinsLen; i++){
@@ -117,10 +118,11 @@ module.exports = {
                     let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
                     pins_heat.push(coord)
                 }else{
-                    cons_log += 'pin com data ' + data_notification.toISOString() + '\n'
+                    cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
+                    qtd_pins_excluidos += 1;
                 }
             }
-
+            cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
             this.heatmap.setLatLngs(pins_heat);
             console.log(cons_log)
         }
