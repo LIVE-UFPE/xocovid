@@ -74,6 +74,10 @@ def register(request):
     
     return render(request,'registration.html',context)
 
+@login_required
+def graphs(request):
+    return render(request, 'graphs.html')
+
 def user_login(request):
     if request.user.is_authenticated:
         return home(request)

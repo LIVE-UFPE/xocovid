@@ -20,7 +20,8 @@
         <script src="https://unpkg.com/http-vue-loader"></script>
         <!-- esse /\ é o import que permite usar componentes em vue -->
         <!-- fim dos imports de Vue -->
-
+        <!-- Vue chart js imports -->
+         
         <!-- * Leaflet imports -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
             integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
@@ -79,8 +80,7 @@
 </html>
 
 <script>
-    var pins = {{ items_json|safe }};
-
+    // var pins = {{ items_json|safe }};
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -99,13 +99,23 @@
                 },
             },
         }),
+        methods: {
+            printName: function (value){
+                console.log("Teste ", value);
+            }
+        },
         components: {
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'vue-views/login.vue' %}"),
-            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}")
+            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}"),
+            've-line': httpVueLoader("{% static 'vue-views/graph.vue' %}")
+            
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            itemsChips: ['teste', 'bar', 'fizz', 'buzz'],
+            values: null,
+            value: null,
             sheet: false,
             base: 0,
             activeBtn: 1,
@@ -137,6 +147,17 @@
                 subtitle: "<span class='text--primary'>Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.",
                 },
             ],
+            chartData: {
+                columns: ['date', 'sales'],
+                    rows: [
+                    { 'date': '1月1日', 'sales': 123 },
+                    { 'date': '1月2日', 'sales': 1223 },
+                    { 'date': '1月3日', 'sales': 2123 },
+                    { 'date': '1月4日', 'sales': 4123 },
+                    { 'date': '1月5日', 'sales': 3123 },
+                    { 'date': '1月6日', 'sales': 7123 }
+                ]
+            },
             disabled: false,
             dense: false,
             twoLine: false,
@@ -149,7 +170,7 @@
             nav: false,
             avatar: false,
             rounded: false,
-            pins: pins
+            // pins: pins
         }),
     });
     // TODO master stylesheet
