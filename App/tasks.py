@@ -1,4 +1,4 @@
-from .models import Listener, Notification
+from .models import Notification
 import json
 import requests
 import pandas

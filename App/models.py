@@ -31,6 +31,3 @@ class Notification(models.Model):
     bairro = models.CharField(max_length = 20, null=True)
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
-
-class Listener(models.Model):
-    lastId = models.IntegerField()
