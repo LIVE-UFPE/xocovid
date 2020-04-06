@@ -31,3 +31,8 @@ class Notification(models.Model):
     bairro = models.CharField(max_length = 20, null=True)
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
+
+class Prediction(models.Model):
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    prediction = models.FloatField(null=True)
