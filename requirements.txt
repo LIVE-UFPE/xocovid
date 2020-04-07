@@ -1,5 +1,5 @@
+django
 django-background-tasks
-oauth2client
-gspread
 pandas
 numpy
+sklearn
