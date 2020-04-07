@@ -21,6 +21,7 @@ module.exports = {
     props: {
         pins: Array,
         datedb: Date,
+        predicts: Array,
     },
     mounted: function (){
         // TODO resolve location
@@ -123,6 +124,18 @@ module.exports = {
                 }
             }
             cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
+
+            let predLen = this.predicts.length;
+            // DEBUG se em algum momento eu pego o array de prediçoes
+            cons_log += 'predLen: ' + predLen.toString() + '\n';
+            // * insere array de predições, vazio caso não seja hora de inserir
+            if (predLen != [].length) {
+                    for( var i = 0; i < predLen; i++){
+                    pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                }
+                cons_log += '\nInserindo pins da IA também!';
+            }
+
             this.heatmap.setLatLngs(pins_heat);
             console.log(cons_log)
         }

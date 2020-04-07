@@ -331,7 +331,7 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <covid-map :pins="pins" :datedb="datedb" ></covid-map>
+      <covid-map :pins="pins" :datedb="datedb" :predicts="useIa ? predicts : []" ></covid-map>
     </v-app>
   </div>
 </html>

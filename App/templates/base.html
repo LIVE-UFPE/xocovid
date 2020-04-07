@@ -80,6 +80,7 @@
 
 <script>
     var pins = {{ items_json|safe }};
+    var predicts = {{ predicts_json|safe }}
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
@@ -151,6 +152,8 @@
             rounded: false,
             pins: pins,
             datedb: new Date(),
+            predicts: predicts,
+            useIa: false,
         }),
         methods: {
             // ? "event" is the native DOM event == "event" é o evento relacionado a esse método, se existente. se o event é o @click de um button, você pode acessar o elemento e suas propriedades, por exemplo 
@@ -158,18 +161,35 @@
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() - 1 );
                 test.setHours(23,59,58);
+
+                let today = new Date();
+                today.setHours(0,0,0);
+                if( test < today ){
+                    this.useIa = false;
+                    console.log("não usando mais predições!")
+                }
+
                 this.datedb = test;
                 console.log("voltando um dia!("+this.datedb.toLocaleString('en-GB')+")");
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() + 1 );
-                // tentou avançar além de hoje
-                if(test > new Date().setHours(23,59,59)) {
-                    console.log("não podemos avançar além de hoje pois a IA não foi integrada!")
-                }else{
+                let today = new Date();
+                today.setHours(23,59,59);
+                let tomorrow = new Date(today);
+                tomorrow.setDate( today.getDate() + 1 );
+
+                // se estou além de meia noite de hj e antes de meia noite de amanha
+                if(test > today && test < tomorrow ) {
+                    console.log("entrando nas predições!");
+                    this.useIa = true;
+                    this.datedb = test;
+                }else if(test < today){
                     this.datedb = test;
                     console.log("avançando um dia!("+this.datedb.toLocaleString('en-GB')+")");
+                }else {
+                    console.log("não podemos avançar mais do que amanhã!");
                 }
             }
         }

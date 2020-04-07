@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Notification
+from .models import Prediction
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager
 from django.db.models.query import QuerySet
@@ -24,11 +25,12 @@ def index(request):
 def home(request):
     context = {}
     pins = []
+    predicts = []
     notifications = list(Notification.objects.all())
+    predictions = list(Prediction.objects.all())
     # DEBUG counter for null types
     null_notes = 0
     for notification in notifications:
-        # if type(notification.data_notificacao) != type(NoneType()):
         try:
             if type(notification.latitude) is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
                 null_notes += 1
@@ -47,7 +49,15 @@ def home(request):
     # DEBUG type test
     print("De",len(notifications),",",null_notes,"tem dados nulos")
 
+    for prediction in predictions:
+        predicts.append({
+            "latitude": prediction.latitude,
+            "longitude": prediction.longitude,
+            "intensidade": prediction.prediction,
+        })
+
     context["items_json"] = json.dumps(pins)
+    context["predicts_json"] = json.dumps(predicts)
     return render(request, 'home.html',context)
 
 @login_required
