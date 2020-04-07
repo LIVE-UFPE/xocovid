@@ -123,3 +123,4 @@ CRUD é a base de qualquer framework
 ! Só que tem mais um detalhe!!!
 para acessar essa função, devemos especificar uma rota através do sistema de rotas do Django.
 """
+
