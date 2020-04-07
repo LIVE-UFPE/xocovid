@@ -20,6 +20,28 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def index(request):
     return render(request, 'index.html')
 
+def base(request):
+    bairros = []
+    cidades = []
+    estados = []
+    notifications = list(Notification.objects.all())
+    # DEBUG counter for null types
+    
+    for notification in notifications:
+        # if type(notification.data_notificacao) != type(NoneType()):
+        try:
+            if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
+                
+                if (notification.bairro not in bairros):
+                    bairros.append([notification.bairro])
+                    cidades.append(notification.municipio)
+                    estados.append(notification.estado_residencia)
+        except TypeError:
+            print(notification.bairro)
+    
+    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
+
+
 @login_required
 def home(request):
     context = {}
@@ -76,7 +98,27 @@ def register(request):
 
 @login_required
 def graphs(request):
-    return render(request, 'graphs.html', {'items_json':'1'})
+    bairros = []
+    cidades = []
+    estados = []
+    notifications = list(Notification.objects.all())
+    # DEBUG counter for null types
+    
+    for notification in notifications:
+        # if type(notification.data_notificacao) != type(NoneType()):
+        try:
+            if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
+                
+                if (notification.bairro not in bairros):
+                    bairros.append(notification.municipio  + '/' + notification.estado_residencia + ' - ' + notification.bairro  )
+                    cidades.append(notification.municipio)
+                    estados.append(notification.estado_residencia)
+                    
+        except TypeError:
+            print(notification.bairro)
+            
+    
+    return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
 
 def user_login(request):
     if request.user.is_authenticated:
