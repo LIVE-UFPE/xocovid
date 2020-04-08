@@ -163,7 +163,7 @@
                 test.setHours(23,59,58);
 
                 let today = new Date();
-                today.setHours(0,0,0);
+                today.setHours(23,59,59);
                 if( test < today ){
                     this.useIa = false;
                     console.log("não usando mais predições!")

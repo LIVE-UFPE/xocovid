@@ -47,6 +47,7 @@ module.exports = {
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            // DEBUG com 15 de zoom os pontos da predição já se agrupam
             maxZoom: 18,
             id: 'mapbox/streets-v11',
             tileSize: 512,
@@ -71,26 +72,12 @@ module.exports = {
         this.heatmap = L.heatLayer(pins_heat,{
             gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
             minOpacity: 0.37,
+            radius: 25
         });
 
         this.heatmap.addTo(this.mymap);
 
         console.log(`adicionando um total de ${pinsLen} no mapa`)
-
-
-        // DEBUG cluster de pins
-        // this.circle = L.circle([-8.044, -34.927], {
-        //     color: 'red',
-        //     fillColor: '#f03',
-        //     fillOpacity: 0.5,
-        //     radius: 750
-        // }).addTo(this.mymap);
-
-        // DEBUG mapa com pins
-        // for( var i = 0; i < pinsLen; i++){
-        //     let coord = L.latLng(pins[i].latitude, pins[i].longitude);
-        //     L.marker(coord,{title: 'Caso confirmado de COVID-19'}).addTo(this.mymap);
-        // }
     },
     computed: {
         // * abreviado de datewatch: function (){}
@@ -102,38 +89,52 @@ module.exports = {
         // ? mudar o array de entrada do heatmap de acordo com o botão pressionado em home.html
         // * abreviado de datewatch: function (){}
         datewatch() {
-            let pinsLen = this.pins.length;
             let pins_heat = [];
-            let data_notification = new Date();
             // DEBUG lista pro console.log
             let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
             let qtd_pins_excluidos = 0
-            
-            // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
-            for( var i = 0; i < pinsLen; i++){
-
-                // TODO think of UTC issue
-                data_notification = new Date(this.pins[i].data_notificacao);
-                // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
-                if (data_notification <= this.datedb){
-                    let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
-                    pins_heat.push(coord)
-                }else{
-                    cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
-                    qtd_pins_excluidos += 1;
-                }
-            }
-            cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
-
             let predLen = this.predicts.length;
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
-                    for( var i = 0; i < predLen; i++){
-                    pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                for( var i = 0; i < predLen; i++){
+                    ////  filtrando probabilidades menores que X
+                    //// if (this.predicts[i].intensidade > 0.05) {
+                        pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                        cons_log += 'intensidade da predição: ' + this.predicts[i].intensidade.toString() + '\n';
+                    //// }
                 }
-                cons_log += '\nInserindo pins da IA também!';
+                cons_log += '\nInserindo pins da IA!';
+                this.heatmap.setOptions({
+                    gradient: {0.25: 'lightgreen',0.5: 'green', 0.75: 'yellow', 1: 'red'},
+                    minOpacity: 0,
+                    // DEBUG diminuindo raio enquanto não tem normalizado 
+                    radius: 20
+                });
+            }else{
+                let pinsLen = this.pins.length;
+                let data_notification = new Date();
+                // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
+                for( var i = 0; i < pinsLen; i++){
+
+                    // TODO think of UTC issue
+                    data_notification = new Date(this.pins[i].data_notificacao);
+                    // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
+                    if (data_notification <= this.datedb){
+                        let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
+                        pins_heat.push(coord)
+                    }else{
+                        cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
+                        qtd_pins_excluidos += 1;
+                    }
+                }
+                cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
+                this.heatmap.setOptions({
+                    gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
+                    minOpacity: 0.37,
+                    radius: 25
+                });
             }
 
             this.heatmap.setLatLngs(pins_heat);

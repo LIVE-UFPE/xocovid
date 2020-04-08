@@ -7,7 +7,8 @@ from itertools import islice
 from background_task import background
 import os
 from datetime import datetime, timedelta
-import App.IA.pipeline as pipe
+# TODO tirar ao jogar na master
+# import App.IA.pipeline as pipe
 
 collum_names = [
   'ID',              
