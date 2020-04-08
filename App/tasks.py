@@ -83,7 +83,7 @@ def listener():
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
-
+        
     print("Listener parado")
 
 def send_prediction_to_db():
@@ -97,7 +97,7 @@ def send_prediction_to_db():
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['lat'], row['lng'], row['prediction']])
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction']])
 
     objs = [
         Prediction(
