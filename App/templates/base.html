@@ -3,6 +3,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script type="text/javascript" src="../static/filter.json"></script>
+
         <meta charset="utf-8">
         <title>XoCovid</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
@@ -20,6 +22,9 @@
         <script src="https://unpkg.com/http-vue-loader"></script>
         <!-- esse /\ é o import que permite usar componentes em vue -->
         <!-- fim dos imports de Vue -->
+
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/line.min.js"></script>
 
         <!-- * Leaflet imports -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
@@ -79,8 +84,8 @@
 </html>
 
 <script>
-    var pins = {{ items_json|safe }};
-    var predicts = {{ predicts_json|safe }}
+    // var pins = {{ items_json|safe }};
+    // var predicts = {{ predicts_json|safe }}
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
@@ -103,10 +108,20 @@
         components: {
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'vue-views/login.vue' %}"),
-            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}")
+            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}"),
+            VeLine
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            itemsChips: [],
+            itemsChipsC: [],
+            itemsChipsD: [],
+            itemsChipsR: [],
+            values: null,
+            valuesC:  null,
+            valuesD: null,
+            valuesR: null,
+            value: null,
             sheet: false,
             base: 0,
             activeBtn: 1,
@@ -138,6 +153,24 @@
                 subtitle: "<span class='text--primary'>Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.",
                 },
             ],
+            chartData: {
+                columns: ['date', 'cost', 'profit', 'growthRate', 'people'],
+                rows: [
+                    { 'cost': 1523, 'date': '01/01', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
+                    { 'cost': 1223, 'date': '01/02', 'profit': 1523, 'growthRate': 0.345, 'people': 100 },
+                    { 'cost': 2123, 'date': '01/03', 'profit': 1523, 'growthRate': 0.7, 'people': 100 },
+                    { 'cost': 4123, 'date': '01/04', 'profit': 1523, 'growthRate': 0.31, 'people': 100 },
+                    { 'cost': 3123, 'date': '01/05', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
+                    { 'cost': 7123, 'date': '01/06', 'profit': 1523, 'growthRate': 0.65, 'people': 100 }
+                ]
+            },
+            icons: [
+                'mdi-download',
+                'fab fa-twitter',
+                'fab fa-google-plus',
+                'fab fa-linkedin',
+                'fab fa-instagram',
+            ],
             disabled: false,
             dense: false,
             twoLine: false,
@@ -150,13 +183,40 @@
             nav: false,
             avatar: false,
             rounded: false,
-            pins: pins,
+            // pins: pins,
             datedb: new Date(),
-            predicts: predicts,
+            // predicts: predicts,
             useIa: false,
         }),
         methods: {
-            // ? "event" is the native DOM event == "event" é o evento relacionado a esse método, se existente. se o event é o @click de um button, você pode acessar o elemento e suas propriedades, por exemplo 
+            printName: function (value){
+                console.log("Teste ", value);
+            },
+            setCity: function (value){
+                var objC = [];
+                value.forEach(selecao =>{
+                    data[0].estados.forEach(estado => {
+                        if(estado.nome == selecao){
+                            objC = objC.concat(estado.cidades)
+                        }    
+                    });
+                });
+                Vue.set(app, 'itemsChipsC', objC)
+            },
+            setDistrict: function (value){
+                var objD = [];
+                value.forEach(selecao =>{
+                    data[0].bairros.forEach(cidade => {
+                        console.log("Cidade e value", cidade, Object.keys(cidade), value)
+                        if(Object.keys(cidade)[0] == selecao){
+                            objD = objD.concat(cidade[Object.keys(cidade)[0]]);
+                        }
+                    });
+                });
+                console.log("objD: ",objD);
+                Vue.set(app, 'itemsChipsD', objD)
+            },
+            
             dateBack: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() - 1 );
@@ -194,5 +254,18 @@
             }
         }
     });
-    // TODO master stylesheet
+    //Filter module
+    var obj = [];
+    data[0].estados.forEach(estado => {
+        obj.push(estado.nome);
+        
+    });
+    // console.log("Data: ", obj)
+    Vue.set(app, 'itemsChips', obj)
+    // console.log("Values: ", value, values);
+    //Filter module city
+
+    
+
+    
 </script>
