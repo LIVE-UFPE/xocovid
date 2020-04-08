@@ -96,16 +96,14 @@ module.exports = {
             let predLen = this.predicts.length;
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
+            let maior_int = 0.0
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 for( var i = 0; i < predLen; i++){
-                    ////  filtrando probabilidades menores que X
-                    //// if (this.predicts[i].intensidade > 0.05) {
-                        pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
-                        cons_log += 'intensidade da predição: ' + this.predicts[i].intensidade.toString() + '\n';
-                    //// }
+                    pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                    if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
                 }
-                cons_log += '\nInserindo pins da IA!';
+                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+'\n';
                 this.heatmap.setOptions({
                     gradient: {0.25: 'lightgreen',0.5: 'green', 0.75: 'yellow', 1: 'red'},
                     minOpacity: 0,
