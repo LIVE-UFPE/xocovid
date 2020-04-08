@@ -17,32 +17,28 @@ def avaliando(y_test, y_pred):
 
 def main():
     # Divide o em trino e teste
-    COVID_Train = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_08-03.csv', encoding='ISO-8859-1', sep=',')
-    COVID_Train = COVID_Train.drop('Unnamed: 0', axis=1).to_numpy()
-    for index in range(9,20):#TODO: ajeitar o range (Qual intervalo de dias analisar?)
-        print(index)
-        if(index < 10):
-            a = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_0'+str(index)+'-03.csv', encoding='ISO-8859-1', sep=',')
-        else:
-            a = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_'+str(index)+'-03.csv', encoding='ISO-8859-1', sep=',')
+    pasta = os.path.join(os.path.dirname(__file__))+'/bases predicao'            
+    caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
+    arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
 
-    a = a.drop('Unnamed: 0', axis=1) 
-    COVID_Train = np.concatenate((COVID_Train, a), axis=0)
+    arquivos.sort()
 
-    COVID_Test = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_20-03.csv', encoding='ISO-8859-1', sep=',')
-    COVID_Test = COVID_Test.drop('Unnamed: 0', axis=1).to_numpy()
-    for index in range(21,24):
-        print(index)
-        a = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_'+str(index)+'-03.csv', encoding='ISO-8859-1', sep=',')
-        a = a.drop('Unnamed: 0', axis=1) 
+    COVID_Train = pd.read_csv(arquivos[0],  sep=',')
+    for addressFile in arquivos[:int(0.7*len(arquivos))]:#TODO: ajeitar o range (Qual intervalo de dias analisar?)
+        a = pd.read_csv(addressFile,sep=',')
+        COVID_Train = np.concatenate((COVID_Train, a), axis=0)
+
+    COVID_Test = pd.read_csv(arquivos[int(0.7*len(arquivos))], sep=',')
+    for addressFile in arquivos[int(0.7*len(arquivos))+1:]:#TODO: ajeitar o range (Qual intervalo de dias analisar?)
+        a = pd.read_csv(addressFile, sep=',')
         COVID_Test = np.concatenate((COVID_Test, a), axis=0)
     print(COVID_Train.shape)
     print(COVID_Test.shape)
 
 
-    x_import = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/interpolado/predicao_covid19_23-03.csv', encoding='ISO-8859-1', sep=',')
-    x_import = x_import.drop('Unnamed: 0', axis=1)
-    print(x_import.head())
+    # x_import = pd.read_csv('./interpolado/predicao_covid19_23-03.csv', encoding='ISO-8859-1', sep=',')
+    # x_import = x_import.drop('Unnamed: 0', axis=1)
+    # print(x_import.head())
 
     #Aplicando IA
     #dividindo o dataset
@@ -54,35 +50,31 @@ def main():
     
 
     
-    ##GradientBosstingRegressor
+    # ##GradientBosstingRegressor
     est = GradientBoostingRegressor(n_estimators=50, learning_rate=0.1,
         max_depth=1, random_state=0, loss='ls').fit(X_train, y_train)
     mean_squared_error(y_test, est.predict(X_test))
     y_pred = est.predict(X_test)
     avaliando(y_test, y_pred)
 
+    
+    
+    # # ### LinearRegression
+    linear_regression = LinearRegression()
+    linear_regression.fit(X_train, y_train)
+    y_pred = linear_regression.predict(X_test)
+    avaliando(y_test, y_pred)
     df2 = pd.DataFrame(COVID_Test,columns=['lat', 'lng', 'd1','d2','d3','prediction'])
     df2 = df2[['lat','lng','prediction']]
     df2['prediction'] = y_pred
-    df2.to_csv('saida3.csv')
-
-    
-    # ### LinearRegression
-    # linear_regression = LinearRegression()
-    # linear_regression.fit(X_train, y_train)
-    # y_pred = linear_regression.predict(X_test)
-    # avaliando(y_test, y_pred)
-
-    # ### SVR Regression
-    # svr_lin = SVR(kernel='linear', C=100, gamma='auto').fit(X_train, y_train)
-    # y_pred = svr_lin.predict(X_test)
-    # avaliando(y_test, y_pred)
-
-    
-
-    
+    max_value = df2['prediction'].max()
+    min_value = df2['prediction'].min()
+    print(min_value,max_value)
+    df2['prediction'] = (df2['prediction'] - min_value) / (max_value - min_value)
+    df2.to_csv('saidaFinal.csv', index = False)
 
 
-    
-
-
+    # # ### SVR Regression
+    # # svr_lin = SVR(kernel='linear', C=100, gamma='auto').fit(X_train, y_train)
+    # # y_pred = svr_lin.predict(X_test)
+    # # avaliando(y_test, y_pred)

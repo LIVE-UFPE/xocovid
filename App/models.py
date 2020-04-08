@@ -45,4 +45,3 @@ class Prediction(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
     prediction = models.FloatField(null=True)
-    data = models.DateField(null=True)

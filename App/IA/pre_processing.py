@@ -3,69 +3,71 @@ import numpy as np
 import json
 import requests
 from itertools import islice
+import os
 
-def main():
-
-	PATH_BASE = './entrada.csv'
+def requestData(request=None, type='google'):
 	APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI' # ESSA KEY É A MINHA (GABRIEL MARQUES) KEY DA  API DO GOOGLE MAPS
 													# ESTOU DEIXANDO ELA AQUI PQ SOU UMA PESSOA LEGAL
 													# MAS O IDEAL É QUE TU USE A SUA =)
 
-	def requestData(request=None, type='google'):
-		if type=='google':
-			url_api = ('https://maps.googleapis.com/maps/api/geocode/json?address='+request+'&key='+APIKEY)
-		elif type=='cep':
-			url_api = ('http://cep.republicavirtual.com.br/web_cep.php?cep='+request+'&formato=json')
+	if type=='google':
+		url_api = ('https://maps.googleapis.com/maps/api/geocode/json?address='+request+'&key='+APIKEY)
+	elif type=='cep':
+		url_api = ('http://cep.republicavirtual.com.br/web_cep.php?cep='+request+'&formato=json')
 
-		req = requests.get(url_api)
-		if req.status_code == 200:
-			dados_json = json.loads(req.text)
-			return dados_json
+	req = requests.get(url_api)
+	if req.status_code == 200:
+		dados_json = json.loads(req.text)
+		return dados_json
 
-	def getDatas(json):
-		country = None
-		state = None
-		city = None
-		neighborhood = None
-		cep = None
-		latitude = None
-		longitude = None	
+def getDatas(json):
+	country = None
+	state = None
+	city = None
+	neighborhood = None
+	cep = None
+	latitude = None
+	longitude = None	
 
-		try:
-			for data in json[0]['address_components']:
-				if 'country' in data['types']:
-					country = data['long_name']
+	try:
+		for data in json[0]['address_components']:
+			if 'country' in data['types']:
+				country = data['long_name']
 
-				if 'administrative_area_level_1' in data['types']:
-					state = data['long_name']
+			if 'administrative_area_level_1' in data['types']:
+				state = data['long_name']
 
-				if 'administrative_area_level_2' in data['types']:
-					city = data['long_name']
+			if 'administrative_area_level_2' in data['types']:
+				city = data['long_name']
 
-				if 'sublocality' in data['types']:
-					neighborhood = data['long_name']
+			if 'sublocality' in data['types']:
+				neighborhood = data['long_name']
 
-				if 'postal_code' in data['types']:
-					cep = data['long_name']
+			if 'postal_code' in data['types']:
+				cep = data['long_name']
 
-			latitude = json[0]['geometry']['location']['lat']
-			longitude = json[0]['geometry']['location']['lng']
-		except:
-			print('Erro na busca do google maps')
-		
-		return country, state, city, neighborhood, cep, latitude, longitude
+		latitude = json[0]['geometry']['location']['lat']
+		longitude = json[0]['geometry']['location']['lng']
+	except:
+		print('Erro na busca do google maps')
+	
+	return country, state, city, neighborhood, cep, latitude, longitude
+def main():
 
-
-
+	PATH_BASE = os.path.join(os.path.dirname(__file__))+'/entradaPreProcessada.csv'
+	
 	df = pandas.read_csv(PATH_BASE)
+	df = df[df['Classificação final'].str.lower() == 'confirmado']
+	df = df[df['Município'].str.lower() == 'recife']
+	
+	print('Casos confirmados em Recife',df.shape)
 
 	#MODIFICAÇÃO
 	df["Bairro"] = None
 	df["Latitude"] = None
 	df["Longitude"] = None
-
 	for index, row in df.iterrows():
-		print("Normalizando a linha "+str(index))
+		print("Geocodificando a linha "+str(index))
 
 		address = str(row['Endereço completo'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
 		addressJSON = requestData(request=address, type='google')
@@ -90,7 +92,7 @@ def main():
 
 	for index, row in df.iterrows():
 		if (pandas.isnull(row['Município']) or pandas.isnull(row['Estado de residência']) or pandas.isnull(row['País de residência']) or pandas.isnull(row['Latitude']) or pandas.isnull(row['Bairro'])) and pandas.notnull(row['CEP residência']):
-			print("Normalizando a linha "+str(index))
+			print("Geocodificando a linha "+str(index))
 
 			CEP = str(row['CEP residência'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
 			addressJSON = requestData(request=CEP, type='google')
@@ -116,5 +118,7 @@ def main():
 				print('Erro na busca do google maps')
 
 	df = df.replace({np.nan: None})
-	df.to_csv('base_preprocessada.csv')
-	df[['Bairro','Latitude','Longitude']].to_csv('saida1.csv')
+	df.to_csv('saidaPreProcessada.csv',index ='False')
+	# df[['Data Atualização','Bairro','Latitude','Longitude']].to_csv('saida1.csv',index ='False')
+	df = df[['Data Atualização','Bairro','Latitude','Longitude']]
+	

@@ -7,8 +7,8 @@ from itertools import islice
 from background_task import background
 import os
 from datetime import datetime, timedelta
-# TODO tirar ao jogar na master
-# import App.IA.pipeline as pipe
+import App.IA.pipeline as pipe
+from django.utils import timezone
 
 collum_names = [
   'ID',              
@@ -56,7 +56,7 @@ parse_dates = [
 ]
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
-BASE_NAME = 'base.csv'
+BASE_NAME = 'base_original.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -87,24 +87,24 @@ def listener():
     print("Listener parado")
 
 def send_prediction_to_db():
+    Prediction.objects.all().delete()
+
     df = pandas.read_csv(
-        PATH_FILES+'saida3.csv',
+        PATH_FILES+'saidaFinal.csv',
         header = 0
     )
     print("Armazenando predicoes")
 
-    data = Notification.objects.order_by('-data_notificacao')[0].data_notificacao + timedelta(days=1)
-
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([row['lat'], row['lng'], row['prediction'], data])
+        predictions.append([index, row['lat'], row['lng'], row['prediction']])
 
     objs = [
         Prediction(
-            latitude=m[0],
-            longitude=m[1],
-            prediction=m[2],
-            data=m[3]
+            id=m[0],
+            latitude=m[1],
+            longitude=m[2],
+            prediction=m[3],
         )
         for m in predictions
     ]
@@ -146,9 +146,6 @@ def build_IAbase():
         'Resultado': [],
         'INTERNADO': [],
         'EVOLUÇÃO': [],
-        'Bairro': [],
-        'Latitude': [],
-        'Longitude': []
     }
 
     print("Desenvolvendo base da IA")
@@ -211,13 +208,10 @@ def build_IAbase():
         data['Resultado'].append(notification.resultado)
         data['INTERNADO'].append(notification.internado)
         data['EVOLUÇÃO'].append(notification.evolucao)
-        data['Bairro'].append(notification.bairro)
-        data['Latitude'].append(notification.latitude)
-        data['Longitude'].append(notification.longitude)
 
     df = pandas.DataFrame(data, columns=collum_names)
-    df.to_csv(PATH_FILES+'base_preprocessada.csv')
-    os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'entrada.csv')
+    df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
+    os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
 def store_base(df):
     for index, row in df.iterrows():
