@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block body_block %}
+
+<div id="app">
+  <!-- app Bar -->
+  <v-app>
+    <template>
+        <div>
+          <v-app-bar
+            color="#1E9CF8"
+            dense
+            dark
+            flat
+            style="z-index: 1"
+          >
+          <!-- style="" -->
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            
+            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">Logo</v-toolbar-title>
+      
+            <v-spacer></v-spacer>
+
+            <v-menu
+              left
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn outlined v-on="on" style="border-radius: 4px;border: 0;">
+                  <v-icon>mdi-account-outline</v-icon>
+                  Perfil
+                </v-btn>
+              </template>
+      
+              <v-list class="mt-10">
+                <v-list-item
+                  @click="load_option(n)"
+                  href="logout"
+                >
+                  <v-list-item-title href="logout">Sair</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+            <!-- <v-btn href="logout" class="ma-2" text icon color="blue lighten-5">
+              <v-icon  color="white">mdi-account-outline</v-icon>
+              Conta
+            </v-btn> -->
+          </v-app-bar>
+        </div>
+      </template>
+    <!-- Graph Card -->
+    <template>
+    <v-card
+          class="mx-auto mt-6"
+          max-width="1044"
+          width="1044"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório</v-list-item-title>
+          </div>
+          <div style="display:flex;flex-direction:row;justify-content: center">
+            <div style="width: 900px;" class="pr-4 pl-4 mt-4"> 
+              <v-autocomplete
+                  v-model="valuesR"
+                  :items="itemsChipsR"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione os locais desejados"
+                  multiple
+                  class="mt-2"
+                  width="800"
+                ></v-autocomplete>
+            </div>
+            <div>
+              <div class="pb-3 pt-0 pr-4 mt-6" style="display: flex;flex-direction: row;justify-content: flex-end;">
+                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="printName(values)">
+                  <v-icon class="pr-2" >mdi-download-outline</v-icon>
+                  Gerar relatório
+                </v-btn>
+              </div>
+          </div>
+        </v-card>
+      </template>
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="440"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos confirmados</v-list-item-title>
+          </div>
+          <ve-line :data="chartData" ></ve-line>
+        </v-card>
+      </template>
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="560"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Suspeitos</v-list-item-title>
+          </div>
+          <ve-line :data="chartData" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="values"
+                :items="itemsChips"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @click="printName(values)"
+                @change="setCity(values)"
+                multiple
+              ></v-autocomplete>
+            </div> 
+              <div style="width: 100%;" class="pl-4 pr-4" >
+                <v-autocomplete
+                  v-model="valuesC"
+                  :items="itemsChipsC"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione a cidade"
+                  width="400"
+                  @change="setDistrict(valuesC)"
+                  @click="printName(valuesC)"
+                  multiple
+                ></v-autocomplete>
+              </div>
+              <div style="width: 100%;" class="pl-4">
+                <v-autocomplete
+                  v-model="valuesD"
+                  :items="itemsChipsD"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione o bairro"
+                  multiple
+                  width="400"
+                ></v-autocomplete>
+              </div>
+              <div>
+                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="printName(values)">
+                    <v-icon class="pr-2" >mdi-download-outline</v-icon>
+                     Filtrar
+                  </v-btn>
+                </div>
+              </div>
+
+
+            </div>
+        </v-card>
+      </template>
+      <!-- Footer -->
+      <template class="mt-12">
+        <v-footer
+          dark
+          padless
+        >
+          <v-card
+            flat
+            tile
+            class="lighten-1 white--text text-center"
+            color="#1E9CF8"
+          >
+            <v-card-text>
+              <v-btn
+                v-for="icon in icons"
+                :key="icon"
+                class="mx-4 white--text"
+                icon
+              >
+                <v-icon size="24px">{{ icon }}</v-icon>
+              </v-btn>
+            </v-card-text>
+      
+            <v-card-text style="width:100%" class="white--text pt-0">
+              Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+            </v-card-text>
+      
+            <v-divider></v-divider>
+      
+            <v-card-text class="white--text">
+              2020 — <strong>LIVE/Laboratório de Inovação Veicular</strong>
+            </v-card-text>
+          </v-card>
+        </v-footer>
+      </template>
+      
+  </v-app>
+</div>
+
+{% endblock %}
+
