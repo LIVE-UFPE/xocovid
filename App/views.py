@@ -40,7 +40,7 @@ def base(request):
         except TypeError:
             print(notification.bairro)
     
-    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
+    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 def graphs(request):
     bairros = []
@@ -63,7 +63,7 @@ def graphs(request):
             print(notification.bairro)
             
     
-    return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
+    return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 @login_required
 def home(request):

@@ -84,8 +84,8 @@
 </html>
 
 <script>
-    // var pins = {{ items_json|safe }};
-    // var predicts = {{ predicts_json|safe }}
+    var pins = {{ items_json|safe }};
+    var predicts = {{ predicts_json|safe }}
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
@@ -183,9 +183,9 @@
             nav: false,
             avatar: false,
             rounded: false,
-            // pins: pins,
+            pins: pins,
             datedb: new Date(),
-            // predicts: predicts,
+            predicts: predicts,
             useIa: false,
         }),
         methods: {
