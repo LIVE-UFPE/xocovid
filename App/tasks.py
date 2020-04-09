@@ -84,7 +84,7 @@ def listener():
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
-    
+
     print("Listener parado")
 
 def send_prediction_to_db():
