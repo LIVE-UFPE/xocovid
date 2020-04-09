@@ -4,8 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification
-from .models import Prediction
+from .models import Notification, Prediction, AccessKey
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager
 from django.db.models.query import QuerySet
@@ -119,11 +118,19 @@ def register(request):
 
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
-        if user_form.is_valid():
-            user = user_form.save()
-            user.set_password(user.password)
-            user.save()
-            return HttpResponseRedirect(reverse('user_login'))
+        accesskey = AccessKey.objects.filter(key=request.POST['id'])
+        if user_form.is_valid() and accesskey:
+            if accesskey[0].used == False:
+                user = user_form.save()
+                user.set_password(user.password)
+                user.save()
+
+                accesskey[0].used = True
+                accesskey[0].save()
+
+                return HttpResponseRedirect(reverse('user_login'))
+            else:
+                context['register_error'] = 'true'
         else:
             context['register_error'] = 'true'
     
