@@ -97,18 +97,22 @@ module.exports = {
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
             let maior_int = 0.0
+            let media = 0.0
+            let reds = 0
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 for( var i = 0; i < predLen; i++){
                     pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
                     if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
+                    media += this.predicts[i].intensidade
+                    if(this.predicts[i].intensidade > 0.75) reds += 1
                 }
-                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+'\n';
+                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+' Média: ' + (media/predLen).toString() +'\nPontos vermelhos: '+ reds.toString()+'\n';
                 this.heatmap.setOptions({
                     gradient: {0.25: 'lightgreen',0.5: 'green', 0.75: 'yellow', 1: 'red'},
                     minOpacity: 0,
                     // DEBUG diminuindo raio enquanto não tem normalizado 
-                    radius: 20
+                    radius: 25
                 });
             }else{
                 let pinsLen = this.pins.length;
