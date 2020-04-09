@@ -85,8 +85,12 @@
 
 <script>
     var pins = {{ items_json|safe }};
-    var predicts = {{ predicts_json|safe }}
-
+    var predicts = {{ predicts_json|safe }};
+    var bairroBase = "{{ bairroBase|safe }}"
+    bairroBase = bairroBase.split("'").join('"');
+    // console.log("Bairro Base --------", bairroBase);
+    // bairroBase = JSON.parse(bairroBase)
+    // console.log("Bairro Base --------", bairroBase);
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -216,7 +220,9 @@
                 console.log("objD: ",objD);
                 Vue.set(app, 'itemsChipsD', objD)
             },
-            
+            filter: function (){
+                console.log("Testandooo");
+            },
             dateBack: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() - 1 );

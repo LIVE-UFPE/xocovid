@@ -13,6 +13,7 @@ from .tasks import listener
 import json
 import requests
 from datetime import date
+from django.db.models import Count
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -27,7 +28,7 @@ def base(request):
     estados = []
     notifications = list(Notification.objects.all())
     # DEBUG counter for null types
-    
+    notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')))
     for notification in notifications:
         # if type(notification.data_notificacao) != type(NoneType()):
         try:
@@ -39,14 +40,15 @@ def base(request):
                     estados.append(notification.estado_residencia)
         except TypeError:
             print(notification.bairro)
-    
-    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+    print("Bairros: ",notificationsB)
+    return render(request, 'base.html', {"bairroBase":notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 def graphs(request):
     bairros = []
     cidades = []
     estados = []
     notifications = list(Notification.objects.all())
+    notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')))
     # DEBUG counter for null types
     
     for notification in notifications:
@@ -61,9 +63,9 @@ def graphs(request):
                     
         except TypeError:
             print(notification.bairro)
-            
-    
-    return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+     
+    print("Bairros: ", notificationsB)
+    return render(request, 'graphs.html', {'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 @login_required
 def home(request):
@@ -72,6 +74,7 @@ def home(request):
     predicts = []
     notifications = list(Notification.objects.all())
     predictions = list(Prediction.objects.all())
+    
     # DEBUG counter for null types
     null_notes = 0
     for notification in notifications:
@@ -103,6 +106,8 @@ def home(request):
 
     context["items_json"] = json.dumps(pins)
     context["predicts_json"] = json.dumps(predicts)
+    
+    
     return render(request, 'home.html',context)
 
 @login_required
