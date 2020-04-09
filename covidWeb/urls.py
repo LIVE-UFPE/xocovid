@@ -24,6 +24,7 @@ urlpatterns = [
     path('App/',include('App.urls')),
     path('logout/', views.user_logout, name='logout'),
     path('home', views.home, name="home"),
+    path('graphs/', views.graphs, name="graphs")
 ]
 
 #views.listener(repeat=10, repeat_until=None)

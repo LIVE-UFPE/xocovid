@@ -11,4 +11,5 @@ urlpatterns = [
     path('tela_exemplo/<int:id>', views.tela_exemplo, name='tela_exemplo'),
     path('index', views.index, name="index"),
     path('home', views.home, name="home"),
+    path('graphs/', views.graphs, name="graphs")
 ]
