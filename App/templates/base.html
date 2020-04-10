@@ -33,7 +33,8 @@
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
-        <script src="{% static 'leaflet-heat/leaflet-heat.js' %}"></script>
+        <script src="{% static 'heatmap/heatmap.js' %}"></script>
+        <script src="{% static 'heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
 
         <style>
@@ -237,19 +238,19 @@
                 test.setDate( test.getDate() + 1 );
                 let today = new Date();
                 today.setHours(23,59,59);
-                let tomorrow = new Date(today);
-                tomorrow.setDate( today.getDate() + 1 );
+                let afterAfterTomorrow = new Date(today);
+                afterAfterTomorrow.setDate( today.getDate() + 3 );
 
                 // se estou além de meia noite de hj e antes de meia noite de amanha
-                if(test > today && test < tomorrow ) {
-                    console.log("entrando nas predições!");
+                if(test > today && test < afterAfterTomorrow ) {
+                    console.log("entrando nas predições do dia "+test.toLocaleString('en-GB')+'\n');
                     this.useIa = true;
                     this.datedb = test;
                 }else if(test < today){
                     this.datedb = test;
                     console.log("avançando um dia!("+this.datedb.toLocaleString('en-GB')+")");
                 }else {
-                    console.log("não podemos avançar mais do que amanhã!");
+                    console.log("não podemos avançar mais do que depois de depois de amanha!");
                 }
             }
         }

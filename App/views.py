@@ -98,7 +98,9 @@ def home(request):
         predicts.append({
             "latitude": prediction.latitude,
             "longitude": prediction.longitude,
-            #"intensidade": prediction.prediction,
+            "intensidade": prediction.prediction1,
+            "intensidade2": prediction.prediction2,
+            "intensidade3": prediction.prediction3,
         })
 
     context["items_json"] = json.dumps(pins)
