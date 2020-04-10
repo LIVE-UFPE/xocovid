@@ -102,7 +102,9 @@ module.exports = {
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 for( var i = 0; i < predLen; i++){
-                    pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                    // pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
+                    // DEBUG trocando lat e lng esperando q mude algo rsrs
+                    pins_heat.push([ this.predicts[i].longitude, this.predicts[i].latitude, this.predicts[i].intensidade ])
                     if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
                     media += this.predicts[i].intensidade
                     if(this.predicts[i].intensidade > 0.75) reds += 1
@@ -111,8 +113,7 @@ module.exports = {
                 this.heatmap.setOptions({
                     gradient: {0.25: 'lightgreen',0.5: 'green', 0.75: 'yellow', 1: 'red'},
                     minOpacity: 0,
-                    // DEBUG diminuindo raio enquanto não tem normalizado 
-                    radius: 25
+                    radius: 40
                 });
             }else{
                 let pinsLen = this.pins.length;

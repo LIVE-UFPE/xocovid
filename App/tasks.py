@@ -7,8 +7,8 @@ from itertools import islice
 from background_task import background
 import os
 from datetime import datetime, timedelta
-# DEBUG comentando para pegar no windows
-import App.IA.pipeline as pipe
+# DEBUG comente para pegar no windows
+# import App.IA.pipeline as pipe
 from django.utils import timezone
 
 collum_names = [
