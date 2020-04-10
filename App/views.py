@@ -14,8 +14,6 @@ import requests
 from datetime import date
 from django.conf import settings
 
-APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
-
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
 # ? index é uma function view. uma função que retorna a view requisitada
 def index(request):
@@ -43,69 +41,74 @@ def base(request):
     return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 def graphs(request):
-    bairros = []
-    cidades = []
-    estados = []
-    notifications = list(Notification.objects.all())
-    # DEBUG counter for null types
-    
-    for notification in notifications:
-        # if type(notification.data_notificacao) != type(NoneType()):
-        try:
-            if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
-                
-                if (notification.bairro not in bairros):
-                    bairros.append(notification.municipio  + '/' + notification.estado_residencia + ' - ' + notification.bairro  )
-                    cidades.append(notification.municipio)
-                    estados.append(notification.estado_residencia)
+    if request.user.is_authenticated == False:
+        return user_login(request)
+    else:
+        bairros = []
+        cidades = []
+        estados = []
+        notifications = list(Notification.objects.all())
+        # DEBUG counter for null types
+        
+        for notification in notifications:
+            # if type(notification.data_notificacao) != type(NoneType()):
+            try:
+                if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
                     
-        except TypeError:
-            print(notification.bairro)
-            
-    
-    return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+                    if (notification.bairro not in bairros):
+                        bairros.append(notification.municipio  + '/' + notification.estado_residencia + ' - ' + notification.bairro  )
+                        cidades.append(notification.municipio)
+                        estados.append(notification.estado_residencia)
+                        
+            except TypeError:
+                print(notification.bairro)
+                
+        
+        return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
-@login_required
 def home(request):
-    context = {}
-    pins = []
-    predicts = []
-    notifications = list(Notification.objects.all())
-    predictions = list(Prediction.objects.all())
-    # DEBUG counter for null types
-    null_notes = 0
-    for notification in notifications:
-        try:
-            if type(notification.latitude) is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
-                null_notes += 1
-                raise TypeError('')
-        except TypeError:
-            print('error pegando Notificação, algum dado é Null')
-        else:
-            if notification.classificacao == "Confirmado":
-                pins.append({
-                    "latitude": notification.latitude,
-                    "longitude": notification.longitude,
-                    "data_notificacao": notification.data_notificacao.isoformat() if type(notification.data_notificacao) is not type(None) else '2000-01-01',
-                    "bairro": notification.bairro,
-                    # TODO adicionar entradas futuramente relevantes
-                })
+    if request.user.is_authenticated == False:
+        return user_login(request)
+    else:
+        context = {}
+        pins = []
+        predicts = []
+        notifications = list(Notification.objects.all())
+        predictions = list(Prediction.objects.all())
+        # DEBUG counter for null types
+        null_notes = 0
+        for notification in notifications:
+            try:
+                if type(notification.latitude) is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
+                    null_notes += 1
+                    raise TypeError('')
+            except TypeError:
+                print('error pegando Notificação, algum dado é Null')
+            else:
+                if notification.classificacao == "Confirmado":
+                    pins.append({
+                        "latitude": notification.latitude,
+                        "longitude": notification.longitude,
+                        "data_notificacao": notification.data_notificacao.isoformat() if type(notification.data_notificacao) is not type(None) else '2000-01-01',
+                        "bairro": notification.bairro,
+                        # TODO adicionar entradas futuramente relevantes
+                    })
 
-    # DEBUG type test
-    print("De",len(notifications),",",null_notes,"tem dados nulos")
+        # DEBUG type test
+        print("De",len(notifications),",",null_notes,"tem dados nulos")
 
-    for prediction in predictions:
-        predicts.append({
-            "latitude": prediction.latitude,
-            "longitude": prediction.longitude,
-            "intensidade": prediction.prediction1,
-            "intensidade2": prediction.prediction2,
-            "intensidade3": prediction.prediction3,
-        })
+        for prediction in predictions:
+            predicts.append({
+                "latitude": prediction.latitude,
+                "longitude": prediction.longitude,
+                "intensidade": prediction.prediction1,
+                "intensidade2": prediction.prediction2,
+                "intensidade3": prediction.prediction3,
+            })
 
-    context["items_json"] = json.dumps(pins)
-    context["predicts_json"] = json.dumps(predicts)
-    return render(request, 'home.html',context)
+        context["items_json"] = json.dumps(pins)
+        context["predicts_json"] = json.dumps(predicts)
+        return render(request, 'home.html',context)
 
 @login_required
 def tela_exemplo(request, id):

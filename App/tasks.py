@@ -8,7 +8,7 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-# import App.IA.pipeline as pipe
+#import App.IA.pipeline as pipe
 from django.utils import timezone
 
 collum_names = [
@@ -84,7 +84,7 @@ def listener():
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
-    send_prediction_to_db()
+    
     print("Listener parado")
 
 def send_prediction_to_db():
