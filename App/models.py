@@ -44,7 +44,9 @@ class Notification(models.Model):
 class Prediction(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
-    prediction = models.FloatField(null=True)
+    prediction1 = models.FloatField(null=True)
+    prediction2 = models.FloatField(null=True)
+    prediction3 = models.FloatField(null=True)
 
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)

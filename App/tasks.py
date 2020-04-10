@@ -91,23 +91,25 @@ def send_prediction_to_db():
     Prediction.objects.all().delete()
 
     df = pandas.read_csv(
-        PATH_FILES+'saidaFinal1.csv',
+        PATH_FILES+'Predicao24-25-26-03.csv',
         header = 0
     )
     print("Armazenando predicoes")
 
-    maxPredction = df['prediction'].max()
+    #maxPredction = df['prediction'].max()
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['lat'], row['lng'], row['prediction']/maxPredction])
+        predictions.append([index, row['latitude'], row['longitude'], row['pred_dia1'], row['pred_dia2'], row['pred_dia3']])
 
     objs = [
         Prediction(
             id=m[0],
             latitude=m[1],
             longitude=m[2],
-            prediction=m[3],
+            prediction1=m[3],
+            prediction2=m[4],
+            prediction3=m[5],
         )
         for m in predictions
     ]

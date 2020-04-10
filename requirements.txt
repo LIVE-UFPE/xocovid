@@ -3,3 +3,8 @@ django-background-tasks
 pandas
 numpy
 sklearn
+django-heroku
+gunicorn
+whitenoise
+dj-database-url
+requests
