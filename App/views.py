@@ -12,6 +12,7 @@ from .tasks import listener
 import json
 import requests
 from datetime import date
+from django.conf import settings
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -97,7 +98,7 @@ def home(request):
         predicts.append({
             "latitude": prediction.latitude,
             "longitude": prediction.longitude,
-            "intensidade": prediction.prediction,
+            #"intensidade": prediction.prediction,
         })
 
     context["items_json"] = json.dumps(pins)
@@ -120,19 +121,28 @@ def register(request):
         user_form = UserForm(data=request.POST)
         accesskey = AccessKey.objects.filter(key=request.POST['id'])
         if user_form.is_valid() and accesskey:
-            if accesskey[0].used == False:
-                user = user_form.save()
-                user.set_password(user.password)
-                user.save()
+            ''' Begin reCAPTCHA validation '''
+            recaptcha_response = request.POST.get('g-recaptcha-response')
+            data = {
+                'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+                'response': recaptcha_response
+            }
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+            result = r.json()
+            ''' End reCAPTCHA validation '''
 
-                accesskey[0].used = True
-                accesskey[0].save()
+            if result['success']:
+                if accesskey[0].used == False:
+                    user = user_form.save()
+                    user.set_password(user.password)
+                    user.save()
 
-                return HttpResponseRedirect(reverse('user_login'))
-            else:
-                context['register_error'] = 'true'
-        else:
-            context['register_error'] = 'true'
+                    accesskey[0].used = True
+                    accesskey[0].save()
+
+                    return HttpResponseRedirect(reverse('user_login'))
+                        
+        context['register_error'] = 'true'
     
     return render(request,'registration.html',context)
 
@@ -146,14 +156,22 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user:
                 if user.is_active:
-                    login(request,user)
-                    return HttpResponseRedirect(reverse('home'))
-                else:
-                    return HttpResponse("Your account was inactive.")
-            else:
-                print("Someone tried to login and failed.")
-                print("They used username: {} and password: {}".format(username,password))
-                return render(request, 'login.html', {'login_error':'true','items_json':'1','predicts_json':'1'})
+                    ''' Begin reCAPTCHA validation '''
+                    recaptcha_response = request.POST.get('g-recaptcha-response')
+                    data = {
+                        'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+                        'response': recaptcha_response
+                    }
+                    r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+                    result = r.json()
+                    ''' End reCAPTCHA validation '''
+                    if result['success']:
+                        login(request,user)
+                        return HttpResponseRedirect(reverse('home'))
+            
+            print("Someone tried to login and failed.")
+            print("They used username: {} and password: {}".format(username,password))
+            return render(request, 'login.html', {'login_error':'true','items_json':'1','predicts_json':'1'})
         else:
             return render(request, 'login.html', {'login_error':'false','items_json':'1','predicts_json':'1'})
 
