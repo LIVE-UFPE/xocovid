@@ -117,19 +117,35 @@ module.exports = {
             let maior_int = 0.0
             let menor_int = 0.0
             let media = 0.0
+            
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
+                // ? datedb tem horário 23:59:58
+                let data = new Date();
+                let data_intensidade = '';
+                data.setHours(23,59,59);
+                data.setDate( data.getDate() + 1 );
+                if( this.datedb < data ){
+                    data_intensidade = '1';
+                }else{
+                    data.setDate( data.getDate() + 1 );
+
+                    if( this.datedb < data ) data_intensidade = '2'; 
+                    else data_intensidade = '3';
+                }
+
+
                 for( var i = 0; i < predLen; i++){
                     pins_heat.push({
                         'lat': this.predicts[i].latitude, 
                         'lng': this.predicts[i].longitude, 
-                        'intensidade': this.predicts[i].intensidade 
+                        'intensidade': (data_intensidade == '1' ? this.predicts[i].intensidade : (data_intensidade == '2' ? this.predicts[i].intensidade2 : this.predicts[i].intensidade3 )),
                     });
                     if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
                     if(menor_int > this.predicts[i].intensidade) menor_int = this.predicts[i].intensidade;
                     media += this.predicts[i].intensidade
                 }
-                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+' Média: ' + (media/predLen).toString() +'\n';
+                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+' Média: ' + (media/predLen).toString() +'\nIntensidade: '+data_intensidade+'\n';
                 config = {
                     gradient: {
                         '.3': 'green',
