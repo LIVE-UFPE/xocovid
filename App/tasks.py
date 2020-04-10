@@ -96,11 +96,11 @@ def send_prediction_to_db():
     )
     print("Armazenando predicoes")
 
-    #maxPredction = df['prediction'].max()
+    maxPredction = df['prediction'].max()
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['lat'], row['lng'], row['prediction']])
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction']/maxPredction])
 
     objs = [
         Prediction(

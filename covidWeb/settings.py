@@ -12,13 +12,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-DEBUG = True
+"""DEBUG = True
 
 # TODO explicar isso aqui
 if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
-    # mimetypes.add_type("application/vue", ".vue", True)
+    # mimetypes.add_type("application/vue", ".vue", True)"""
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -34,7 +34,11 @@ SECRET_KEY = '$_(q*+!(u(ll90!r9^3uppqp03*n&#rq=@!!=$&o=5@t-uvw_7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'localhost',
+    'xocovid.herokuapp.com'
+]
 
 # Application definition
 
@@ -57,7 +61,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'covidWeb.urls'
 
@@ -127,4 +134,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'App/static/map'),
+    os.path.join(BASE_DIR, 'App/static/filter'),
+    os.path.join(BASE_DIR, 'App/static/leaflet-heat'),
+    os.path.join(BASE_DIR, 'App/static/login'),
+]
