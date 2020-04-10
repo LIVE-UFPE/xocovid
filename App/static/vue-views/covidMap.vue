@@ -67,7 +67,7 @@ module.exports = {
             pins_heat.push({
                 'lat': this.pins[i].latitude,
                 'lng': this.pins[i].longitude,
-                'intensidade': 0.5,
+                'intensidade': 0.35,
             })
         }
 
@@ -77,7 +77,8 @@ module.exports = {
                 '.65': 'yellow',
                 '1': 'red',
             },
-            'radius': 40,
+            //? raio em pixels (na proporção 1/2 pixel/metro)
+            'radius': 50,
             'scaleRadius': false,
             latField: 'lat',
             lngField: 'lng',
