@@ -120,11 +120,9 @@ module.exports = {
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 for( var i = 0; i < predLen; i++){
-                    // pins_heat.push([ this.predicts[i].latitude, this.predicts[i].longitude, this.predicts[i].intensidade ])
-                    // DEBUG trocando lat e lng esperando q mude algo rsrs
                     pins_heat.push({
-                        'lat': this.predicts[i].longitude, 
-                        'lng': this.predicts[i].latitude, 
+                        'lat': this.predicts[i].latitude, 
+                        'lng': this.predicts[i].longitude, 
                         'intensidade': this.predicts[i].intensidade 
                     });
                     if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
@@ -144,6 +142,10 @@ module.exports = {
                     lngField: 'lng',
                     valueField: 'intensidade',
                     "useLocalExtrema": false,
+                    'minOpacity': 0,
+                    'maxOpacity': .8,
+                    'blur': 0.85,
+
                 };
             }else{
                 let pinsLen = this.pins.length;
