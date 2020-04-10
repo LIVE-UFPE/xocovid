@@ -220,7 +220,12 @@
         this._heatmap._renderer.setDimensions(this._width, this._height);
       }
       this._draw();
-    } 
+    },
+    reconfigure: function(cfg) {
+      this.cfg = cfg;
+      this._heatmap.configure(cfg);
+      this._reset();
+    }, 
   });
 
   HeatmapOverlay.CSS_TRANSFORM = (function() {
