@@ -1,7 +1,9 @@
 <template>
     <div id="mapid">
-
-        
+        <v-snackbar v-model="snackbar" top >
+            {{ txtsnack }}
+            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+        </v-snackbar>        
     </div>
 </template>
 
@@ -15,6 +17,8 @@ module.exports = {
             polygon: null,
             position: L.latLng(-8.046, -34.927),
             heatmap: null,
+            txtsnack: 'Oi',
+            snackbar: false,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -127,9 +131,12 @@ module.exports = {
                 data.setDate( data.getDate() + 1 );
                 if( this.datedb < data ){
                     data_intensidade = '1';
+                    this.txtsnack = 'Os dados agora são previstos pela IA';
+                    this.snackbar = true;
                 }else{
                     data.setDate( data.getDate() + 1 );
-
+                    this.txtsnack = 'Previsões além de um dia podem ter uma flutuação mais significativa';
+                    this.snackbar = true;
                     if( this.datedb < data ) data_intensidade = '2'; 
                     else data_intensidade = '3';
                 }
