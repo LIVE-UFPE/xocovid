@@ -34,7 +34,12 @@ module.exports = {
             navigator.geolocation.getCurrentPosition(pos => {
                 console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
                 this.position = L.latLng(pos.coords.latitude,pos.coords.longitude);
-                this.mymap = L.map('mapid').setView(this.position, 13.5);
+                try{
+                    this.mymap = L.map('mapid').setView(this.position, 13);
+                } catch(e){
+                    this.mymap.setView(this.position,13);
+                }
+                
 
             }, err => {
                 console.log(`erro pegando localização: ${err}
@@ -43,7 +48,7 @@ module.exports = {
         }
         
 
-        this.mymap = L.map('mapid',{zoomControl: false,}).setView(this.position, 13.5);
+        this.mymap = L.map('mapid',{zoomControl: false,zoom: 4}).setView(this.position, 14);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -57,25 +62,43 @@ module.exports = {
 
 
         let pinsLen = this.pins.length;
-        let pins_heat = []
+        let pins_heat = [];
         for( var i = 0; i < pinsLen; i++){
-            let coord = L.latLng(this.pins[i].latitude, this.pins[i].longitude);
-            pins_heat.push(coord)
+            pins_heat.push({
+                'lat': this.pins[i].latitude,
+                'lng': this.pins[i].longitude,
+                'intensidade': 0.5,
+            })
         }
 
-        // minOpacity - the minimum opacity the heat will start at
-        // maxZoom - zoom level where the points reach maximum intensity (as intensity scales with zoom), equals maxZoom of the map by default
-        // max - maximum point intensity, 1.0 by default
-        // radius - radius of each "point" of the heatmap, 25 by default
-        // blur - amount of blur, 15 by default
-        // gradient - color gradient config, e.g. {0.4: 'blue', 0.65: 'lime', 1: 'red'}
-        this.heatmap = L.heatLayer(pins_heat,{
-            gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
-            minOpacity: 0.37,
-            radius: 25
+        this.heatmap = new HeatmapOverlay({
+            gradient: {
+                '.3': 'green',
+                '.65': 'yellow',
+                '1': 'red',
+            },
+            'radius': 40,
+            'scaleRadius': false,
+            latField: 'lat',
+            lngField: 'lng',
+            valueField: 'intensidade',
+            "useLocalExtrema": false,
         });
 
+
+        // this.heatmap = L.heatLayer(pins_heat,{
+        //     gradient: {0.3: 'green', 0.65: 'yellow', 1: 'red'},
+        //     minOpacity: 0.37,
+        //     radius: 25
+        // });
+
         this.heatmap.addTo(this.mymap);
+
+        this.heatmap.setData({
+            max: 1,
+            min: 0,
+            data: pins_heat,
+        });
 
         console.log(`adicionando um total de ${pinsLen} no mapa`)
     },
