@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from App.forms import UserForm
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Notification, Prediction, AccessKey
@@ -158,7 +158,15 @@ def user_login(request):
         if request.method == 'POST':
             username = request.POST.get('username')
             password = request.POST.get('password')
-            user = authenticate(username=username, password=password)
+            if '@' in username:
+                kwargs = {'email': username}
+            else:
+                kwargs = {'username': username}
+            try:
+                user = get_user_model().objects.get(**kwargs)
+            except User.DoesNotExist:
+                user = None
+                
             if user:
                 if user.is_active:
                     ''' Begin reCAPTCHA validation '''
