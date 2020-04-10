@@ -84,23 +84,23 @@ def listener():
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
-    send_prediction_to_db()
+    
     print("Listener parado")
 
 def send_prediction_to_db():
     Prediction.objects.all().delete()
 
     df = pandas.read_csv(
-        PATH_FILES+'saidaFinal1.csv',
+        PATH_FILES+'saidaFinal.csv',
         header = 0
     )
     print("Armazenando predicoes")
 
-    maxPredction = df['prediction'].max()
+    #maxPredction = df['prediction'].max()
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['lat'], row['lng'], row['prediction']/maxPredction])
+        predictions.append([index, row['lat'], row['lng'], row['prediction']])
 
     objs = [
         Prediction(
