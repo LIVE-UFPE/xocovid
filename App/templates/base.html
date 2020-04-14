@@ -86,11 +86,18 @@
 <script>
     var pins = {{ items_json|safe }};
     var predicts = {{ predicts_json|safe }};
-    var bairroBase = "{{ bairroBase|safe }}"
-    bairroBase = bairroBase.split("'").join('"');
-    // console.log("Bairro Base --------", bairroBase);
-    // bairroBase = JSON.parse(bairroBase)
-    // console.log("Bairro Base --------", bairroBase);
+    //confirmados
+    var bairroBase = {{ bairroBase|safe }}
+    var cidadeBase = {{ cidadeBase|safe }}
+    var estadoBase = {{ estadoBase|safe }}
+    //suspeitos
+    var estadoBaseS = {{ estadoBaseS|safe }}
+    var cidadeBaseS = {{ cidadeBaseS|safe }}
+    var bairroBaseS = {{ bairroBaseS|safe }}
+    // bairroBase = bairroBase.split("'").join('"');
+    console.log("Bairro Base", estadoBase);
+
+    
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -120,10 +127,16 @@
             itemsChips: [],
             itemsChipsC: [],
             itemsChipsD: [],
+            itemsChipsS: [],
+            itemsChipsCS: [],
+            itemsChipsDS: [],
             itemsChipsR: [],
             values: null,
             valuesC:  null,
             valuesD: null,
+            valuesS: null,
+            valuesCS:  null,
+            valuesDS: null,
             valuesR: null,
             value: null,
             sheet: false,
@@ -157,17 +170,8 @@
                 subtitle: "<span class='text--primary'>Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.",
                 },
             ],
-            chartData: {
-                columns: ['date', 'cost', 'profit', 'growthRate', 'people'],
-                rows: [
-                    { 'cost': 1523, 'date': '01/01', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
-                    { 'cost': 1223, 'date': '01/02', 'profit': 1523, 'growthRate': 0.345, 'people': 100 },
-                    { 'cost': 2123, 'date': '01/03', 'profit': 1523, 'growthRate': 0.7, 'people': 100 },
-                    { 'cost': 4123, 'date': '01/04', 'profit': 1523, 'growthRate': 0.31, 'people': 100 },
-                    { 'cost': 3123, 'date': '01/05', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
-                    { 'cost': 7123, 'date': '01/06', 'profit': 1523, 'growthRate': 0.65, 'people': 100 }
-                ]
-            },
+            chartDataS: {},
+            chartData: {},
             icons: [
                 'mdi-download',
                 'fab fa-twitter',
@@ -196,7 +200,7 @@
             printName: function (value){
                 console.log("Teste ", value);
             },
-            setCity: function (value){
+            setCity: function (value, chips){
                 var objC = [];
                 value.forEach(selecao =>{
                     data[0].estados.forEach(estado => {
@@ -205,9 +209,9 @@
                         }    
                     });
                 });
-                Vue.set(app, 'itemsChipsC', objC)
+                Vue.set(app, chips, objC)
             },
-            setDistrict: function (value){
+            setDistrict: function (value, chips){
                 var objD = [];
                 value.forEach(selecao =>{
                     data[0].bairros.forEach(cidade => {
@@ -217,11 +221,251 @@
                         }
                     });
                 });
-                console.log("objD: ",objD);
-                Vue.set(app, 'itemsChipsD', objD)
+                console.log("CHIPS: ",chips);
+                Vue.set(app, chips, objD)
             },
-            filter: function (){
-                console.log("Testandooo");
+            filterS: function (value, valuesC, valuesB){
+                var chart = {
+                    columns: ['data'],
+                    rows: []
+                }
+                
+                if(value == null || value == []){
+                    console.log("Nada");
+                }else if(valuesC == null || (valuesC.length == 0)){
+                    //pesquisa por estado                    
+
+                    value.forEach(estado =>{
+                        estadoBaseS.forEach(estadob =>{
+                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
+                                if(! chart.columns.includes(estado.toLowerCase())){
+                                    chart.columns.push(estado.toLowerCase())
+                                }
+                                // console.log("inclui ", chart.rows)
+                                if(chart.rows.length == 0){
+                                    chart.rows.push({
+                                        [estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : (estadob.data_notificacao)
+                                    })
+                                }
+                                var i= 0
+                                chart.rows.forEach((element, index) =>{
+                                    if(element.data == estadob.data_notificacao){
+                                        chart.rows[index] = Object.assign({[estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : estadob.data_notificacao},element)
+                                        i=1;
+                                    }
+                                })
+                                if(i==0){
+                                    chart.rows.push({
+                                        [estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : estadob.data_notificacao
+                                    })
+                                }
+                            }
+                        })
+                    })
+                }
+                else if(valuesC != null && (valuesC.length != 0)){ 
+                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
+                        valuesC.forEach(cidade =>{
+                            cidadeBaseS.forEach(cidadeb =>{
+                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
+                                    if(! chart.columns.includes(cidade.toLowerCase())){
+                                        chart.columns.push(cidade.toLowerCase())
+                                    }
+                                    // console.log("inclui ", chart.rows)
+                                    if(chart.rows.length == 0){
+                                        chart.rows.push({
+                                            [cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao
+                                        })
+                                    }
+                                    var i= 0
+                                    chart.rows.forEach((element, index) =>{
+                                        if(element.data == cidadeb.data_notificacao){
+                                            chart.rows[index] = Object.assign({[cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao},element)
+                                            i=1;
+                                        }
+                                    })
+                                    if(i==0){
+                                        chart.rows.push({
+                                            [cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                    }else{ //pesquisa bairro
+                        valuesB.forEach(bairro =>{
+                            bairroBaseS.forEach(bairrob =>{
+                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
+                                    if(! chart.columns.includes(bairro.toLowerCase())){
+                                        chart.columns.push(bairro.toLowerCase())
+                                    }
+                                    if(chart.rows.length == 0){
+                                        chart.rows.push({
+                                            [bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao
+                                        })
+                                    }
+                                    var i= 0
+                                    chart.rows.forEach((element, index) =>{
+                                        if(element.data == bairrob.data_notificacao){
+                                            chart.rows[index] = Object.assign({[bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao},element)
+                                            i=1;
+                                        }
+                                    })
+                                    if(i==0){
+                                        chart.rows.push({
+                                            [bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                    }
+                }
+                chart.rows.sort(function(a, b){ 
+                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
+                    const monthA = parseInt(a.data[3]+a.data[4])
+                    const dayA = parseInt(a.data[0]+a.data[1])
+                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
+                    const monthB = parseInt(b.data[3]+b.data[4])
+                    const dayB = parseInt(b.data[0]+b.data[1])
+                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
+                }); 
+                console.log("Chart: ", chart);
+                Vue.set(app, 'chartDataS', chart)
+            },
+            filter: function (value, valuesC, valuesB){
+            
+                var chart = {
+                    columns: ['data'],
+                    rows: []
+                }
+                console.log("ValuesC: ", valuesC)
+                if(value == null || value == []){
+                    console.log("Nada");
+                }else if(valuesC == null || (valuesC.length == 0)){
+                    //pesquisa por estado                    
+
+                    value.forEach(estado =>{
+                        estadoBase.forEach(estadob =>{
+                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
+                                if(! chart.columns.includes(estado.toLowerCase())){
+                                    chart.columns.push(estado.toLowerCase())
+                                }
+                                // console.log("inclui ", chart.rows)
+                                if(chart.rows.length == 0){
+                                    chart.rows.push({
+                                        [estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : (estadob.data_notificacao)
+                                    })
+                                }
+                                var i= 0
+                                chart.rows.forEach((element, index) =>{
+                                    if(element.data == estadob.data_notificacao){
+                                        chart.rows[index] = Object.assign({[estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : estadob.data_notificacao},element)
+                                        i=1;
+                                    }
+                                })
+                                if(i==0){
+                                    chart.rows.push({
+                                        [estado.toLowerCase()] : estadob.quantidade_casos,
+                                        'data' : estadob.data_notificacao
+                                    })
+                                }
+                            }
+                        })
+                    })
+                }
+                else if(valuesC != null && (valuesC.length != 0)){ 
+                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
+                        valuesC.forEach(cidade =>{
+                            cidadeBase.forEach(cidadeb =>{
+                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
+                                    if(! chart.columns.includes(cidade.toLowerCase())){
+                                        chart.columns.push(cidade.toLowerCase())
+                                    }
+                                    // console.log("inclui ", chart.rows)
+                                    if(chart.rows.length == 0){
+                                        chart.rows.push({
+                                            [cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao
+                                        })
+                                    }
+                                    var i= 0
+                                    chart.rows.forEach((element, index) =>{
+                                        if(element.data == cidadeb.data_notificacao){
+                                            chart.rows[index] = Object.assign({[cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao},element)
+                                            i=1;
+                                        }
+                                    })
+                                    if(i==0){
+                                        chart.rows.push({
+                                            [cidade.toLowerCase()] : cidadeb.quantidade_casos,
+                                            'data' : cidadeb.data_notificacao
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                    }else{ //pesquisa bairro
+                        valuesB.forEach(bairro =>{
+                            bairroBase.forEach(bairrob =>{
+                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
+                                    if(! chart.columns.includes(bairro.toLowerCase())){
+                                        chart.columns.push(bairro.toLowerCase())
+                                    }
+                                    // console.log("inclui ", chart.rows)
+                                    if(chart.rows.length == 0){
+                                        chart.rows.push({
+                                            [bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao
+                                        })
+                                    }
+                                    var i= 0
+                                    chart.rows.forEach((element, index) =>{
+                                        if(element.data == bairrob.data_notificacao){
+                                            chart.rows[index] = Object.assign({[bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao},element)
+                                            i=1;
+                                        }
+                                    })
+                                    if(i==0){
+                                        chart.rows.push({
+                                            [bairro.toLowerCase()] : bairrob.quantidade_casos,
+                                            'data' : bairrob.data_notificacao
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                    }
+                }
+
+                // bairroBase.forEach(bairro => {
+                //     console.log(bairro.bairro);
+                // });
+                chart.rows.sort(function(a, b){ 
+                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
+                    const monthA = parseInt(a.data[3]+a.data[4])
+                    const dayA = parseInt(a.data[0]+a.data[1])
+                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
+                    const monthB = parseInt(b.data[3]+b.data[4])
+                    const dayB = parseInt(b.data[0]+b.data[1])
+                    // console.log("DataA: ", a.data, b.data, dataA)
+                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
+                }); 
+                console.log("Chart: ", chart);
+                Vue.set(app, 'chartData', chart)
             },
             dateBack: function (event) {
                 let test = new Date(this.datedb);
@@ -268,6 +512,7 @@
     });
     // console.log("Data: ", obj)
     Vue.set(app, 'itemsChips', obj)
+    Vue.set(app, 'itemsChipsS', obj)
     // console.log("Values: ", value, values);
     //Filter module city
 

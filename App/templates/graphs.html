@@ -83,30 +83,88 @@
           </div>
         </v-card>
       </template>
+      
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
           width="1044"
-          height="440"
+          height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos confirmados</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Suspeitos Por Dia</v-list-item-title>
           </div>
-          <ve-line :data="chartData" ></ve-line>
+          <ve-line :data="chartDataS" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%;align-items:flex-start;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="valuesS"
+                :items="itemsChipsS"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @click="printName(valuesS)"
+                @change="setCity(valuesS, 'itemsChipsCS')"
+                multiple
+              ></v-autocomplete>
+            </div> 
+              <div style="width: 100%;" class="pl-4 pr-4" >
+                <v-autocomplete
+                  v-model="valuesCS"
+                  :items="itemsChipsCS"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione a cidade"
+                  width="400"
+                  @change="setDistrict(valuesCS, 'itemsChipsDS')"
+                  @click="printName(valuesCS)"
+                  multiple
+                ></v-autocomplete>
+              </div>
+              <div style="width: 100%;" class="pl-4">
+                <v-autocomplete
+                  v-model="valuesDS"
+                  :items="itemsChipsDS"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione o bairro"
+                  multiple
+                  width="400"
+                ></v-autocomplete>
+              </div>
+              <div>
+                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterS(valuesS, valuesCS, valuesDS)">
+                    <v-icon class="pr-2">mdi-download-outline</v-icon>
+                     Filtrar
+                  </v-btn>
+                </div>
+              </div>
+
+
+            </div>
         </v-card>
       </template>
+
+
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
           width="1044"
-          height="560"
+          height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Suspeitos</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Por dia</v-list-item-title>
           </div>
           <ve-line :data="chartData" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
@@ -121,7 +179,7 @@
                 label="Selecione o estado"
                 width="400"
                 @click="printName(values)"
-                @change="setCity(values)"
+                @change="setCity(values, 'itemsChipsC')"
                 multiple
               ></v-autocomplete>
             </div> 
@@ -135,7 +193,7 @@
                   small-chips
                   label="Selecione a cidade"
                   width="400"
-                  @change="setDistrict(valuesC)"
+                  @change="setDistrict(valuesC, 'itemsChipsD')"
                   @click="printName(valuesC)"
                   multiple
                 ></v-autocomplete>
@@ -155,14 +213,12 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter()">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter(values, valuesC, valuesD)">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>
                 </div>
               </div>
-
-
             </div>
         </v-card>
       </template>
@@ -190,7 +246,7 @@
             </v-card-text>
       
             <v-card-text style="width:100%" class="white--text pt-0">
-              Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+              The Vehicle Innovation Laboratory (LIVE) is a laboratory of the UFPE Informatics Center and was created in 2015 with the objective of developing innovation projects in the context of smart cities. We carry out research and development projects in partnership with industry and funding agencies in various segments such as Automotive, IoT, Embedded Systems, Energy, High Performance Computing, Electronics, Urban Mobility, Connectivity and Artificial Intelligence. 
             </v-card-text>
       
             <v-divider></v-divider>

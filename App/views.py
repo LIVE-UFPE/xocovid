@@ -12,7 +12,7 @@ from django.db.models.query import QuerySet
 from .tasks import listener
 import json
 import requests
-from datetime import date
+from datetime import date, datetime
 from django.db.models import Count
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
@@ -29,6 +29,7 @@ def base(request):
     notifications = list(Notification.objects.all())
     # DEBUG counter for null types
     notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')))
+    
     for notification in notifications:
         # if type(notification.data_notificacao) != type(NoneType()):
         try:
@@ -40,7 +41,7 @@ def base(request):
                     estados.append(notification.estado_residencia)
         except TypeError:
             print(notification.bairro)
-    print("Bairros: ",notificationsB)
+    
     return render(request, 'base.html', {"bairroBase":notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 def graphs(request):
@@ -48,24 +49,64 @@ def graphs(request):
     cidades = []
     estados = []
     notifications = list(Notification.objects.all())
-    notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')))
+    notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsE = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsC = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsES = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsCS = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsBS = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     # DEBUG counter for null types
-    
-    for notification in notifications:
-        # if type(notification.data_notificacao) != type(NoneType()):
+
+    for (index, notification) in enumerate(notificationsB):
         try:
-            if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
-                
-                if (notification.bairro not in bairros):
-                    bairros.append(notification.municipio  + '/' + notification.estado_residencia + ' - ' + notification.bairro  )
-                    cidades.append(notification.municipio)
-                    estados.append(notification.estado_residencia)
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
+                print(notificationsB[index])
                     
         except TypeError:
-            print(notification.bairro)
-     
-    print("Bairros: ", notificationsB)
-    return render(request, 'graphs.html', {'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+            print("error")
+    for (index, notification) in enumerate(notificationsE):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+        except TypeError:
+            print("error")
+    
+    for (index, notification) in enumerate(notificationsC):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+        except TypeError:
+            print("error")
+
+    for (index, notification) in enumerate(notificationsBS):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsBS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")         
+        except TypeError:
+            print("error")
+
+    for (index, notification) in enumerate(notificationsES):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsES[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+        except TypeError:
+            print("error")
+    
+    for (index, notification) in enumerate(notificationsCS):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsCS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+        except TypeError:
+            print("error")
+
+    notificationsB = json.dumps(notificationsB,indent=4, sort_keys=True, default=str)
+    notificationsE = json.dumps(notificationsE,indent=4, sort_keys=True, default=str)
+    notificationsC = json.dumps(notificationsC,indent=4, sort_keys=True, default=str)
+    notificationsCS = json.dumps(notificationsCS,indent=4, sort_keys=True, default=str)
+    notificationsES = json.dumps(notificationsES,indent=4, sort_keys=True, default=str)
+    notificationsBS = json.dumps(notificationsBS,indent=4, sort_keys=True, default=str)
+    return render(request, 'graphs.html', {'bairroBaseS':notificationsBS,'cidadeBaseS':notificationsCS,'estadoBaseS': notificationsES,'cidadeBase':notificationsC,'estadoBase':notificationsE,'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 @login_required
 def home(request):
