@@ -56,7 +56,7 @@ module.exports = {
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de Recife
+            // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de recife
             maxZoom: 18,
             minZoom: 12,
             id: 'mapbox/streets-v11',
