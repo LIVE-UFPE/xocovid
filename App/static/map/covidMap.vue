@@ -52,12 +52,13 @@ module.exports = {
         }
         
 
-        this.mymap = L.map('mapid',{zoomControl: false,zoom: 4}).setView(this.position, 14);
+        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, 14);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             // DEBUG com 15 de zoom os pontos da predição já se agrupam
             maxZoom: 18,
+            minZoom: 8,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
@@ -88,6 +89,8 @@ module.exports = {
             lngField: 'lng',
             valueField: 'intensidade',
             "useLocalExtrema": false,
+            'maxOpacity': .7,
+
         });
 
         this.heatmap.addTo(this.mymap);
@@ -98,6 +101,73 @@ module.exports = {
             data: pins_heat,
         });
 
+        this.mymap.on('zoomend', function(ev) {
+            if ( ev.target._zoom >= 14 ) {
+                let config = {
+                    gradient: {
+                        '.3': 'green',
+                        '.65': 'yellow',
+                        '1': 'red',
+                    },
+                    'radius': 50,
+                    'scaleRadius': false,
+                    latField: 'lat',
+                    lngField: 'lng',
+                    valueField: 'intensidade',
+                    "useLocalExtrema": false,
+                    'minOpacity': 0,
+                    'maxOpacity': .7,
+                    'blur': 0.85,
+                };
+                console.log('mudando raio para '+ config.radius.toString()+'\n');
+                console.log(ev.target);
+                let id = 0
+                while(true){
+                    try {
+                        ev.target._layers[id].reconfigure(config);
+                        break;
+                    } catch (error) {
+                        id++
+                    }
+                }
+                // ev.target._layers[48].reconfigure(config);
+                // this.heatmap.reconfigure(config);
+                return;
+            }else{ 
+                let config = {
+                    gradient: {
+                        '.3': 'green',
+                        '.65': 'yellow',
+                        '1': 'red',
+                    },
+                    'radius': Math.floor( 50 / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                    'scaleRadius': false,
+                    latField: 'lat',
+                    lngField: 'lng',
+                    valueField: 'intensidade',
+                    "useLocalExtrema": false,
+                    'minOpacity': 0,
+                    'maxOpacity': .7,
+                    'blur': 0.85,
+
+                };
+                console.log('mudando raio para '+ config.radius.toString()+'\n');
+                console.log(ev.target);
+                let id = 0
+                while(true){
+                    try {
+                        ev.target._layers[id].reconfigure(config);
+                        break;
+                    } catch (error) {
+                        id++
+                    }
+                }
+                // ev.target._layers[48].reconfigure(config);
+                // this.heatmap.reconfigure(config);
+                return;
+            }
+        });
+
         console.log(`adicionando um total de ${pinsLen} no mapa`)
     },
     computed: {
@@ -105,6 +175,11 @@ module.exports = {
         datewatch() {
             return this.datedb;
         },
+        radius() {
+            let zum = this.mymap.getZoom();
+            if ( zum >= 14 ) return 50;
+            else return Math.floor( 50 / ( Math.pow(2,14 - zum) ) );
+        }
     },
     watch: {
         // ? mudar o array de entrada do heatmap de acordo com o botão pressionado em home.html
@@ -152,21 +227,21 @@ module.exports = {
                     if(menor_int > this.predicts[i].intensidade) menor_int = this.predicts[i].intensidade;
                     media += this.predicts[i].intensidade
                 }
-                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+' Média: ' + (media/predLen).toString() +'\nIntensidade: '+data_intensidade+'\n';
+                cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+'\nMédia: ' + (media/predLen).toString() +'\nIntensidade: '+data_intensidade+'\nRaio: '+ this.radius.toString()+'\n';
                 config = {
                     gradient: {
                         '.3': 'green',
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': 50,
+                    'radius': this.radius,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
                     valueField: 'intensidade',
                     "useLocalExtrema": false,
                     'minOpacity': 0,
-                    'maxOpacity': .8,
+                    'maxOpacity': .7,
                     'blur': 0.85,
 
                 };
@@ -198,12 +273,13 @@ module.exports = {
                         '1': 'red',
                     },
                     //? raio em pixels (na proporção 1/2 pixel/metro)
-                    'radius': 50,
+                    'radius': this.radius,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
                     valueField: 'intensidade',
                     "useLocalExtrema": false,
+                    'maxOpacity': .7,
                 };
             }
 
