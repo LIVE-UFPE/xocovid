@@ -56,9 +56,9 @@ module.exports = {
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            // DEBUG com 15 de zoom os pontos da predição já se agrupam
+            // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de Recife
             maxZoom: 18,
-            minZoom: 8,
+            minZoom: 12,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
