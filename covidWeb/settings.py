@@ -142,6 +142,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/map'),
     os.path.join(BASE_DIR, 'App/static/filter'),
-    os.path.join(BASE_DIR, 'App/static/leaflet-heat'),
+    os.path.join(BASE_DIR, 'App/static/leaflet-heatmap'),
+    os.path.join(BASE_DIR, 'App/static/heatmap'),
     os.path.join(BASE_DIR, 'App/static/login'),
 ]
