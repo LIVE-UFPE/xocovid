@@ -49,8 +49,8 @@ collum_names = [
 ]
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
-#BASE_NAME = 'base_original.csv'
-BASE_NAME = 'entradaPreProcessada.csv'
+BASE_NAME = 'base_original.csv'
+#BASE_NAME = 'entradaPreProcessada.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -64,16 +64,16 @@ def listener():
             header = 0,
             names=collum_names,
         )
-
+        #MANO MUDA PORFAVOR
         #df = pre_processing(df)
 
-        store_base(df)
+        #store_base(df)
 
         #build_IAbase()
 
         #prediction()
 
-        #send_prediction_to_db()
+        send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
     
