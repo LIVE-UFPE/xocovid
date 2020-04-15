@@ -59,11 +59,11 @@ def listener():
     print("Executando listener")
     
     try:
-        df = pandas.read_csv(
+        """df = pandas.read_csv(
             PATH_FILES+BASE_NAME,
             header = 0,
             names=collum_names,
-        )
+        )"""
         #MANO MUDA PORFAVOR
         #df = pre_processing(df)
 
