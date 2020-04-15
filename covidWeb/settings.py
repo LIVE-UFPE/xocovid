@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import dj_database_url
 
 """DEBUG = True
 
@@ -94,12 +93,14 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DB_NAME', 'postgresql-slippery-11322'),
+        'USER': os.environ.get('DB_USER', 'tslryogoucxpjv'),
+        'PASSWORD': os.environ.get('DB_PASS', '53d3caaf2ac40618ad2b45d061db6aef1d4ca1ce63610281270c1816eb61c29b'),
+        'HOST': 'ec2-52-202-146-43.compute-1.amazonaws.com',
+        'PORT': '5432'
     }
 }
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
