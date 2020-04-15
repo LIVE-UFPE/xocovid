@@ -43,9 +43,9 @@ collum_names = [
   'INTERNADO',
   'EVOLUÇÃO',
   #MODIFICACAO
-  #'Bairro',
-  #'Latitude',
-  #'Longitude'
+  'Bairro',
+  'Latitude',
+  'Longitude'
 ]
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
