@@ -7,7 +7,6 @@ class UserProfileInfo(models.Model):
     def __str__(self):
         return self.user.username
 
-#PEGA MEMRMAO
 class Notification(models.Model):      
     data_atualizacao = models.DateField(null=True)
     data_notificacao = models.DateField(null=True)
