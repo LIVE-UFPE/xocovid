@@ -79,7 +79,7 @@ def home(request):
         null_notes = 0
         for notification in notifications:
             try:
-                if type(notification.latitude) is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
+                if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
                     null_notes += 1
                     raise TypeError('')
             except TypeError:
