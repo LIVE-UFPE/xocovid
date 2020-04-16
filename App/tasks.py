@@ -50,7 +50,7 @@ collum_names = [
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
 BASE_NAME = 'base_original.csv'
-#BASE_NAME = 'entradaPreProcessada.csv'
+#BASE_NAME = 'base_preprocessada.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -69,11 +69,11 @@ def listener():
     
         store_base(df)
 
-        build_IAbase()
+        #build_IAbase()
 
-        prediction()
+        #prediction()
 
-        send_prediction_to_db()
+        #send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
     
@@ -213,7 +213,7 @@ def build_IAbase():
 def store_base(df):
     pasta = PATH_FILES+'bases predicao/'
 
-    Interpolation.objects.all().delete()
+    """Interpolation.objects.all().delete()
 
     for fileName in os.listdir(pasta):
         a = pandas.read_csv(pasta+fileName, sep=',')
@@ -233,8 +233,9 @@ def store_base(df):
             )
             for m in interporlations
         ]
-        Interpolation.objects.bulk_create(objs=objs)
+        Interpolation.objects.bulk_create(objs=objs)"""
 
+    df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
