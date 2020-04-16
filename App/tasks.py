@@ -1,4 +1,4 @@
-from .models import Notification, Prediction
+from .models import Notification, Prediction, Interpolation
 import json
 import requests
 import pandas
@@ -211,7 +211,29 @@ def build_IAbase():
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
 def store_base(df):
+    pasta = PATH_FILES+'bases predicao/'
 
+    Interpolation.objects.all().delete()
+
+    for fileName in os.listdir(pasta):
+        a = pandas.read_csv(pasta+fileName, sep=',')
+
+        interporlations = []
+        date = datetime.strptime(fileName.split('predicao_covid19_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes do dia ' + str(date))
+        for index, row in a.iterrows():
+            interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
+        
+        objs = [
+            Interpolation(
+                latitude=m[0],
+                longitude=m[1],
+                prediction=m[2],
+                date=m[3],
+            )
+            for m in interporlations
+        ]
+        Interpolation.objects.bulk_create(objs=objs)
 
     """for index, row in df.iterrows():
         try:
