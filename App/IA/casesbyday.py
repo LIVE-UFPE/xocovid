@@ -13,8 +13,8 @@ def main():
     # os.mkdir(caminho)
 
     # read dataframes
-    casosCovidPE = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/saidaPreProcessada.csv', sep=',')
-    bairros = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/listaBairros.csv', sep=',')
+    casosCovidPE = pd.read_csv('saidaPreProcessada.csv', sep=',')
+    bairros = pd.read_csv('listaBairros.csv', sep=',')
 
     # putting string data in the same case
     bairros.Bairro = bairros.Bairro.str.lower()
@@ -60,4 +60,4 @@ def main():
         casosBairro['longitude'] = bairros['longitude-WGS84']
         casosBairro['casos'] = casos
         casosAnt = casos
-        casosBairro.to_csv(os.path.join(os.path.dirname(__file__))+'/casos confirmados/covid19_'+dia[5:10] + '.csv')
+        casosBairro.to_csv('casos confirmados/covid19_'+dia[5:10] + '.csv')

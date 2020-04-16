@@ -3,7 +3,6 @@ import numpy as np
 import json
 import requests
 from itertools import islice
-import os
 
 def requestData(request=None, type='google'):
 	APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI' # ESSA KEY É A MINHA (GABRIEL MARQUES) KEY DA  API DO GOOGLE MAPS
@@ -54,7 +53,7 @@ def getDatas(json):
 	return country, state, city, neighborhood, cep, latitude, longitude
 def main():
 
-	PATH_BASE = os.path.join(os.path.dirname(__file__))+'/entradaPreProcessada.csv'
+	PATH_BASE = './entradaPreProcessada.csv'
 	
 	df = pandas.read_csv(PATH_BASE)
 	df = df[df['Classificação final'].str.lower() == 'confirmado']

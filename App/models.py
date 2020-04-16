@@ -48,6 +48,12 @@ class Prediction(models.Model):
     prediction2 = models.FloatField(null=True)
     prediction3 = models.FloatField(null=True)
 
+class Interpolation(models.Model):
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    prediction = models.FloatField(null=True)
+    date = models.DateField(null=True)
+
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)
     used = models.BooleanField(default=False)

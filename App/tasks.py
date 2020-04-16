@@ -66,8 +66,7 @@ def listener():
         )
         
         #df = pre_processing(df)
-        df = df.replace({np.nan: None})
-        df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
+        
         store_base(df)
 
         #build_IAbase()
@@ -212,7 +211,9 @@ def build_IAbase():
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
 def store_base(df):
-    for index, row in df.iterrows():
+
+
+    """for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
         except Notification.DoesNotExist:
@@ -244,14 +245,14 @@ def store_base(df):
         #notification.outro_local_transmissao = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
         #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissão']
         #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissão']
-        """if row['Data da chegada no Brasil']:
-            try:
-                notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
-            except ValueError:
-                try:
-                    notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
-                except ValueError:
-                    notification.data_chegada_brasil = None"""
+        #if row['Data da chegada no Brasil']:
+        #    try:
+        #        notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
+        #    except ValueError:
+        #        try:
+        #            notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
+        #        except ValueError:
+        #            notification.data_chegada_brasil = None
         #notification.estado_notificacao = str(row['Estado de notificação (UF)']).title()
         #notification.municipio_notificacao = str(row['Município de notificação']).title()
         notification.coleta_exames = str(row['Coleta de exames']).title()
@@ -262,7 +263,7 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
-        notification.save()
+        notification.save()"""
 
 def pre_processing(df):
     df["Bairro"] = None
