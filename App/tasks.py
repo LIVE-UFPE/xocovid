@@ -43,14 +43,14 @@ collum_names = [
   'INTERNADO',
   'EVOLUÇÃO',
   #MODIFICACAO
-  'Bairro',
-  'Latitude',
-  'Longitude'
+  #'Bairro',
+  #'Latitude',
+  #'Longitude'
 ]
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
-#BASE_NAME = 'base_original.csv'
-BASE_NAME = 'entradaPreProcessada.csv'
+BASE_NAME = 'base_original.csv'
+#BASE_NAME = 'entradaPreProcessada.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -64,16 +64,16 @@ def listener():
             header = 0,
             names=collum_names,
         )
-        
-        #df = pre_processing(df)
-        
+    
+        df = pre_processing(df)
+    
         store_base(df)
 
-        #build_IAbase()
+        build_IAbase()
 
-        #prediction()
+        prediction()
 
-        #send_prediction_to_db()
+        send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
     
@@ -83,7 +83,7 @@ def send_prediction_to_db():
     Prediction.objects.all().delete()
 
     df = pandas.read_csv(
-        PATH_FILES+'Predicao24-25-26-03.csv',
+        PATH_FILES+'saidaFinal.csv',
         header = 0
     )
     print("Armazenando predicoes")
@@ -92,7 +92,7 @@ def send_prediction_to_db():
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['latitude'], row['longitude'], row['pred_dia1'], row['pred_dia2'], row['pred_dia3']])
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
 
     objs = [
         Prediction(
@@ -160,7 +160,7 @@ def build_IAbase():
         data['Sexo'].append(notification.sexo)
         data['Idade'].append(notification.idade)
         data['CEP residência'].append(notification.cep)
-        #data['País de residência'].append(notification.pais_residencia)
+        data['País de residência'].append(notification.pais_residencia)
         data['Estado de residência'].append(notification.estado_residencia)
         data['Município'].append(notification.municipio)
         data['Endereço completo'].append(notification.endereco)
@@ -169,44 +169,44 @@ def build_IAbase():
         else:
             data['Data dos primeiros sintomas'].append(notification.data_primeiros_sintomas)
         data['Paciente foi hospitalizado?'].append(notification.paciente_hospitalizado)
-        #if notification.data_internacao:
-        #    data['Data da internação hospitalar'].append(notification.data_internacao.isoformat())
-        #else:
-        #    data['Data da internação hospitalar'].append(notification.data_internacao)
-        #if notification.data_alta:
-        #    data['Data da alta hospitalar'].append(notification.data_alta.isoformat())
-        #else:
-        #    data['Data da alta hospitalar'].append(notification.data_alta)
-        #if notification.data_isolamento:
-        #    data['Data do isolamento'].append(notification.data_isolamento.isoformat())
-        #else:
-        #    data['Data do isolamento'].append(notification.data_isolamento)
-        #data['Paciente foi submetido a ventilação mecânica?'].append(notification.ventilacao_mecanica)
-        #data['Situação de saúde do paciente no momento da notificação'].append(notification.situacao_notificacao)
-        #data['Foi realizada coleta de amostra do paciente?'].append(notification.coleta_amostra)
-        #data['Foi para outro local de transmissão?'].append(notification.foi_outro_local_transmissao)
-        #data['Outro local de transmissão, descrever (cidade, região, país)'].append(notification.outro_local_transmissao)
-        #if notification.data_ida_outro_local_transmissao:
-        #    data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao.isoformat())
-        #else:
-        #    data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao)
-        #if notification.data_volta_outro_local_transmissao:
-        #    data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao.isoformat())
-        #else:
-        #    data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao)
-        #if notification.data_chegada_brasil:
-        #    data['Data da chegada no Brasil'].append(notification.data_chegada_brasil.isoformat())
-        #else:
-        #    data['Data da chegada no Brasil'].append(notification.data_chegada_brasil)
-        #data['Estado de notificação (UF)'].append(notification.estado_notificacao)
-        #data['Município de notificação'].append(notification.municipio_notificacao)
+        if notification.data_internacao:
+            data['Data da internação hospitalar'].append(notification.data_internacao.isoformat())
+        else:
+            data['Data da internação hospitalar'].append(notification.data_internacao)
+        if notification.data_alta:
+            data['Data da alta hospitalar'].append(notification.data_alta.isoformat())
+        else:
+            data['Data da alta hospitalar'].append(notification.data_alta)
+        if notification.data_isolamento:
+            data['Data do isolamento'].append(notification.data_isolamento.isoformat())
+        else:
+            data['Data do isolamento'].append(notification.data_isolamento)
+        data['Paciente foi submetido a ventilação mecânica?'].append(notification.ventilacao_mecanica)
+        data['Situação de saúde do paciente no momento da notificação'].append(notification.situacao_notificacao)
+        data['Foi realizada coleta de amostra do paciente?'].append(notification.coleta_amostra)
+        data['Foi para outro local de transmissão?'].append(notification.foi_outro_local_transmissao)
+        data['Outro local de transmissão, descrever (cidade, região, país)'].append(notification.outro_local_transmissao)
+        if notification.data_ida_outro_local_transmissao:
+            data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao.isoformat())
+        else:
+            data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao)
+        if notification.data_volta_outro_local_transmissao:
+            data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao.isoformat())
+        else:
+            data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao)
+        if notification.data_chegada_brasil:
+            data['Data da chegada no Brasil'].append(notification.data_chegada_brasil.isoformat())
+        else:
+            data['Data da chegada no Brasil'].append(notification.data_chegada_brasil)
+        data['Estado de notificação (UF)'].append(notification.estado_notificacao)
+        data['Município de notificação'].append(notification.municipio_notificacao)
         data['Coleta de exames'].append(notification.coleta_exames)
         data['Classificação final'].append(notification.classificacao)
         data['Resultado'].append(notification.resultado)
         data['INTERNADO'].append(notification.internado)
         data['EVOLUÇÃO'].append(notification.evolucao)
 
-    df = pandas.DataFrame(data, columns=collum_names)
+    df = pandas.DataFrame(data)
     df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
@@ -235,7 +235,7 @@ def store_base(df):
         ]
         Interpolation.objects.bulk_create(objs=objs)
 
-    """for index, row in df.iterrows():
+    for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
         except Notification.DoesNotExist:
@@ -285,7 +285,7 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
-        notification.save()"""
+        notification.save()
 
 def pre_processing(df):
     df["Bairro"] = None
