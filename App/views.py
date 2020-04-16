@@ -55,20 +55,34 @@ def graphs(request):
     notificationsES = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsCS = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsBS = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsESA = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsCSA = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsBSA = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsEA = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsCA = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsBA = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsEO = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsEOA = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     # DEBUG counter for null types
 
     for (index, notification) in enumerate(notificationsB):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
-                print(notificationsB[index])
-                    
+                notificationsBA[index]['data_notificacao'] = notificationsB[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsBA[index]['quantidade_casos'] += notificationsBA[index-1]['quantidade_casos'] 
         except TypeError:
             print("error")
     for (index, notification) in enumerate(notificationsE):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsEA[index]['data_notificacao'] = notificationsE[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsEA[index]['quantidade_casos'] += notificationsEA[index-1]['quantidade_casos'] 
         except TypeError:
             print("error")
     
@@ -76,20 +90,33 @@ def graphs(request):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsCA[index]['data_notificacao'] = notificationsC[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsCA[index]['quantidade_casos'] += notificationsCA[index-1]['quantidade_casos'] 
         except TypeError:
             print("error")
 
     for (index, notification) in enumerate(notificationsBS):
         try:
             if type(notification['data_notificacao']) is not type(None):
-                notificationsBS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")         
+                notificationsBS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
+                notificationsBSA[index]['data_notificacao'] = notificationsBS[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsBSA[index]['quantidade_casos'] += notificationsBSA[index-1]['quantidade_casos']
+
         except TypeError:
             print("error")
 
     for (index, notification) in enumerate(notificationsES):
         try:
             if type(notification['data_notificacao']) is not type(None):
-                notificationsES[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsES[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
+                notificationsESA[index]['data_notificacao'] = notificationsES[index]['data_notificacao'] 
+                
+            if index != 0: 
+                notificationsESA[index]['quantidade_casos'] += notificationsESA[index-1]['quantidade_casos']   
         except TypeError:
             print("error")
     
@@ -97,16 +124,38 @@ def graphs(request):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsCS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsCSA[index]['data_notificacao'] = notificationsCS[index]['data_notificacao'] 
+                
+            if index != 0: 
+                notificationsCSA[index]['quantidade_casos'] += notificationsCSA[index-1]['quantidade_casos']
         except TypeError:
             print("error")
-
+    # Óbitos e acumulados
+    for (index, notification) in enumerate(notificationsEO): 
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsEO[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsEOA[index]['data_notificacao'] = notificationsEO[index]['data_notificacao'] 
+            if index != 0: 
+                notificationsEOA[index]['quantidade_casos'] += notificationsEOA[index-1]['quantidade_casos']
+        except TypeError:
+            print("error")
+    print(notificationsEO)
     notificationsB = json.dumps(notificationsB,indent=4, sort_keys=True, default=str)
     notificationsE = json.dumps(notificationsE,indent=4, sort_keys=True, default=str)
     notificationsC = json.dumps(notificationsC,indent=4, sort_keys=True, default=str)
     notificationsCS = json.dumps(notificationsCS,indent=4, sort_keys=True, default=str)
     notificationsES = json.dumps(notificationsES,indent=4, sort_keys=True, default=str)
     notificationsBS = json.dumps(notificationsBS,indent=4, sort_keys=True, default=str)
-    return render(request, 'graphs.html', {'bairroBaseS':notificationsBS,'cidadeBaseS':notificationsCS,'estadoBaseS': notificationsES,'cidadeBase':notificationsC,'estadoBase':notificationsE,'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+    notificationsCSA = json.dumps(notificationsCSA,indent=4, sort_keys=True, default=str)
+    notificationsESA = json.dumps(notificationsESA,indent=4, sort_keys=True, default=str)
+    notificationsBSA = json.dumps(notificationsBSA,indent=4, sort_keys=True, default=str)
+    notificationsCA = json.dumps(notificationsCA,indent=4, sort_keys=True, default=str)
+    notificationsEA = json.dumps(notificationsEA,indent=4, sort_keys=True, default=str)
+    notificationsBA = json.dumps(notificationsBA,indent=4, sort_keys=True, default=str)
+    notificationsEOA = json.dumps(notificationsEOA,indent=4, sort_keys=True, default=str)
+    notificationsEO = json.dumps(notificationsEO,indent=4, sort_keys=True, default=str)
+    return render(request, 'graphs.html', {'obitosBase':notificationsEO, 'obitosBaseA':notificationsEOA ,'bairroBaseA':notificationsBA,'cidadeBaseA':notificationsCA,'estadoBaseA': notificationsEA,'bairroBaseSA':notificationsBSA,'cidadeBaseSA':notificationsCSA,'estadoBaseSA': notificationsESA,'bairroBaseS':notificationsBS,'cidadeBaseS':notificationsCS,'estadoBaseS': notificationsES,'cidadeBase':notificationsC,'estadoBase':notificationsE,'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 @login_required
 def home(request):

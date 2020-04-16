@@ -93,6 +93,39 @@
           outlined
         >
           <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos e Acumulados em Pernambuco</v-list-item-title>
+          </div>
+          <ve-line :data="chartDataO" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="values"
+                :items="itemsChips"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @click="printName(values)"
+                @change="setCity(values, 'itemsChipsC')"
+                multiple
+                disabled
+              ></v-autocomplete>
+              
+            </div>
+        </v-card>
+      </template>
+
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Suspeitos Por Dia</v-list-item-title>
           </div>
           <ve-line :data="chartDataS" ></ve-line>
@@ -110,6 +143,7 @@
                 @click="printName(valuesS)"
                 @change="setCity(valuesS, 'itemsChipsCS')"
                 multiple
+                disabled
               ></v-autocomplete>
             </div> 
               <div style="width: 100%;" class="pl-4 pr-4" >
@@ -124,6 +158,7 @@
                   width="400"
                   @change="setDistrict(valuesCS, 'itemsChipsDS')"
                   @click="printName(valuesCS)"
+                  @mousedown="setCity(valuesS, 'itemsChipsCS')"
                   multiple
                 ></v-autocomplete>
               </div>
@@ -181,6 +216,7 @@
                 @click="printName(values)"
                 @change="setCity(values, 'itemsChipsC')"
                 multiple
+                disabled
               ></v-autocomplete>
             </div> 
               <div style="width: 100%;" class="pl-4 pr-4" >
@@ -195,6 +231,7 @@
                   width="400"
                   @change="setDistrict(valuesC, 'itemsChipsD')"
                   @click="printName(valuesC)"
+                  @mousedown="setCity(values, 'itemsChipsC')"
                   multiple
                 ></v-autocomplete>
               </div>
@@ -213,7 +250,90 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter(values, valuesC, valuesD)">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter(values, valuesC, valuesD);filterEO()">
+                    <v-icon class="pr-2">mdi-download-outline</v-icon>
+                     Filtrar
+                  </v-btn>
+                </div>
+              </div>
+            </div>
+        </v-card>
+      </template>
+
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Gráfico Personalizado</v-list-item-title>
+          </div>
+          <ve-line :data="chartDataSA" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="valuesSelect"
+                :items="itemsChipsSelect"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione uma informação"
+                width="400"
+              ></v-autocomplete>
+            </div> 
+          </div>
+          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="valuesA"
+                :items="itemsChipsA"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @change="setCity(valuesA, 'itemsChipsCA')"
+                multiple
+                disabled
+              ></v-autocomplete>
+            </div> 
+              <div style="width: 100%;" class="pl-4 pr-4" >
+                <v-autocomplete
+                  v-model="valuesCA"
+                  :items="itemsChipsCA"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione a cidade"
+                  width="400"
+                  @mousedown="setCity(valuesA, 'itemsChipsCA')"
+                  @change="setDistrict(valuesCA, 'itemsChipsDA')"
+                  
+                  multiple
+                ></v-autocomplete>
+              </div>
+              <div style="width: 100%;" class="pl-4">
+                <v-autocomplete
+                  v-model="valuesDA"
+                  :items="itemsChipsDA"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione o bairro"
+                  multiple
+                  width="400"
+                ></v-autocomplete>
+              </div>
+              <div>
+                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterControl(valuesA, valuesCA, valuesDA,valuesSelect)">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>
