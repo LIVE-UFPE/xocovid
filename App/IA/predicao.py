@@ -18,7 +18,7 @@ def avaliando(y_test, y_pred):
 
 def main():
     # Divide o em trino e teste
-    pasta = './bases predicao'            
+    pasta = os.path.join(os.path.dirname(__file__))+'/bases predicao'            
     caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
     arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
 
@@ -93,7 +93,7 @@ def main():
     ultimoCSV['prediction_day3'] = day3_pred
     ultimoCSV = ultimoCSV.drop(['prediction','day1', 'day2', 'day3'], axis=1)
 
-    ultimoCSV.to_csv('saidaFinal.csv', index = False)
+    ultimoCSV.to_csv(os.path.join(os.path.dirname(__file__))+'/saidaFinal.csv', index = False)
 
 
     # # ### SVR Regression
