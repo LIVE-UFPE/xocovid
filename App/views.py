@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, AccessKey
+from .models import Notification, Prediction, AccessKey, Interpolation
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager
 from django.db.models.query import QuerySet
@@ -73,26 +73,25 @@ def home(request):
         context = {}
         pins = []
         predicts = []
-        notifications = list(Notification.objects.all())
+        notifications = list(Interpolation.objects.all())
         predictions = list(Prediction.objects.all())
         # DEBUG counter for null types
         null_notes = 0
         for notification in notifications:
             try:
-                if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.bairro) is type(None):
+                if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.prediction) is type(None):
                     null_notes += 1
                     raise TypeError('')
             except TypeError:
                 print('error pegando Notificação, algum dado é Null')
             else:
-                if notification.classificacao == "Confirmado":
-                    pins.append({
-                        "latitude": notification.latitude,
-                        "longitude": notification.longitude,
-                        "data_notificacao": notification.data_notificacao.isoformat() if type(notification.data_notificacao) is not type(None) else '2000-01-01',
-                        "bairro": notification.bairro,
-                        # TODO adicionar entradas futuramente relevantes
-                    })
+                pins.append({
+                    "latitude": notification.latitude,
+                    "longitude": notification.longitude,
+                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                    "intensidade": notification.prediction
+                    # TODO adicionar entradas futuramente relevantes
+                })
 
         # DEBUG type test
         print("De",len(notifications),",",null_notes,"tem dados nulos")

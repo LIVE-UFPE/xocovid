@@ -58,7 +58,7 @@ module.exports = {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de Recife
             maxZoom: 18,
-            minZoom: 12,
+            minZoom: 9,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
@@ -68,12 +68,22 @@ module.exports = {
 
         let pinsLen = this.pins.length;
         let pins_heat = [];
+        let maior_int = 0.0
+        let menor_int = 0.0
+        let today = new Date();
+        today.setHours(23,59,59);
+        let yesterday = new Date(today);
+        yesterday.setDate( today.getDate() - 1 );
         for( var i = 0; i < pinsLen; i++){
-            pins_heat.push({
+            if (this.pins[i].data_notificacao > yesterday && this.pins[i].data_notificacao < today) {
+                pins_heat.push({
                 'lat': this.pins[i].latitude,
                 'lng': this.pins[i].longitude,
-                'intensidade': 0.35,
-            })
+                'intensidade': this.pins[i].intensidade,
+                })
+                if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
+                if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
+            }
         }
 
         this.heatmap = new HeatmapOverlay({
@@ -83,7 +93,8 @@ module.exports = {
                 '1': 'red',
             },
             //? raio em pixels (na proporção 1/2 pixel/metro)
-            'radius': 50,
+            // TODO ajustar raio e formula de raio em todo canto
+            'radius': this.radius,
             'scaleRadius': false,
             latField: 'lat',
             lngField: 'lng',
@@ -96,7 +107,7 @@ module.exports = {
         this.heatmap.addTo(this.mymap);
 
         this.heatmap.setData({
-            max: 1,
+            max: maior_int,
             min: 0,
             data: pins_heat,
         });
@@ -109,7 +120,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': 50,
+                    'radius': 20,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -140,7 +151,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': Math.floor( 50 / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                    'radius': Math.floor( 20 / ( Math.pow(2,14 - ev.target._zoom) ) ),
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -177,8 +188,8 @@ module.exports = {
         },
         radius() {
             let zum = this.mymap.getZoom();
-            if ( zum >= 14 ) return 50;
-            else return Math.floor( 50 / ( Math.pow(2,14 - zum) ) );
+            if ( zum >= 14 ) return 20;
+            else return Math.floor( 20 / ( Math.pow(2,14 - zum) ) );
         }
     },
     watch: {
@@ -248,20 +259,26 @@ module.exports = {
             }else{
                 let pinsLen = this.pins.length;
                 let data_notification = new Date();
+                let before = new Date(this.datedb);
+                maior_int = 0.0
+                before.setHours(23,59,59);
+                before.setDate( before.getDate() - 1 );
                 // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
                 for( var i = 0; i < pinsLen; i++){
 
                     // TODO think of UTC issue
                     data_notification = new Date(this.pins[i].data_notificacao);
                     // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
-                    if (data_notification <= this.datedb){
+                    if (data_notification <= this.datedb && data_notification > before){
                         pins_heat.push({
                             'lat': this.pins[i].latitude,
                             'lng': this.pins[i].longitude,
-                            'intensidade': 0.35,
+                            'intensidade': this.pins[i].intensidade,
                         })
+                        if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
+                        if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
                     }else{
-                        cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
+                        // cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
                         qtd_pins_excluidos += 1;
                     }
                 }
@@ -286,7 +303,7 @@ module.exports = {
             this.heatmap.reconfigure(config)
             this.heatmap.setData({
                 max: maior_int == 0.0 ? 1 : maior_int,
-                min: menor_int,
+                min: 0,
                 data: pins_heat
             });
             console.log(cons_log)
