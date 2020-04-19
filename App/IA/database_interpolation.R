@@ -12,8 +12,13 @@ library("gstat")
 
 # Fetch command line arguments
 list_days <- commandArgs(trailingOnly = TRUE)
-list_interpolation = list() #store the interpolated data for each day of covid-19 confirmed cases
+list_interpolation = c() #store the interpolated data for each day of covid-19 confirmed cases
 
+#day1 = 'C:/Users/clari/PyCharmProjects/covid-19/casos confirmados/covid19_22-03.csv'
+#day2 = 'C:/Users/clari/PyCharmProjects/covid-19/casos confirmados/covid19_23-03.csv'
+#day3 = 'C:/Users/clari/PyCharmProjects/covid-19/casos confirmados/covid19_24-03.csv'
+#day4 = 'C:/Users/clari/PyCharmProjects/covid-19/casos confirmados/covid19_25-03.csv'
+#list_days = list(day1,day2,day3,day4)
 
 # define sample grid based on the extent of the recife_shp file
 recife_shp <- shapefile("shapefile/RECIFE_WGS84.shp") # Recife's shapefile must be stored
@@ -28,16 +33,15 @@ for (i in 1:4) {
   
   #Creating the shapefile for the data interpolation
   #shp <- st_read("shapefile/NOVO RECIFE.shp")
-  shp_covid19 <- st_as_sf(covid19, coords = c("longitude", "latitude"), crs = " +proj=utm +zone=25 +south +ellps=GRS80 +units=m +no_defs 
-")
-  shp_wgs84 <- st_transform(shp_covid19, crs(recife_shp))
-  new_shp <- st_write(shp_wgs84, "shapefile/shapefile_interpolacao.shp", append=FALSE)
+  shp_covid19 <- st_as_sf(covid19, coords = c("longitude", "latitude"), crs = " +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  #shp_wgs84 <- st_transform(shp_covid19, crs(recife_shp))
+  new_shp <- st_write(shp_covid19, "shapefile/shapefile_interpolacao.shp", append=FALSE)
   
-
+  
   #loading the shapefile of confirmed cases of covid19
   cases.Points <- shapefile("shapefile/shapefile_interpolacao.shp")
   
- 
+  
   # runs the idw for the confirmed cases of covid-19
   idw <- idw(cases.Points$casos ~ 1,cases.Points, newdata= grid)
   idw.output = as.data.frame(idw)
@@ -58,7 +62,7 @@ df <- data.frame("longitude" = day1_int[[1]]$x1,
                  "day2" = day2_int[[1]]$var1.pred,
                  "day3" = day3_int[[1]]$var1.pred,
                  "day4" = day4_int[[1]]$var1.pred
-                 )
+)
 
 # saving interpolated values into a .csv file
 split_string <- unlist(strsplit(list_days[4],"_")) 

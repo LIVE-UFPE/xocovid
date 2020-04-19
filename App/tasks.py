@@ -65,15 +65,15 @@ def listener():
             names=collum_names,
         )
     
-        df = pre_processing(df)
-    
+        #df = pre_processing(df)
+    #jdzhivsdhnvppsifvm
         store_base(df)
 
         #build_IAbase()
 
         #prediction()
 
-        #send_prediction_to_db()
+        send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")
     
@@ -213,7 +213,7 @@ def build_IAbase():
 def store_base(df):
     pasta = PATH_FILES+'bases predicao/'
 
-    """Interpolation.objects.all().delete()
+    Interpolation.objects.all().delete()
 
     for fileName in os.listdir(pasta):
         a = pandas.read_csv(pasta+fileName, sep=',')
@@ -233,9 +233,9 @@ def store_base(df):
             )
             for m in interporlations
         ]
-        Interpolation.objects.bulk_create(objs=objs)"""
+        Interpolation.objects.bulk_create(objs=objs)
 
-    df = df.replace({np.nan: None})
+    """df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
@@ -286,7 +286,7 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
-        notification.save()
+        notification.save()"""
 
 def pre_processing(df):
     df["Bairro"] = None
