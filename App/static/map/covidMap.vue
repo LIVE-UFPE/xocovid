@@ -70,12 +70,14 @@ module.exports = {
         let pins_heat = [];
         let maior_int = 0.0
         let menor_int = 0.0
-        let today = new Date();
+        let today = new Date(this.datedb);
         today.setHours(23,59,59);
         let yesterday = new Date(today);
         yesterday.setDate( today.getDate() - 1 );
+        let data = new Date();
         for( var i = 0; i < pinsLen; i++){
-            if (this.pins[i].data_notificacao > yesterday && this.pins[i].data_notificacao < today) {
+            data = new Date(this.pins[i].data_notificacao + 'T00:00:00');
+            if (data > yesterday && data <= today) {
                 pins_heat.push({
                 'lat': this.pins[i].latitude,
                 'lng': this.pins[i].longitude,
@@ -120,7 +122,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': 20,
+                    'radius': 25,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -151,7 +153,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': Math.floor( 20 / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                    'radius': Math.floor( 25 / ( Math.pow(2,14 - ev.target._zoom) ) ),
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -180,6 +182,7 @@ module.exports = {
         });
 
         console.log(`adicionando um total de ${pinsLen} no mapa`)
+        console.log(`datedb é ${this.datedb.toLocaleString('en-GB')}`)
     },
     computed: {
         // * abreviado de datewatch: function (){}
@@ -188,12 +191,12 @@ module.exports = {
         },
         radius() {
             let zum = this.mymap.getZoom();
-            if ( zum >= 14 ) return 20;
-            else return Math.floor( 20 / ( Math.pow(2,14 - zum) ) );
+            if ( zum >= 14 ) return 25;
+            else return Math.floor( 25 / ( Math.pow(2,14 - zum) ) );
         }
     },
     watch: {
-        // ? mudar o array de entrada do heatmap de acordo com o botão pressionado em home.html
+        // TODO fix bug onde ele pega um dia antes do q era p pegar
         // * abreviado de datewatch: function (){}
         datewatch() {
             let pins_heat = [];
@@ -201,6 +204,7 @@ module.exports = {
             // DEBUG lista pro console.log
             let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
             let qtd_pins_excluidos = 0
+            let qtd_pins_inseridos = 0
             let predLen = this.predicts.length;
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
@@ -211,10 +215,11 @@ module.exports = {
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 // ? datedb tem horário 23:59:58
-                let data = new Date();
+                let data = new Date(this.pins[0].data_notificacao + 'T00:00:00');
                 let data_intensidade = '';
                 data.setHours(23,59,59);
                 data.setDate( data.getDate() + 1 );
+                console.log(`datedb é ${this.datedb.toString()} e data ${data.toString()}`);
                 if( this.datedb < data ){
                     data_intensidade = '1';
                     this.txtsnack = 'Os dados agora são previstos pela IA';
@@ -263,13 +268,16 @@ module.exports = {
                 maior_int = 0.0
                 before.setHours(23,59,59);
                 before.setDate( before.getDate() - 1 );
+                console.log('before = ' + before.toLocaleString('en-GB') + '\n')
                 // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
                 for( var i = 0; i < pinsLen; i++){
 
                     // TODO think of UTC issue
-                    data_notification = new Date(this.pins[i].data_notificacao);
+                    data_notification = new Date(this.pins[i].data_notificacao + 'T00:00:00');
+                    // data_notification.setHours(12,00,00);
                     // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
-                    if (data_notification <= this.datedb && data_notification > before){
+                    if (data_notification > before && data_notification <= this.datedb){
+                        cons_log += 'data_notificacao: ' + data_notification.toLocaleString('en-GB') + '\n';
                         pins_heat.push({
                             'lat': this.pins[i].latitude,
                             'lng': this.pins[i].longitude,
@@ -277,11 +285,15 @@ module.exports = {
                         })
                         if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
                         if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
+                        qtd_pins_inseridos += 1;
                     }else{
                         // cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
                         qtd_pins_excluidos += 1;
                     }
                 }
+                console.log(cons_log);
+                cons_log = ''
+                cons_log += '\nQuantidade de pins inseridos: ' + qtd_pins_inseridos.toString() + '\n';
                 cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
                 config = {
                     gradient: {
@@ -302,7 +314,7 @@ module.exports = {
 
             this.heatmap.reconfigure(config)
             this.heatmap.setData({
-                max: maior_int == 0.0 ? 1 : maior_int,
+                max: maior_int,
                 min: 0,
                 data: pins_heat
             });

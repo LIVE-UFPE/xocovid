@@ -185,10 +185,15 @@
             avatar: false,
             rounded: false,
             pins: pins,
-            datedb: new Date(),
+            datedb: new Date(pins[0].data_notificacao + 'T00:00:00'),
             predicts: predicts,
             useIa: false,
         }),
+        mounted: function (){
+            // ? avançando 3 hrs p manter datedb ajustado
+            //this.datedb.setHours(this.datedb.getHours() + 3);
+            console.log('pins[0] é ' + this.pins[0].data_notificacao + ' e datedb ' + this.datedb.toString() + 'e o dia em UTC é ' + this.datedb.toUTCString() + '\n');
+        },
         methods: {
             printName: function (value){
                 console.log("Teste ", value);
@@ -223,7 +228,7 @@
                 test.setDate( test.getDate() - 1 );
                 test.setHours(23,59,58);
 
-                let today = new Date();
+                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00');
                 today.setHours(23,59,59);
                 if( test < today ){
                     this.useIa = false;
@@ -236,7 +241,7 @@
             dateForward: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() + 1 );
-                let today = new Date();
+                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00');
                 today.setHours(23,59,59);
                 let afterAfterTomorrow = new Date(today);
                 afterAfterTomorrow.setDate( today.getDate() + 3 );

@@ -73,7 +73,7 @@ def home(request):
         context = {}
         pins = []
         predicts = []
-        notifications = list(Interpolation.objects.all())
+        notifications = list(Interpolation.objects.all().order_by('-date'))
         predictions = list(Prediction.objects.all())
         # DEBUG counter for null types
         null_notes = 0
@@ -82,16 +82,17 @@ def home(request):
                 if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.prediction) is type(None):
                     null_notes += 1
                     raise TypeError('')
+                else:
+                    pins.append({
+                        "latitude": notification.latitude,
+                        "longitude": notification.longitude,
+                        "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                        "intensidade": notification.prediction
+                        # TODO adicionar entradas futuramente relevantes
+                    })
             except TypeError:
                 print('error pegando Notificação, algum dado é Null')
-            else:
-                pins.append({
-                    "latitude": notification.latitude,
-                    "longitude": notification.longitude,
-                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
-                    "intensidade": notification.prediction
-                    # TODO adicionar entradas futuramente relevantes
-                })
+            
 
         # DEBUG type test
         print("De",len(notifications),",",null_notes,"tem dados nulos")
