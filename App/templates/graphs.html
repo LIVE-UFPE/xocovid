@@ -177,7 +177,7 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterS(valuesS, valuesCS, valuesDS)">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterS(valuesS, valuesCS, valuesDS, 'chartDataS')">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>
@@ -250,7 +250,7 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter(values, valuesC, valuesD);filterEO()">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filter(values, valuesC, valuesD, 'chartData');filterEO()">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>
@@ -285,6 +285,18 @@
                 width="400"
               ></v-autocomplete>
             </div> 
+            <div style="width: 35%;" class="pr-4" >
+              <v-radio-group v-model="diaOUAcu" :mandatory="false">
+                <v-row>
+                  <v-col cols="6">
+                    <v-radio label="Diários" value="diario"></v-radio>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-radio label="Acumulados"  value="acumulado"></v-radio>
+                  </v-col>
+                </v-row>              
+              </v-radio-group>
+            </div>
           </div>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
             <div style="width: 100%;" class="pr-4" >
@@ -333,7 +345,7 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterControl(valuesA, valuesCA, valuesDA,valuesSelect)">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filterControl(valuesA, valuesCA, valuesDA,valuesSelect,diaOUAcu)">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>

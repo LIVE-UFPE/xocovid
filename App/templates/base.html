@@ -148,7 +148,7 @@
             itemsChipsCA: [],
             itemsChipsDA: [],
             itemsChipsR: [],
-            itemsChipsSelect: ['Casos Confirmados Acumulados', 'Casos Suspeitos Acumulados'],
+            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos'],
             values: ['Pernambuco'],
             valuesC:  null,
             valuesD: null,
@@ -220,6 +220,7 @@
             datedb: new Date(),
             predicts: predicts,
             useIa: false,
+            diaOUAcu: 'acumulado'
         }),
         
         methods: {
@@ -250,15 +251,22 @@
                 console.log("CHIPS: ",chips);
                 Vue.set(app, chips, objD)
             },
-            filterControl: function(value, valuesC, valuesB, selecao){
-                if(selecao == 'Casos Suspeitos'){
-                    
-                }else if(selecao == 'Casos Confirmados'){
-
-                }else if(selecao == 'Casos Confirmados Acumulados'){
-                    this.filterA(value, valuesC, valuesB)
-                }else{ // 'Casos Suspeitos Acumulados'
+            filterControl: function(value, valuesC, valuesB, selecao, diaouacu){
+                if(selecao == 'Casos Suspeitos' && diaouacu == 'acumulado'){
                     this.filterSA(value, valuesC, valuesB)
+                }else if(selecao == 'Casos Confirmados' && diaouacu == 'acumulado'){
+                    this.filterA(value, valuesC, valuesB)
+                }else if(selecao == 'Casos Suspeitos' && diaouacu == 'diario'){
+                    this.filterS(value, valuesC, valuesB, 'chartDataSA')
+                }
+                else if(selecao == 'Casos Confirmados' && diaouacu == 'diario'){
+                    this.filter(value, valuesC, valuesB, 'chartDataSA')
+                }
+                else if(selecao == 'Óbito' && diaouacu == 'diario'){
+
+                }
+                else if(selecao == 'Óbito' && diaouacu == 'acumulado'){
+
                 }
             },
             filterO: function(){
@@ -544,7 +552,7 @@
                 console.log("Chart: ", chart);
                 Vue.set(app, 'chartDataSA', chart)
             },
-            filterS: function (value, valuesC, valuesB){
+            filterS: function (value, valuesC, valuesB, graph){
                 value = ['Pernambuco']
                 var chart = {
                     columns: ['data'],
@@ -674,9 +682,9 @@
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
                 }); 
                 console.log("Chart: ", chart)
-                Vue.set(app, 'chartDataS', chart)
+                Vue.set(app, graph, chart)
             },
-            filter: function (value, valuesC, valuesB){
+            filter: function (value, valuesC, valuesB, graph){
                 value = ['Pernambuco']
                 var chart = {
                     columns: ['data'],
@@ -809,7 +817,7 @@
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
                 }); 
                 console.log("Chart: ", chart);
-                Vue.set(app, 'chartData', chart)
+                Vue.set(app, graph, chart)
             },
             dateBack: function (event) {
                 let test = new Date(this.datedb);
@@ -849,8 +857,8 @@
         },
         mounted: function () {
             this.$nextTick(function () {
-                this.filterS(['Pernambuco'], [], [])
-                this.filter(['Pernambuco'], [], [])
+                this.filterS(['Pernambuco'], [], [], 'chartDataS')
+                this.filter(['Pernambuco'], [], [], 'chartData')
                 this.filterSA(['Pernambuco'], [], [])
                 this.filterO()
             })
