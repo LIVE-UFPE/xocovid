@@ -23,7 +23,7 @@ def interpolacao(day1, day2, day3, day4):
 
 # print("aaa")
 def main():
-    pasta = os.path.join(os.path.dirname(__file__))+'/casos confirmados'            
+    pasta = './casos confirmados'            
     caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
     arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
     arquivos.sort()

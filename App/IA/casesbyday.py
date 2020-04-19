@@ -3,6 +3,21 @@ import numpy as np
 from datetime import datetime
 import os
 
+def formatData(a):
+    retorno = a
+    b = a.split('-')
+    print('entrada',retorno)
+    try:
+        if(int(b[2]) <= 12 and int(b[1]) <= 12):
+            b[1] ,b[2] = b[2],b[1]
+            print('aaa')
+            retorno = '-'.join(b)
+    except:
+        print("An exception occurred")
+    retorno = retorno.replace(' 00:00:00','')
+    print('saida',retorno)
+    return retorno
+
 def main():
 
     # getting the date 
@@ -13,8 +28,8 @@ def main():
     # os.mkdir(caminho)
 
     # read dataframes
-    casosCovidPE = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/saidaPreProcessada.csv', sep=',')
-    bairros = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/listaBairros.csv', sep=',')
+    casosCovidPE = pd.read_csv('saidaPreProcessada.csv', sep=',')
+    bairros = pd.read_csv('listaBairros.csv', sep=',')
 
     # putting string data in the same case
     bairros.Bairro = bairros.Bairro.str.lower()
@@ -22,6 +37,7 @@ def main():
 
     # getting only confirmed cases
     casosRecife = casosCovidPE[(casosCovidPE['Município'] == 'Recife') & (casosCovidPE['Classificação final'].str.lower() == 'confirmado')]
+
 
     # dropping uneeded data
     casosRecife = casosRecife.drop(['ID','Data Atualização', 'Data dos primeiros sintomas', 'Paciente foi hospitalizado?',
@@ -32,17 +48,18 @@ def main():
                   'Data da chegada no Brasil','Classificação final','Resultado', 'INTERNADO', 'EVOLUÇÃO', 'Outro local de transmissão, descrever (cidade, região, país)', 'Latitude', 'Longitude'], axis=1)
 
     # sorting by date
+    casosRecife['Data da notificação'] = list(map(formatData, casosRecife['Data da notificação']))
     casosRecife = casosRecife.sort_values(by=['Data da notificação'])
     
     dias = casosRecife['Data da notificação'].unique()
     print(dias)
-    dias = np.insert(dias,1,'2020-03-06 00:00:00')
-    dias = np.insert(dias,2,'2020-03-07 00:00:00')
-    dias = np.insert(dias,3,'2020-03-08 00:00:00')
-    dias = np.insert(dias,4,'2020-03-09 00:00:00')
-    dias = np.insert(dias,5,'2020-03-10 00:00:00')
-    dias = np.insert(dias,5,'2020-03-11 00:00:00')
-
+    dias = np.insert(dias,1,'2020-03-06')
+    dias = np.insert(dias,2,'2020-03-07')
+    dias = np.insert(dias,3,'2020-03-08')
+    dias = np.insert(dias,4,'2020-03-09')
+    dias = np.insert(dias,5,'2020-03-10')
+    dias = np.insert(dias,5,'2020-03-11')
+    print(dias)
 
     # couting cases by location in each day and saving datasets
     casosAnt = len(bairros.Bairro) * [0]
@@ -60,4 +77,4 @@ def main():
         casosBairro['longitude'] = bairros['longitude-WGS84']
         casosBairro['casos'] = casos
         casosAnt = casos
-        casosBairro.to_csv(os.path.join(os.path.dirname(__file__))+'/casos confirmados/covid19_'+dia[5:10] + '.csv')
+        casosBairro.to_csv('casos confirmados/covid19_'+dia[5:10] + '.csv')
