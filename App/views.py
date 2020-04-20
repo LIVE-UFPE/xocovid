@@ -52,6 +52,9 @@ def graphs(request):
     notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsE = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsC = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOB = list(Notification.objects.filter(evolucao='Óbito').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOE = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOC = list(Notification.objects.filter(evolucao='Óbito').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsES = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsCS = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsBS = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
@@ -61,6 +64,9 @@ def graphs(request):
     notificationsEA = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsCA = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsBA = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOEA = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOCA = list(Notification.objects.filter(evolucao='Óbito').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOBA = list(Notification.objects.filter(evolucao='Óbito').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsEO = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsEOA = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     # DEBUG counter for null types
@@ -94,6 +100,38 @@ def graphs(request):
                 
             if index != 0: 
                 notificationsCA[index]['quantidade_casos'] += notificationsCA[index-1]['quantidade_casos'] 
+        except TypeError:
+            print("error")
+
+    for (index, notification) in enumerate(notificationsOB):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsOB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
+                notificationsOBA[index]['data_notificacao'] = notificationsOB[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsOBA[index]['quantidade_casos'] += notificationsOBA[index-1]['quantidade_casos'] 
+        except TypeError:
+            print("error")
+    for (index, notification) in enumerate(notificationsOE):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsOE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsOEA[index]['data_notificacao'] = notificationsOE[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsOEA[index]['quantidade_casos'] += notificationsOEA[index-1]['quantidade_casos'] 
+        except TypeError:
+            print("error")
+    
+    for (index, notification) in enumerate(notificationsOC):
+        try:
+            if type(notification['data_notificacao']) is not type(None):
+                notificationsOC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
+                notificationsOCA[index]['data_notificacao'] = notificationsOC[index]['data_notificacao']
+                
+            if index != 0: 
+                notificationsOCA[index]['quantidade_casos'] += notificationsOCA[index-1]['quantidade_casos'] 
         except TypeError:
             print("error")
 
@@ -140,10 +178,12 @@ def graphs(request):
                 notificationsEOA[index]['quantidade_casos'] += notificationsEOA[index-1]['quantidade_casos']
         except TypeError:
             print("error")
-    print(notificationsEO)
     notificationsB = json.dumps(notificationsB,indent=4, sort_keys=True, default=str)
     notificationsE = json.dumps(notificationsE,indent=4, sort_keys=True, default=str)
     notificationsC = json.dumps(notificationsC,indent=4, sort_keys=True, default=str)
+    notificationsOB = json.dumps(notificationsOB,indent=4, sort_keys=True, default=str)
+    notificationsOE = json.dumps(notificationsOE,indent=4, sort_keys=True, default=str)
+    notificationsOC = json.dumps(notificationsOC,indent=4, sort_keys=True, default=str)
     notificationsCS = json.dumps(notificationsCS,indent=4, sort_keys=True, default=str)
     notificationsES = json.dumps(notificationsES,indent=4, sort_keys=True, default=str)
     notificationsBS = json.dumps(notificationsBS,indent=4, sort_keys=True, default=str)
@@ -153,9 +193,12 @@ def graphs(request):
     notificationsCA = json.dumps(notificationsCA,indent=4, sort_keys=True, default=str)
     notificationsEA = json.dumps(notificationsEA,indent=4, sort_keys=True, default=str)
     notificationsBA = json.dumps(notificationsBA,indent=4, sort_keys=True, default=str)
+    notificationsOCA = json.dumps(notificationsOCA,indent=4, sort_keys=True, default=str)
+    notificationsOEA = json.dumps(notificationsOEA,indent=4, sort_keys=True, default=str)
+    notificationsOBA = json.dumps(notificationsOBA,indent=4, sort_keys=True, default=str)
     notificationsEOA = json.dumps(notificationsEOA,indent=4, sort_keys=True, default=str)
     notificationsEO = json.dumps(notificationsEO,indent=4, sort_keys=True, default=str)
-    return render(request, 'graphs.html', {'obitosBase':notificationsEO, 'obitosBaseA':notificationsEOA ,'bairroBaseA':notificationsBA,'cidadeBaseA':notificationsCA,'estadoBaseA': notificationsEA,'bairroBaseSA':notificationsBSA,'cidadeBaseSA':notificationsCSA,'estadoBaseSA': notificationsESA,'bairroBaseS':notificationsBS,'cidadeBaseS':notificationsCS,'estadoBaseS': notificationsES,'cidadeBase':notificationsC,'estadoBase':notificationsE,'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+    return render(request, 'graphs.html', {'obitosBase':notificationsEO, 'obitosBaseA':notificationsEOA , 'bairroBaseOA':notificationsOBA,'cidadeBaseOA':notificationsOCA,'estadoBaseOA': notificationsOEA, 'bairroBaseA':notificationsBA,'cidadeBaseA':notificationsCA,'estadoBaseA': notificationsEA,'bairroBaseSA':notificationsBSA,'cidadeBaseSA':notificationsCSA,'estadoBaseSA': notificationsESA,'bairroBaseS':notificationsBS,'cidadeBaseS':notificationsCS,'estadoBaseS': notificationsES, 'cidadeBaseO':notificationsOC,'estadoBaseO':notificationsOE,'bairroBaseO':notificationsOB, 'cidadeBase':notificationsC,'estadoBase':notificationsE,'bairroBase':notificationsB,'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
 
 @login_required
 def home(request):
