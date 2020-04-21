@@ -10,24 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='AccessKey',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=20, unique=True)),
-                ('used', models.BooleanField(default=False)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Interpolation',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('latitude', models.FloatField(null=True)),
-                ('longitude', models.FloatField(null=True)),
-                ('prediction', models.FloatField(null=True)),
-                ('date', models.DateField(null=True)),
-            ],
-        ),
         migrations.RenameField(
             model_name='prediction',
             old_name='prediction',
