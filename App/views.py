@@ -71,9 +71,9 @@ def home(request):
         return user_login(request)
     else:
         context = {}
-        pins = []
         predicts = []
-        notifications = list(Interpolation.objects.all().order_by('-date'))
+        notification = Interpolation.objects.order_by('-date').first()
+        print('ultima interpolação é de',notification.date)
         predictions = list(Prediction.objects.all())
         debug = 0
         for prediction in predictions:
@@ -86,10 +86,8 @@ def home(request):
             })
             debug += 1
         print('enviando',debug, 'pontos de predição')
-        pins.append({
-            "data_notificacao": notifications[0].date.isoformat() if type(notifications[0].date) is not type(None) else '2000-01-01',
-        })
-        context["items_json"] = json.dumps(pins)
+
+        context["items_json"] = json.dumps(notification.date.isoformat())
         context["predicts_json"] = json.dumps(predicts)
         return render(request, 'home.html',context)
 
@@ -97,36 +95,22 @@ def get_pins(request):
     if request.user.is_authenticated == False:
         return user_login(request)
     else:
-        # DEBUG counter for null types
-        null_notes = 0
-        pins = []
-        notifications = list(Interpolation.objects.all().order_by('-date'))
         # ? starting trial to use AJAX
         if request.is_ajax and request.method == "GET":
             day = request.GET.get("day")
+            notifications = []
             print('day é', day)
+                        
+            for notification in Interpolation.objects.filter(date__exact= day):
+                notifications.append({
+                    "latitude": notification.latitude,
+                    "longitude": notification.longitude,
+                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                    "intensidade": notification.prediction
+                })
+            print('enviando',len(notifications), 'pontos')
             
-            for notification in notifications:
-                try:
-                    if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.prediction) is type(None):
-                        raise TypeError('')
-                    else:
-                        if notification.date.isoformat() == day:
-                            pins.append({
-                                "latitude": notification.latitude,
-                                "longitude": notification.longitude,
-                                "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
-                                "intensidade": notification.prediction
-                            })
-                            null_notes += 1
-                except TypeError:
-                    print('error pegando Notificação, algum dado é Null')
-            print('enviando',null_notes, 'pontos')
-            
-            # context["items_json"] = json.dumps(pins)
-            # return render(request, 'home.html',context)
-
-            return JsonResponse(pins, safe=False)
+            return JsonResponse(notifications, safe=False)
             # TODO get predictions
         else: return JsonResponse({error: "deu erro aí"})
         # # DEBUG type test

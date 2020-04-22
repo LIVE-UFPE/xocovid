@@ -33,7 +33,7 @@ module.exports = {
             console.log(`datedb é ${this.datedb.toISOString()}`)
             if (this.request != null) {
                 this.request.abort();
-                console.log('cancelando requisição anterior')
+                // console.log('cancelando requisição anterior')
             }
             this.request = $.ajax({
                 context: this,
@@ -45,28 +45,21 @@ module.exports = {
                     // seta pins
                     this.request = null
                     this.pins = response
-                    console.log('acabei AGORA os pins')
-                    console.log(this.pins)
+                    // console.log('acabei AGORA os pins')
+                    // console.log(this.pins)
                     let pinsLen = this.pins.length;
                     let pins_heat = [];
                     let maior_int = 0.0
                     let menor_int = 0.0
-                    let today = new Date(this.datedb);
-                    today.setHours(23,59,59);
-                    let yesterday = new Date(today);
-                    yesterday.setDate( today.getDate() - 1 );
-                    let data = new Date();
+
                     for( var i = 0; i < pinsLen; i++){
-                        data = new Date(this.pins[i].data_notificacao + 'T00:00:00Z');
-                        if (data > yesterday && data <= today) {
-                            pins_heat.push({
-                            'lat': this.pins[i].latitude,
-                            'lng': this.pins[i].longitude,
-                            'intensidade': this.pins[i].intensidade,
-                            })
-                            if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
-                            if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
-                        }
+                        pins_heat.push({
+                        'lat': this.pins[i].latitude,
+                        'lng': this.pins[i].longitude,
+                        'intensidade': this.pins[i].intensidade,
+                        })
+                        if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
+                        if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
                     }
                     this.heatmap.reconfigure({
                         gradient: {
@@ -261,7 +254,8 @@ module.exports = {
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 // ? datedb tem horário 23:59:58
-                let data = new Date(this.pins[0].data_notificacao + 'T00:00:00Z');
+
+                let data = new Date(this.lastInterpol);
                 let data_intensidade = '';
                 data.setHours(23,59,59);
                 data.setDate( data.getDate() + 1 );
