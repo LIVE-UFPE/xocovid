@@ -384,10 +384,17 @@
                                     chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
                                 }
                                 else{
-                                    if(diaouacu == 'acumulado' && j >= 0){
-                                        chart.rows[i][[column]] = chart.rows[j][[column]]
+                                    if(diaouacu == 'acumulado'){
+                                        if(j >= 0){
+                                            chart.rows[i][[column]] = chart.rows[j][[column]]
+                                        }
+                                        else{
+                                            for(k = i; k >= 0; k--){
+                                                chart.rows[k][[column]] = 0
+                                            }
+                                        }
                                     }
-                                    if(diaouacu == 'diario'){
+                                    else{
                                         chart.rows[i][[column]] = 0
                                     }
                                 }
@@ -395,9 +402,6 @@
                         }
                     }
                 })
-
-                console.log("ESSE AQUI")
-                console.log(chart)
 
                 Vue.set(app, 'chartDataSA', chart)
             },
@@ -412,34 +416,22 @@
                     console.log("Nada");
                 }else if(cidades == null || (cidades.length == 0)){
                     estados.forEach(estado =>{
-                        estadoBaseRA.forEach(estadob =>{
+                        estadoBaseRA.forEach((estadob, index) =>{
                             if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
                                 label = 'Recuperados em ' + estadob.estado_residencia.toLowerCase()
                                 if(! chart.columns.includes(label)){
                                     chart.columns.push(label)
                                 }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
+                                acumulado = estadob.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if(estado.toLowerCase() == estadoBaseRA[i]['estado_residencia'].toLowerCase()){
+                                        acumulado += estadoBaseRA[i]['quantidade_casos']
                                     }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
                                 }
+                                chart.rows.push({
+                                    [label] : acumulado,
+                                    'data' : estadob.data_notificacao
+                                })
                             }
                         })
                     })
@@ -447,67 +439,44 @@
                 else if(cidades != null && (cidades.length != 0)){ 
                     if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
                         cidades.forEach(cidade =>{
-                            cidadeBaseRA.forEach(cidadeb =>{
+                            cidadeBaseRA.forEach((cidadeb, index) =>{
                                 if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
                                     label = 'Recuperados em ' + cidadeb.municipio.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
+                                    acumulado = cidadeb.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(cidade.toLowerCase() == cidadeBaseRA[i]['municipio'].toLowerCase()){
+                                            acumulado += cidadeBaseRA[i]['quantidade_casos']
                                         }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : cidadeb.data_notificacao
+                                    })
                                 }
                             })
                         })
                     }
                     else{ //pesquisa bairro
                         bairros.forEach(bairro =>{
-                            bairroBaseRA.forEach(bairrob =>{
+                            bairroBaseRA.forEach((bairrob, index) =>{
                                 if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
                                     label = 'Recuperados em ' + bairrob.bairro.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
+                                    acumulado = bairrob.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(bairro.toLowerCase() == bairroBaseRA[i]['bairro'].toLowerCase()){
+                                            acumulado += bairroBaseRA[i]['quantidade_casos']
                                         }
-                                        
-                                    })
-                                    console.log("Dados append: ", chart.rows)
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : bairrob.data_notificacao
+                                    })
                                 }
                             })
                         })
@@ -665,34 +634,22 @@
                     console.log("Nada");
                 }else if(cidades == null || (cidades.length == 0)){
                     estados.forEach(estado =>{
-                        estadoBaseOA.forEach(estadob =>{
+                        estadoBaseOA.forEach((estadob, index) =>{
                             if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
                                 label = 'Óbitos em ' + estadob.estado_residencia.toLowerCase()
                                 if(! chart.columns.includes(label)){
                                     chart.columns.push(label)
                                 }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
+                                acumulado = estadob.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if(estado.toLowerCase() == estadoBaseOA[i]['estado_residencia'].toLowerCase()){
+                                        acumulado += estadoBaseOA[i]['quantidade_casos']
                                     }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
                                 }
+                                chart.rows.push({
+                                    [label] : acumulado,
+                                    'data' : estadob.data_notificacao
+                                })
                             }
                         })
                     })
@@ -700,67 +657,44 @@
                 else if(cidades != null && (cidades.length != 0)){ 
                     if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
                         cidades.forEach(cidade =>{
-                            cidadeBaseOA.forEach(cidadeb =>{
+                            cidadeBaseOA.forEach((cidadeb, index) =>{
                                 if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
                                     label = 'Óbitos em ' + cidadeb.municipio.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
+                                    acumulado = cidadeb.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(cidade.toLowerCase() == cidadeBaseOA[i]['municipio'].toLowerCase()){
+                                            acumulado += cidadeBaseOA[i]['quantidade_casos']
                                         }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : cidadeb.data_notificacao
+                                    })
                                 }
                             })
                         })
                     }
                     else{ //pesquisa bairro
                         bairros.forEach(bairro =>{
-                            bairroBaseOA.forEach(bairrob =>{
+                            bairroBaseOA.forEach((bairrob, index) =>{
                                 if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
                                     label = 'Óbitos em ' + bairrob.bairro.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
+                                    acumulado = bairrob.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(bairro.toLowerCase() == bairroBaseOA[i]['bairro'].toLowerCase()){
+                                            acumulado += bairroBaseOA[i]['quantidade_casos']
                                         }
-                                        
-                                    })
-                                    console.log("Dados append: ", chart.rows)
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : bairrob.data_notificacao
+                                    })
                                 }
                             })
                         })
@@ -963,34 +897,22 @@
                     //pesquisa por estado                    
 
                     value.forEach(estado =>{
-                        estadoBaseSA.forEach(estadob =>{
+                        estadoBaseSA.forEach((estadob, index) =>{
                             if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
                                 label = 'Casos suspeitos em '+ estadob.estado_residencia.toLowerCase()
                                 if(! chart.columns.includes(label)){
                                     chart.columns.push(label)
                                 }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
+                                acumulado = estadob.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if(estado.toLowerCase() == estadoBaseSA[i]['estado_residencia'].toLowerCase()){
+                                        acumulado += estadoBaseSA[i]['quantidade_casos']
                                     }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
                                 }
+                                chart.rows.push({
+                                    [label] : acumulado,
+                                    'data' : estadob.data_notificacao
+                                })
                             }
                         })
                     })
@@ -998,66 +920,43 @@
                 else if(valuesC != null && (valuesC.length != 0)){ 
                     if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
                         valuesC.forEach(cidade =>{
-                            cidadeBaseSA.forEach(cidadeb =>{
+                            cidadeBaseSA.forEach((cidadeb, index) =>{
                                 if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
                                     label = 'Casos suspeitos em '+cidadeb.municipio.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
+                                    acumulado = cidadeb.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(cidade.toLowerCase() == cidadeBaseSA[i]['municipio'].toLowerCase()){
+                                            acumulado += cidadeBaseSA[i]['quantidade_casos']
                                         }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : cidadeb.data_notificacao
+                                    })
                                 }
                             })
                         })
                     }else{ //pesquisa bairro
                         valuesB.forEach(bairro =>{
-                            bairroBaseSA.forEach(bairrob =>{
+                            bairroBaseSA.forEach((bairrob, index) =>{
                                 if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
                                     label = 'Casos suspeitos em '+bairrob.bairro.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
+                                    acumulado = bairrob.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(bairro.toLowerCase() == bairroBaseSA[i]['bairro'].toLowerCase()){
+                                            acumulado += bairroBaseSA[i]['quantidade_casos']
                                         }
-                                        
-                                    })
-                                    console.log("Dados append: ", chart.rows)
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : bairrob.data_notificacao
+                                    })
                                 }
                             })
                         })
@@ -1090,33 +989,22 @@
                     //pesquisa por estado                    
 
                     value.forEach(estado =>{
-                        estadoBaseA.forEach(estadob =>{
+                        estadoBaseA.forEach((estadob, index) =>{
                             if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
                                 label = 'Casos confirmados em '+estadob.estado_residencia.toLowerCase()
                                 if(! chart.columns.includes(label)){
                                     chart.columns.push(label)
                                 }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
+                                acumulado = estadob.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if(estado.toLowerCase() == estadoBaseA[i]['estado_residencia'].toLowerCase()){
+                                        acumulado += estadoBaseA[i]['quantidade_casos']
                                     }
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
                                 }
+                                chart.rows.push({
+                                    [label] : acumulado,
+                                    'data' : estadob.data_notificacao
+                                })
                             }
                         })
                     })
@@ -1124,64 +1012,44 @@
                 else if(valuesC != null && (valuesC.length != 0)){ 
                     if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
                         valuesC.forEach(cidade =>{
-                            cidadeBaseA.forEach(cidadeb =>{
+                            cidadeBaseA.forEach((cidadeb, index) =>{
                                 if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
                                     label = 'Casos confirmados em '+cidadeb.municipio.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
+                                    
+                                    acumulado = cidadeb.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(cidade.toLowerCase() == cidadeBaseA[i]['municipio'].toLowerCase()){
+                                            acumulado += cidadeBaseA[i]['quantidade_casos']
                                         }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : cidadeb.data_notificacao
+                                    })
                                 }
                             })
                         })
                     }else{ //pesquisa bairro
                         valuesB.forEach(bairro =>{
-                            bairroBaseA.forEach(bairrob =>{
+                            bairroBaseA.forEach((bairrob, index) =>{
                                 if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
                                     label = 'Casos confirmados em '+bairrob.bairro.toLowerCase()
                                     if(! chart.columns.includes(label)){
                                         chart.columns.push(label)
                                     }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
+                                    acumulado = bairrob.quantidade_casos
+                                    for(i = 0; i < index; i++){
+                                        if(bairro.toLowerCase() == bairroBaseA[i]['bairro'].toLowerCase()){
+                                            acumulado += bairroBaseA[i]['quantidade_casos']
                                         }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
                                     }
+                                    chart.rows.push({
+                                        [label] : acumulado,
+                                        'data' : bairrob.data_notificacao
+                                    })
                                 }
                             })
                         })

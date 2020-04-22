@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Notification
 from .models import Prediction
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import Manager
+from django.db.models import Manager, Q
 from django.db.models.query import QuerySet
 from .tasks import listener
 import json
@@ -52,12 +52,12 @@ def graphs(request):
     notificationsB = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsE = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsC = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOB = list(Notification.objects.filter(evolucao='Óbito').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOE = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOC = list(Notification.objects.filter(evolucao='Óbito').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsRB = list(Notification.objects.filter(evolucao='Recuperado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsRE = list(Notification.objects.filter(evolucao='Recuperado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsRC = list(Notification.objects.filter(evolucao='Recuperado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOB = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOE = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOC = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsRB = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsRE = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsRC = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsES = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsCS = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsBS = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
@@ -67,24 +67,28 @@ def graphs(request):
     notificationsEA = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsCA = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     notificationsBA = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOEA = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOCA = list(Notification.objects.filter(evolucao='Óbito').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsOBA = list(Notification.objects.filter(evolucao='Óbito').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsREA = list(Notification.objects.filter(evolucao='Recuperado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsRCA = list(Notification.objects.filter(evolucao='Recuperado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsRBA = list(Notification.objects.filter(evolucao='Recuperado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsEO = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
-    notificationsEOA = list(Notification.objects.filter(evolucao='Óbito').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOEA = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOCA = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsOBA = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsREA = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsRCA = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsRBA = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsEO = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+    notificationsEOA = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
     # DEBUG counter for null types
+    soma = 0
+    for notification in notificationsE:
+        if notification['estado_residencia'] == 'Pernambuco':
+            soma += notification['quantidade_casos']
+            print(str(notification['data_notificacao'])+ ' ' + str(notification['quantidade_casos']))
+    print(soma)
 
     for (index, notification) in enumerate(notificationsB):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
                 notificationsBA[index]['data_notificacao'] = notificationsB[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsBA[index]['quantidade_casos'] += notificationsBA[index-1]['quantidade_casos'] 
+                notificationsBA[index]['quantidade_casos'] = notificationsBA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
     for (index, notification) in enumerate(notificationsE):
@@ -92,9 +96,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsEA[index]['data_notificacao'] = notificationsE[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsEA[index]['quantidade_casos'] += notificationsEA[index-1]['quantidade_casos'] 
+                notificationsEA[index]['quantidade_casos'] =  notificationsE[index]['quantidade_casos']
         except TypeError:
             print("error")
     
@@ -103,9 +105,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsCA[index]['data_notificacao'] = notificationsC[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsCA[index]['quantidade_casos'] += notificationsCA[index-1]['quantidade_casos'] 
+                notificationsCA[index]['quantidade_casos'] = notificationsC[index]['quantidade_casos'] 
         except TypeError:
             print("error")
 
@@ -114,9 +114,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsOB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
                 notificationsOBA[index]['data_notificacao'] = notificationsOB[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsOBA[index]['quantidade_casos'] += notificationsOBA[index-1]['quantidade_casos'] 
+                notificationsOBA[index]['quantidade_casos'] = notificationsOBA[index]['quantidade_casos']
         except TypeError:
             print("error")
     for (index, notification) in enumerate(notificationsOE):
@@ -124,9 +122,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsOE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsOEA[index]['data_notificacao'] = notificationsOE[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsOEA[index]['quantidade_casos'] += notificationsOEA[index-1]['quantidade_casos'] 
+                notificationsOEA[index]['quantidade_casos'] = notificationsOEA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
     
@@ -135,9 +131,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsOC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsOCA[index]['data_notificacao'] = notificationsOC[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsOCA[index]['quantidade_casos'] += notificationsOCA[index-1]['quantidade_casos'] 
+                notificationsOCA[index]['quantidade_casos'] = notificationsOCA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
 
@@ -147,9 +141,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsRB[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
                 notificationsRBA[index]['data_notificacao'] = notificationsRB[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsRBA[index]['quantidade_casos'] += notificationsRBA[index-1]['quantidade_casos'] 
+                notificationsRBA[index]['quantidade_casos'] = notificationsRBA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
     for (index, notification) in enumerate(notificationsRE):
@@ -157,9 +149,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsRE[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsREA[index]['data_notificacao'] = notificationsRE[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsREA[index]['quantidade_casos'] += notificationsREA[index-1]['quantidade_casos'] 
+                notificationsREA[index]['quantidade_casos'] = notificationsREA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
     
@@ -168,9 +158,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsRC[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsRCA[index]['data_notificacao'] = notificationsRC[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsRCA[index]['quantidade_casos'] += notificationsRCA[index-1]['quantidade_casos'] 
+                notificationsRCA[index]['quantidade_casos'] = notificationsRCA[index]['quantidade_casos'] 
         except TypeError:
             print("error")
 
@@ -180,9 +168,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsBS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
                 notificationsBSA[index]['data_notificacao'] = notificationsBS[index]['data_notificacao']
-                
-            if index != 0: 
-                notificationsBSA[index]['quantidade_casos'] += notificationsBSA[index-1]['quantidade_casos']
+                notificationsBSA[index]['quantidade_casos'] = notificationsBSA[index]['quantidade_casos']
 
         except TypeError:
             print("error")
@@ -192,9 +178,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsES[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")
                 notificationsESA[index]['data_notificacao'] = notificationsES[index]['data_notificacao'] 
-                
-            if index != 0: 
-                notificationsESA[index]['quantidade_casos'] += notificationsESA[index-1]['quantidade_casos']   
+                notificationsESA[index]['quantidade_casos'] = notificationsESA[index]['quantidade_casos']   
         except TypeError:
             print("error")
     
@@ -203,9 +187,7 @@ def graphs(request):
             if type(notification['data_notificacao']) is not type(None):
                 notificationsCS[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
                 notificationsCSA[index]['data_notificacao'] = notificationsCS[index]['data_notificacao'] 
-                
-            if index != 0: 
-                notificationsCSA[index]['quantidade_casos'] += notificationsCSA[index-1]['quantidade_casos']
+                notificationsCSA[index]['quantidade_casos'] = notificationsCSA[index]['quantidade_casos']
         except TypeError:
             print("error")
     # Óbitos e acumulados
@@ -213,8 +195,9 @@ def graphs(request):
         try:
             if type(notification['data_notificacao']) is not type(None):
                 notificationsEO[index]['data_notificacao'] = notification['data_notificacao'].strftime("%d-%m-%Y")   
-                notificationsEOA[index]['data_notificacao'] = notificationsEO[index]['data_notificacao'] 
-            if index != 0: 
+                notificationsEOA[index]['data_notificacao'] = notificationsEO[index]['data_notificacao']
+            
+            if index != 0:
                 notificationsEOA[index]['quantidade_casos'] += notificationsEOA[index-1]['quantidade_casos']
         except TypeError:
             print("error")
