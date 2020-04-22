@@ -19,7 +19,8 @@ module.exports = {
             heatmap: null,
             txtsnack: 'Oi',
             snackbar: false,
-            pins: []
+            pins: [],
+            request: null
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -30,7 +31,11 @@ module.exports = {
     methods: {
         getpins(){
             console.log(`datedb é ${this.datedb.toISOString()}`)
-            $.ajax({
+            if (this.request != null) {
+                this.request.abort();
+                console.log('cancelando requisição anterior')
+            }
+            this.request = $.ajax({
                 context: this,
                 type: 'GET',
                 url: "get/ajax/pins",
@@ -38,6 +43,7 @@ module.exports = {
                 data: {"day": this.datedb.toISOString().substring(0,10)},
                 success: function (response) {
                     // seta pins
+                    this.request = null
                     this.pins = response
                     console.log('acabei AGORA os pins')
                     console.log(this.pins)
@@ -84,10 +90,13 @@ module.exports = {
                         data: pins_heat,
                     });
 
-                    console.log(`adicionando um total de ${pinsLen} no mapa`)                    
+                    console.log(`adicionando um total de ${pinsLen} no mapa`)
+                    
+                    this.txtsnack = "Mapa de calor atualizado!"
+                    this.snackbar = true
                 },
                 error: function (response) {
-                    console.log(response)
+                    console.log("erro na requisição atual, ou ela foi cancelada")
                 }
             })
         }
