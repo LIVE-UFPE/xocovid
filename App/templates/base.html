@@ -194,7 +194,7 @@
             datedb: new Date(pins + 'T00:00:00Z'),
             predicts: predicts,
             useIa: false,
-            lastInterpol: new Date(pins + 'T00:00:00Z')
+            lastinterpol: new Date(pins + 'T00:00:00Z')
         }),
         mounted: function (){
             // ? avançando 3 hrs p manter datedb ajustado
@@ -235,7 +235,7 @@
                 test.setDate( test.getDate() - 1 );
                 test.setHours(23,59,58);
 
-                let today = new Date(this.lastInterpol);
+                let today = new Date(this.lastinterpol);
                 today.setHours(23,59,59);
                 if( test < today ){
                     if(this.useIa) console.log("não usando mais predições!")
@@ -248,7 +248,7 @@
             dateForward: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() + 1 );
-                let today = new Date(this.lastInterpol);
+                let today = new Date(this.lastinterpol);
                 today.setHours(23,59,59);
                 let afterAfterTomorrow = new Date(today);
                 afterAfterTomorrow.setDate( today.getDate() + 3 );

@@ -27,6 +27,7 @@ module.exports = {
     props: {
         datedb: Date,
         predicts: Array,
+        lastinterpol: Date,
     },
     methods: {
         getpins(){
@@ -241,7 +242,7 @@ module.exports = {
         datewatch() {
             let pins_heat = [];
             // DEBUG lista pro console.log
-            let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
+            let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toISOString() + '\n';
             let qtd_pins_excluidos = 0
             let qtd_pins_inseridos = 0
             let predLen = this.predicts.length;
@@ -255,11 +256,11 @@ module.exports = {
             if (predLen != [].length) {
                 // ? datedb tem horário 23:59:58
 
-                let data = new Date(this.lastInterpol);
+                let data = new Date(this.lastinterpol);
                 let data_intensidade = '';
                 data.setHours(23,59,59);
                 data.setDate( data.getDate() + 1 );
-                console.log(`datedb é ${this.datedb.toString()} e data ${data.toString()}`);
+                console.log(`lastinterpol é ${this.lastinterpol} e data ${data.toISOString()}`);
                 if( this.datedb < data ){
                     data_intensidade = '1';
                     this.txtsnack = 'Os dados agora são previstos pela IA';
