@@ -51,7 +51,7 @@ module.exports = {
                     let pins_heat = [];
                     let maior_int = 0.0
                     let menor_int = 0.0
-
+                    // TODO não precisar iterar de novo aqui
                     for( var i = 0; i < pinsLen; i++){
                         pins_heat.push({
                         'lat': this.pins[i].latitude,
