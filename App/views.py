@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
@@ -75,28 +75,7 @@ def home(request):
         predicts = []
         notifications = list(Interpolation.objects.all().order_by('-date'))
         predictions = list(Prediction.objects.all())
-        # DEBUG counter for null types
-        null_notes = 0
-        for notification in notifications:
-            try:
-                if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.prediction) is type(None):
-                    null_notes += 1
-                    raise TypeError('')
-                else:
-                    pins.append({
-                        "latitude": notification.latitude,
-                        "longitude": notification.longitude,
-                        "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
-                        "intensidade": notification.prediction
-                        # TODO adicionar entradas futuramente relevantes
-                    })
-            except TypeError:
-                print('error pegando Notificação, algum dado é Null')
-            
-
-        # DEBUG type test
-        print("De",len(notifications),",",null_notes,"tem dados nulos")
-
+        debug = 0
         for prediction in predictions:
             predicts.append({
                 "latitude": prediction.latitude,
@@ -105,10 +84,53 @@ def home(request):
                 "intensidade2": prediction.prediction2,
                 "intensidade3": prediction.prediction3,
             })
-
+            debug += 1
+        print('enviando',debug, 'pontos de predição')
+        pins.append({
+            "data_notificacao": notifications[0].date.isoformat() if type(notifications[0].date) is not type(None) else '2000-01-01',
+        })
         context["items_json"] = json.dumps(pins)
         context["predicts_json"] = json.dumps(predicts)
         return render(request, 'home.html',context)
+
+def get_pins(request):
+    if request.user.is_authenticated == False:
+        return user_login(request)
+    else:
+        # DEBUG counter for null types
+        null_notes = 0
+        pins = []
+        notifications = list(Interpolation.objects.all().order_by('-date'))
+        # ? starting trial to use AJAX
+        if request.is_ajax and request.method == "GET":
+            day = request.GET.get("day")
+            print('day é', day)
+            
+            for notification in notifications:
+                try:
+                    if notification.latitude is type(None) or type(notification.longitude) is type(None) or type(notification.prediction) is type(None):
+                        raise TypeError('')
+                    else:
+                        if notification.date.isoformat() == day:
+                            pins.append({
+                                "latitude": notification.latitude,
+                                "longitude": notification.longitude,
+                                "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                                "intensidade": notification.prediction
+                            })
+                            null_notes += 1
+                except TypeError:
+                    print('error pegando Notificação, algum dado é Null')
+            print('enviando',null_notes, 'pontos')
+            
+            # context["items_json"] = json.dumps(pins)
+            # return render(request, 'home.html',context)
+
+            return JsonResponse(pins, safe=False)
+            # TODO get predictions
+        else: return JsonResponse({error: "deu erro aí"})
+        # # DEBUG type test
+        # print("De",len(notifications),",",null_notes,"tem dados nulos")
 
 @login_required
 def tela_exemplo(request, id):

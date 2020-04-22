@@ -37,6 +37,12 @@
         <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
 
+        <!-- * jQuery -->
+        <script
+            src="https://code.jquery.com/jquery-3.5.0.min.js"
+            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+            crossorigin="anonymous"></script>
+
         <style>
             .v-text-field, .v-btn {
         
@@ -185,7 +191,7 @@
             avatar: false,
             rounded: false,
             pins: pins,
-            datedb: new Date(pins[0].data_notificacao + 'T00:00:00'),
+            datedb: new Date(pins[0].data_notificacao + 'T00:00:00Z'),
             predicts: predicts,
             useIa: false,
         }),
@@ -228,32 +234,32 @@
                 test.setDate( test.getDate() - 1 );
                 test.setHours(23,59,58);
 
-                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00');
+                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00Z');
                 today.setHours(23,59,59);
                 if( test < today ){
+                    if(this.useIa) console.log("não usando mais predições!")
                     this.useIa = false;
-                    console.log("não usando mais predições!")
                 }
 
                 this.datedb = test;
-                console.log("voltando um dia!("+this.datedb.toLocaleString('en-GB')+")");
+                console.log("voltando um dia!("+this.datedb.toISOString()+")");
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
                 test.setDate( test.getDate() + 1 );
-                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00');
+                let today = new Date(this.pins[0].data_notificacao + 'T00:00:00Z');
                 today.setHours(23,59,59);
                 let afterAfterTomorrow = new Date(today);
                 afterAfterTomorrow.setDate( today.getDate() + 3 );
 
                 // se estou além de meia noite de hj e antes de meia noite de amanha
                 if(test > today && test < afterAfterTomorrow ) {
-                    console.log("entrando nas predições do dia "+test.toLocaleString('en-GB')+'\n');
+                    console.log("entrando nas predições do dia "+test.toISOString()+'\n');
                     this.useIa = true;
                     this.datedb = test;
                 }else if(test < today){
                     this.datedb = test;
-                    console.log("avançando um dia!("+this.datedb.toLocaleString('en-GB')+")");
+                    console.log("avançando um dia!("+this.datedb.toISOString()+")");
                 }else {
                     console.log("não podemos avançar mais do que depois de depois de amanha!");
                 }
