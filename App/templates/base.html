@@ -164,7 +164,7 @@
             itemsChipsCA: [],
             itemsChipsDA: [],
             itemsChipsR: [],
-            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados'],
+            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade'],
             nObitos: '200',
             nConf: 200,
             nRecuperados: '200',
@@ -327,43 +327,55 @@
                                 else if(informacao == 'Recuperados' && diaouacu == 'acumulado'){
                                     chart2 = this.filtroRecuperadosAcumulado(estado, cidade, bairro, 'chartDataSA')
                                 }
-
-                                chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
-
-                                console.log(chart.columns)
-
-                                chart2.rows.forEach(row =>{
-                                    i = 0
-                                    achei = false
-                                    for(; i < chart.rows.length; i++){
-                                        if(chart.rows[i]['data'] == row['data']){
-                                            achei = true
-                                            break
-                                        }
-                                    }
-
-                                    if(!achei){
-                                        chart.rows.push({
-                                            
-                                            [chart.columns[chart.columns.length - 1]]: row[[chart.columns[chart.columns.length - 1]]],
-                                            'data': row['data']
-                                        })
+                                /*else if(informacao == 'Letalidade' && diaouacu == 'diario'){
+                                    chart3 = this.filtroRecuperadosDiario(estado, cidade, bairro, 'chartDataSA')
+                                }*/
+                                else if(informacao == 'Letalidade'){
+                                    if(diaouacu == 'acumulado'){
+                                        chart3 = this.filtroObitosAcumulado(estado, cidade, bairro, 'chartDataSA')
+                                        chart4 = this.filterA(estado, cidade, bairro)
                                     }
                                     else{
-                                        chart.rows[i][[chart.columns[chart.columns.length - 1]]] = row[[chart.columns[chart.columns.length - 1]]]
+                                        chart3 = this.filtroObitosDiario(estado, cidade, bairro, 'chartDataSA')
+                                        chart4 = this.filter(estado, cidade, bairro)
                                     }
-                                })
 
-                                chart.rows.sort(function(a, b){ 
-                                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                                    const monthA = parseInt(a.data[3]+a.data[4])
-                                    const dayA = parseInt(a.data[0]+a.data[1])
-                                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                                    const monthB = parseInt(b.data[3]+b.data[4])
-                                    const dayB = parseInt(b.data[0]+b.data[1])
-                                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                                });
+                                    chart5 = this.joinCharts(chart3, chart4, diaouacu)
+                                    var chart2 = {
+                                        columns: ['data'],
+                                        rows: []
+                                    }
+                                    
+                                    if(bairro != null){
+                                        colunaLetalidade = 'Letalidade em ' + bairro[0].toLowerCase()
+                                        colunaObito = 'Óbitos em ' + bairro[0].toLowerCase()
+                                        colunaConfirmado = 'Casos confirmados em ' + bairro[0].toLowerCase()
+                                    }
+                                    else if(cidade != null){
+                                        colunaLetalidade = 'Letalidade em ' + cidade[0].toLowerCase()
+                                        colunaObito = 'Óbitos em ' + cidade[0].toLowerCase()
+                                        colunaConfirmado = 'Casos confirmados em ' + cidade[0].toLowerCase()
+                                    }
+                                    else{
+                                        colunaLetalidade = 'Letalidade em ' + estado.toLowerCase()
+                                        colunaObito = 'Óbitos em ' + estado.toLowerCase()
+                                        colunaConfirmado = 'Casos confirmados em ' + estado.toLowerCase()
+                                    }
+                                    chart5.columns[1] = colunaLetalidade
+                                    chart5.columns.pop()
+                                    chart2.columns = chart5.columns
 
+                                    chart5.rows.forEach(row =>{
+                                        chart2.rows.push({
+                                            'data': row['data'],
+                                            [colunaLetalidade]: (row[colunaObito] / row[colunaConfirmado]) * 100
+                                        })
+                                    })
+                                }
+                                
+                                chart = this.joinCharts(chart, chart2, diaouacu)
+                                console.log('Chart let: ', chart.rows[chart.rows.length-1]['Letalidade em pernambuco'])
+                                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
                                 
                                 contBairro++
                             }while(bairro != null && contBairro < valuesB.length)
@@ -372,6 +384,43 @@
                         }while(cidade != null && contCidade < valuesC.length)
                     })
                 })
+
+                Vue.set(app, 'chartDataSA', chart)
+            },
+            joinCharts(chart, chart2, diaouacu){
+                chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
+
+                chart2.rows.forEach(row =>{
+                    i = 0
+                    achei = false
+                    for(; i < chart.rows.length; i++){
+                        if(chart.rows[i]['data'] == row['data']){
+                            achei = true
+                            break
+                        }
+                    }
+
+                    if(!achei){
+                        chart.rows.push({
+                            
+                            [chart.columns[chart.columns.length - 1]]: row[[chart.columns[chart.columns.length - 1]]],
+                            'data': row['data']
+                        })
+                    }
+                    else{
+                        chart.rows[i][[chart.columns[chart.columns.length - 1]]] = row[[chart.columns[chart.columns.length - 1]]]
+                    }
+                })
+
+                chart.rows.sort(function(a, b){ 
+                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
+                    const monthA = parseInt(a.data[3]+a.data[4])
+                    const dayA = parseInt(a.data[0]+a.data[1])
+                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
+                    const monthB = parseInt(b.data[3]+b.data[4])
+                    const dayB = parseInt(b.data[0]+b.data[1])
+                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
+                });
 
                 chart.columns.forEach(column =>{
                     if(column != 'data'){
@@ -412,7 +461,7 @@
                     }
                 })
 
-                Vue.set(app, 'chartDataSA', chart)
+                return chart
             },
             filtroRecuperadosAcumulado(estados, cidades, bairros, graph){
                 estados = ['Pernambuco']
@@ -503,7 +552,6 @@
                 console.log("Chart: ", chart);
                 Vue.set(app, graph, chart)
                 Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
-                console.log('Log: ', chart.rows[chart.rows.length-1])
                 return chart
             },
             filtroRecuperadosDiario(estados, cidades, bairros, graph){
@@ -630,7 +678,7 @@
                 });
                 console.log("Chart: ", chart);
                 Vue.set(app, graph, chart)
-                
+
                 return chart
             },
             filtroObitosAcumulado(estados, cidades, bairros, graph){
@@ -847,7 +895,7 @@
                 });
                 console.log("Chart: ", chart);
                 Vue.set(app, graph, chart)
-                
+
                 return chart
             },
             filterO: function(){
@@ -983,7 +1031,6 @@
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
                 });
                 console.log("Chart: ", chart);
-                
                 Vue.set(app, 'chartDataSA', chart)
                 
                 return chart
@@ -1076,10 +1123,9 @@
                     const dayB = parseInt(b.data[0]+b.data[1])
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
                 }); 
-                console.log("Chart: ", chart.rows[chart.rows.length-1]);
+                console.log("Chart: ", chart);
                 Vue.set(app, 'chartDataSA', chart)
-                Vue.set(app, 'nConf', chart.rows[chart.rows.length-1]['Casos confirmados em pernambuco']) // Setando dashboard
-                
+                console.log("FilterA: ", chart.rows);
                 return chart
             },
             filterS: function (value, valuesC, valuesB, graph){
@@ -1216,7 +1262,7 @@
                 }); 
                 console.log("Chart: ", chart)
                 Vue.set(app, graph, chart)
-                
+
                 return chart
             },
             filter: function (value, valuesC, valuesB, graph){
@@ -1356,7 +1402,7 @@
                 }); 
                 console.log("Chart: ", chart);
                 Vue.set(app, graph, chart)
-                
+
                 return chart
             },
             dateBack: function (event) {
@@ -1403,6 +1449,7 @@
                 this.filtroRecuperadosAcumulado('Pernambuco', [], [], '')
                 this.filterO()
                 this.filterA(['Pernambuco'], [], [])
+                
             })
         },
     });
