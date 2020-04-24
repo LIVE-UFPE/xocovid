@@ -38,7 +38,7 @@ def base(request):
         except TypeError:
             print(notification.bairro)
     
-    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
 
 def graphs(request):
     if request.user.is_authenticated == False:
@@ -64,7 +64,7 @@ def graphs(request):
                 print(notification.bairro)
                 
         
-        return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades,'items_json':'1','predicts_json':'1'})
+        return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
 
 def home(request):
     if request.user.is_authenticated == False:
@@ -126,7 +126,7 @@ def user_logout(request):
     return HttpResponseRedirect(reverse('user_login'))
 
 def register(request):
-    context = {'register_error':'false','items_json':'1','predicts_json':'1'}
+    context = {'register_error':'false'}
 
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
@@ -190,9 +190,9 @@ def user_login(request):
             
             print("Someone tried to login and failed.")
             print("They used username: {} and password: {}".format(username,password))
-            return render(request, 'login.html', {'login_error':'true','items_json':'1','predicts_json':'1'})
+            return render(request, 'login.html', {'login_error':'true'})
         else:
-            return render(request, 'login.html', {'login_error':'false','items_json':'1','predicts_json':'1'})
+            return render(request, 'login.html', {'login_error':'false'})
 
 """
 ! Funcionamento das views
