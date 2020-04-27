@@ -54,6 +54,23 @@ class Interpolation(models.Model):
     prediction = models.FloatField(null=True)
     date = models.DateField(null=True)
 
+class CasosEstado(models.Model):
+    data_atualizacao = models.DateField(null=True)
+    estado = models.CharField(max_length = 150, null=True)
+    confirmados = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
+class CasosCidade(models.Model):
+    data_atualizacao = models.DateField(null=True)
+    estado = models.CharField(max_length = 150, null=True)
+    cidade = models.CharField(max_length = 150, null=True)
+    confirmados = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)
     used = models.BooleanField(default=False)

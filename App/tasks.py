@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade
 import json
 import requests
 import pandas
@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
 # import App.IA.pipeline as pipe
 from django.utils import timezone
+import App.bot.stateCityData as bot
 
 collum_names = [
   'ID',      
@@ -58,26 +59,76 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    try:
+    """try:
         df = pandas.read_csv(
             PATH_FILES+BASE_NAME,
             header = 0,
             names=collum_names,
         )
     
-        #df = pre_processing(df)
-    #jdzhivsdhnvppsifvm
+        df = pre_processing(df)
+    
         store_base(df)
 
-        #build_IAbase()
+        build_IAbase()
 
-        #prediction()
+        prediction()
 
         send_prediction_to_db()
     except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")
+        print("Nenhuma base de dados para ser pre_processada")"""
+
+    print("Extraindo informações de outras bases")
+    #bot.processingData()
+    storeBot()
     
     print("Listener parado")
+
+def storeBot():
+    print("Armazenando extrações")
+
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por cidade.csv', sep=',')
+
+    estados = []
+    for index, row in dfEstados.iterrows():
+            estados.append([row['date'], row['state'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+    cidades = []
+    for index, row in dfCidades.iterrows():
+        if pandas.notnull(row['estimated_population_2019']):
+            cidades.append([row['date'], row['state'], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    CasosEstado.objects.all().delete()
+    CasosCidade.objects.all().delete()
+
+    objs = [
+        CasosEstado(
+            data_atualizacao=m[0],
+            estado=m[1],
+            confirmados=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estados
+    ]
+    CasosEstado.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosCidade(
+            data_atualizacao=m[0],
+            estado=m[1],
+            cidade = m[2],
+            confirmados=m[3],
+            obitos=m[4],
+            populacao_estimada_2019 = m[5],
+            confirmados_100k = m[6],
+        )
+        for m in cidades
+    ]
+    CasosCidade.objects.bulk_create(objs=objs)
+
+
 
 def send_prediction_to_db():
     Prediction.objects.all().delete()
@@ -235,7 +286,7 @@ def store_base(df):
         ]
         Interpolation.objects.bulk_create(objs=objs)
 
-    """df = df.replace({np.nan: None})
+    df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
@@ -286,7 +337,7 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
-        notification.save()"""
+        notification.save()
 
 def pre_processing(df):
     df["Bairro"] = None
