@@ -191,10 +191,10 @@
             avatar: false,
             rounded: false,
             pins: null,
-            datedb: new Date(pins + 'T00:00:00Z'),
+            datedb: new Date(pins[0] + 'T00:00:00Z'),
             predicts: predicts,
             useIa: false,
-            lastinterpol: new Date(pins + 'T00:00:00Z')
+            lastinterpol: new Date(pins[0] + 'T00:00:00Z')
         }),
         mounted: function (){
             // ? avançando 3 hrs p manter datedb ajustado
@@ -232,37 +232,69 @@
             
             dateBack: function (event) {
                 let test = new Date(this.datedb);
-                test.setDate( test.getDate() - 1 );
-                test.setHours(23,59,58);
+                if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
+                    test.setDate( test.getDate() - 1 );
+                    test.setHours(23,59,58);
 
-                let today = new Date(this.lastinterpol);
-                today.setHours(23,59,59);
-                if( test < today ){
-                    if(this.useIa) console.log("não usando mais predições!")
-                    this.useIa = false;
+                    let today = new Date(this.lastinterpol);
+                    today.setHours(23,59,59);
+                    if( test < today ){
+                        if(this.useIa) console.log("não usando mais predições!")
+                        this.useIa = false;
+                        while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                            if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
+                                console.log('chegamos no primeiro dia!')
+                                break
+                            }else{
+                                test.setDate( test.getDate() - 1 )
+                            }
+                        }
+                    }
+                    
+
+                    this.datedb = test;
+                    console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                }else{
+                    console.log('não há dados antes desse dia!')
+                    return
                 }
-
-                this.datedb = test;
-                console.log("voltando um dia!("+this.datedb.toISOString()+")");
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
-                test.setDate( test.getDate() + 1 );
-                let today = new Date(this.lastinterpol);
-                today.setHours(23,59,59);
-                let afterAfterTomorrow = new Date(today);
-                afterAfterTomorrow.setDate( today.getDate() + 3 );
 
-                // se estou além de meia noite de hj e antes de meia noite de amanha
-                if(test > today && test < afterAfterTomorrow ) {
-                    console.log("entrando nas predições do dia "+test.toISOString()+'\n');
-                    this.useIa = true;
-                    this.datedb = test;
-                }else if(test < today){
-                    this.datedb = test;
-                    console.log("avançando um dia!("+this.datedb.toISOString()+")");
-                }else {
-                    console.log("não podemos avançar mais do que depois de depois de amanha!");
+                // ? se test nao for o ultimo dia:
+                if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
+                    test.setDate( test.getDate() + 1 );
+
+                    while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                        if(test.toISOString().substring(0,10) == pins[0]){
+                            console.log('chegamos no ultimo dia!')
+                            break
+                        }else{
+                            test.setDate( test.getDate() + 1 )
+                        }
+                    }
+
+                    this.datedb = test
+
+                }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
+                    let pred = new Date(this.datedb)
+                    pred.setDate( pred.getDate() + 1 );
+                    let afterAfterTomorrow = new Date(this.lastinterpol);
+                    afterAfterTomorrow.setHours(23,59,59);
+                    afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+
+                    // se estou antes de meia noite de amanha
+                    if(pred < afterAfterTomorrow ) {
+                        console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                        this.useIa = true;
+                        this.datedb = pred;
+                    }else {
+                        console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                        return
+                    }
+                    
+                    this.datedb = pred
                 }
             }
         }

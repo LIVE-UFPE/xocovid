@@ -72,8 +72,7 @@ def home(request):
     else:
         context = {}
         predicts = []
-        notification = Interpolation.objects.order_by('-date').first()
-        print('ultima interpolação é de',notification.date)
+        notifications = []
         predictions = list(Prediction.objects.all())
         debug = 0
         for prediction in predictions:
@@ -86,8 +85,14 @@ def home(request):
             })
             debug += 1
         print('enviando',debug, 'pontos de predição')
+        for note in Interpolation.objects.order_by('-date').values_list('date', flat=True).distinct():
+            notifications.append(
+                note.isoformat()
+            )
+        print('temos',len(notifications),'datas com interpolação:')
+        print(notifications)
 
-        context["items_json"] = json.dumps(notification.date.isoformat())
+        context["items_json"] = json.dumps(notifications)
         context["predicts_json"] = json.dumps(predicts)
         return render(request, 'home.html',context)
 
