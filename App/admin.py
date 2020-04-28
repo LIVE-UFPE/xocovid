@@ -1,8 +1,10 @@
 from django.contrib import admin
-from App.models import UserProfileInfo, User, Notification, Prediction, Interpolation, AccessKey
+from App.models import UserProfileInfo, User, Notification, Prediction, Interpolation, AccessKey, CasosEstado, CasosCidade
 
 admin.site.register(UserProfileInfo)
 admin.site.register(Notification)
 admin.site.register(Prediction)
 admin.site.register(Interpolation)
+admin.site.register(CasosEstado)
+admin.site.register(CasosCidade)
 admin.site.register(AccessKey)

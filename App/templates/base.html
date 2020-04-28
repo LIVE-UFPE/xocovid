@@ -91,8 +91,12 @@
 </html>
 
 <script>
-    var pins = {{ items_json|safe }};
-    var predicts = {{ predicts_json|safe }}
+    {% if items_json %}
+        var pins = {{ items_json|safe }}
+    {% endif %}
+    {% if predicts_json %}
+        var predicts = {{ predicts_json|safe }}
+    {% endif %}
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
