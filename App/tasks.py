@@ -65,7 +65,7 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    try:
+    """try:
         df = pandas.read_csv(
             PATH_FILES+BASE_NAME,
             header = 0,
@@ -83,7 +83,17 @@ def listener():
 
         send_prediction_to_db()
     except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")
+        print("Nenhuma base de dados para ser pre_processada")"""
+
+    notifications = Notification.objects.all()
+    for notification in notifications:
+        if notification.estado_residencia != 'Pernambuco':
+            print('Pegueiiii')
+            notification.estado_residencia = 'Pernambuco'
+            notification.municipio = 'Recife'
+            notification.bairro = 'Boa Viagem'
+            notification.save()
+
     
     print("Listener parado")
 

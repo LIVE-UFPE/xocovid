@@ -25,6 +25,8 @@
 
         <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/line.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/histogram.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/pie.min.js"></script>
 
         <!-- * Leaflet imports -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
@@ -84,46 +86,16 @@
 </html>
 
 <script>
-    var pins = {{ items_json|safe }};
-    var predicts = {{ predicts_json|safe }};
-    //confirmados
-    var bairroBase = {{ bairroBase|safe }}
-    var cidadeBase = {{ cidadeBase|safe }}
-    var estadoBase = {{ estadoBase|safe }}
-    //suspeitos
-    var estadoBaseS = {{ estadoBaseS|safe }}
-    var cidadeBaseS = {{ cidadeBaseS|safe }}
-    var bairroBaseS = {{ bairroBaseS|safe }}
-    //Obitos
-    var estadoBaseO = {{ estadoBaseO|safe }}
-    var cidadeBaseO = {{ cidadeBaseO|safe }}
-    var bairroBaseO = {{ bairroBaseO|safe }}
-    //Recuperados
-    var estadoBaseR = {{ estadoBaseR|safe }}
-    var cidadeBaseR = {{ cidadeBaseR|safe }}
-    var bairroBaseR = {{ bairroBaseR|safe }}
-    //Suspeitos acumulados
-    var estadoBaseSA = {{ estadoBaseSA|safe }}
-    var cidadeBaseSA = {{ cidadeBaseSA|safe }}
-    var bairroBaseSA = {{ bairroBaseSA|safe }}
-    //Confirmados acumulados
-    var estadoBaseA = {{ estadoBaseA|safe }}
-    var cidadeBaseA = {{ cidadeBaseA|safe }}
-    var bairroBaseA = {{ bairroBaseA|safe }}
-    //Obitos acumulados
-    var estadoBaseOA = {{ estadoBaseOA|safe }}
-    var cidadeBaseOA = {{ cidadeBaseOA|safe }}
-    var bairroBaseOA = {{ bairroBaseOA|safe }}
-    //Recuperados acumulados
-    var estadoBaseRA = {{ estadoBaseRA|safe }}
-    var cidadeBaseRA = {{ cidadeBaseRA|safe }}
-    var bairroBaseRA = {{ bairroBaseRA|safe }}
-    // obitos por dia e acumulado
-    var obitosBase = {{ obitosBase|safe }}
-    var obitosBaseA = {{ obitosBaseA|safe }}
-
-    console.log("Obitos: ", obitosBase, obitosBaseA)
-
+    {% if items_json %}
+        var pins = {{ items_json|safe }};
+    {% endif %}
+    {% if predicts_json %}
+        var predicts = {{ predicts_json|safe }};
+    {% endif %}
+    {% if buscas %}
+        var buscas= {{ buscas|safe }}
+    {% endif %}    
+    
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -146,10 +118,26 @@
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'vue-views/login.vue' %}"),
             'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}"),
-            VeLine
+            VeLine,
+            VeHistogram,
+            VePie
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            chartDataPie: {
+                columns: ['date', 'cost', 'profit'],
+                rows: [
+                    { 'date': '01/01', 'cost': 123, 'profit': 3 },
+                    { 'date': '01/02', 'cost': 1223, 'profit': 6 },
+                    { 'date': '01/03', 'cost': 2123, 'profit': 90 },
+                    { 'date': '01/04', 'cost': 4123, 'profit': 12 },
+                    { 'date': '01/05', 'cost': 3123, 'profit': 15 },
+                    { 'date': '01/06', 'cost': 7123, 'profit': 20 }
+                ]
+            },
+            chartDataIsolamento: [],
+            chartDataInternado: [],
+            pieObject:[],
             itemsChips: [],
             itemsChipsC: [],
             itemsChipsD: [],
@@ -164,7 +152,7 @@
             itemsChipsCA: [],
             itemsChipsDA: [],
             itemsChipsR: [],
-            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade'],
+            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade', 'Taxa de Recuperação'],
             nObitos: '200',
             nConf: 200,
             nRecuperados: '200',
@@ -174,6 +162,8 @@
             conditionalDate: false,
             page: 1,
             pageOn: 0,
+            numberPages: 7,
+            imageData:['https://images.unsplash.com/photo-1588025383511-12fe4bb4aaf0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1547&q=80','https://cdn.pixabay.com/photo/2015/06/19/21/24/the-road-815297__340.jpg', 'https://images.unsplash.com/photo-1588066737272-35a08f4d594e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1966&q=80', 'https://images.unsplash.com/photo-1588066898163-3c857fa857e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80', 'https://images.unsplash.com/photo-1588058365815-c96ac30ee30f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80'],
             values: ['Pernambuco'],
             valuesC:  null,
             valuesD: null,
@@ -184,7 +174,7 @@
             valuesCA:  null,
             valuesDA: null,
             valuesR: null,
-            valuesSelect: ['Casos Suspeitos'],
+            valuesSelect: ['Casos Confirmados', 'Óbitos', 'Recuperados'],
             value: null,
             sheet: false,
             base: 0,
@@ -241,13 +231,13 @@
             nav: false,
             avatar: false,
             rounded: false,
-            pins: pins,
+            pins: null,
             datedb: new Date(),
-            predicts: predicts,
+            predicts: null,
             useIa: false,
-            diaOUAcu: 'acumulado'
+            diaOUAcu: 'acumulados',
+            linhaOuHist: 'linhas'
         }),
-        
         methods: {
             printName: function (value){
                 console.log("Teste ", value);
@@ -267,129 +257,163 @@
                 var objD = [];
                 value.forEach(selecao => {
                     data[0].bairros.forEach(cidade => {
-                        console.log("Cidade e value", cidade, Object.keys(cidade), value)
+                        //console.log("Cidade e value", cidade, Object.keys(cidade), value)
                         if(Object.keys(cidade)[0] == selecao){
                             objD = objD.concat(cidade[Object.keys(cidade)[0]]);
                         }
                     });
                 });
-                console.log("CHIPS: ",chips);
                 Vue.set(app, chips, objD)
             },
-            filterControl: function(value, valuesC, valuesB, selecao, diaouacu){
+            filtro(informacoes, estados, cidades, bairros, chartName, diaouacu){
                 var chart = {
                     columns: ['data'],
                     rows: []
                 }
-                
-                selecao.forEach(informacao =>{
-                    value.forEach(estado =>{
-                        contCidade = 0
-                        do{
-                            cidade = null
-                            
-                            try{
-                                if(valuesC.length > 0){
-                                    cidade = [valuesC[contCidade]]
-                                }
-                            }
-                            catch(err){}
-                            
-                            contBairro = 0
-                            do{
-                                bairro = null
-                                try{
-                                    if(valuesB.length > 0){
-                                        bairro = [valuesB[contBairro]]
-                                    }
-                                }
-                                catch(err){}                    
 
-                                if(informacao == 'Casos Suspeitos' && diaouacu == 'acumulado'){
-                                    chart2 = this.filterSA(estado, cidade, bairro)
-                                }else if(informacao == 'Casos Confirmados' && diaouacu == 'acumulado'){
-                                    chart2 = this.filterA(estado, cidade, bairro)
-                                }else if(informacao == 'Casos Suspeitos' && diaouacu == 'diario'){
-                                    chart2 = this.filterS(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                else if(informacao == 'Casos Confirmados' && diaouacu == 'diario'){
-                                    chart2 = this.filter(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                else if(informacao == 'Óbitos' && diaouacu == 'diario'){
-                                    chart2 = this.filtroObitosDiario(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                else if(informacao == 'Óbitos' && diaouacu == 'acumulado'){
-                                    chart2 = this.filtroObitosAcumulado(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                else if(informacao == 'Recuperados' && diaouacu == 'diario'){
-                                    chart2 = this.filtroRecuperadosDiario(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                else if(informacao == 'Recuperados' && diaouacu == 'acumulado'){
-                                    chart2 = this.filtroRecuperadosAcumulado(estado, cidade, bairro, 'chartDataSA')
-                                }
-                                /*else if(informacao == 'Letalidade' && diaouacu == 'diario'){
-                                    chart3 = this.filtroRecuperadosDiario(estado, cidade, bairro, 'chartDataSA')
-                                }*/
-                                else if(informacao == 'Letalidade'){
-                                    if(diaouacu == 'acumulado'){
-                                        chart3 = this.filtroObitosAcumulado(estado, cidade, bairro, 'chartDataSA')
-                                        chart4 = this.filterA(estado, cidade, bairro)
-                                    }
-                                    else{
-                                        chart3 = this.filtroObitosDiario(estado, cidade, bairro, 'chartDataSA')
-                                        chart4 = this.filter(estado, cidade, bairro)
-                                    }
+                var contDiaouAcu = 0
+                informacoes.forEach(informacao => {
+                    estados.forEach(estado =>{
+                        if(cidades == null || cidades.length == 0) cidades = ['']
 
-                                    chart5 = this.joinCharts(chart3, chart4, diaouacu)
-                                    var chart2 = {
-                                        columns: ['data'],
-                                        rows: []
-                                    }
-                                    
-                                    if(bairro != null){
-                                        colunaLetalidade = 'Letalidade em ' + bairro[0].toLowerCase()
-                                        colunaObito = 'Óbitos em ' + bairro[0].toLowerCase()
-                                        colunaConfirmado = 'Casos confirmados em ' + bairro[0].toLowerCase()
-                                    }
-                                    else if(cidade != null){
-                                        colunaLetalidade = 'Letalidade em ' + cidade[0].toLowerCase()
-                                        colunaObito = 'Óbitos em ' + cidade[0].toLowerCase()
-                                        colunaConfirmado = 'Casos confirmados em ' + cidade[0].toLowerCase()
-                                    }
-                                    else{
-                                        colunaLetalidade = 'Letalidade em ' + estado.toLowerCase()
-                                        colunaObito = 'Óbitos em ' + estado.toLowerCase()
-                                        colunaConfirmado = 'Casos confirmados em ' + estado.toLowerCase()
-                                    }
-                                    chart5.columns[1] = colunaLetalidade
-                                    chart5.columns.pop()
-                                    chart2.columns = chart5.columns
+                        cidades.forEach(cidade =>{
+                            if(bairros == null || bairros.length == 0) bairros = ['']
 
-                                    chart5.rows.forEach(row =>{
-                                        chart2.rows.push({
-                                            'data': row['data'],
-                                            [colunaLetalidade]: (row[colunaObito] / row[colunaConfirmado]) * 100
-                                        })
-                                    })
-                                }
+                            bairros.forEach(bairro =>{
+                                if(informacao == 'Letalidade' || informacao == 'Taxa de Recuperação')
+                                    chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
+                                else
+                                    chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
+
                                 
-                                chart = this.joinCharts(chart, chart2, diaouacu)
-                                console.log('Chart let: ', chart.rows[chart.rows.length-1]['Letalidade em pernambuco'])
-                                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
+                                chart2 = this.sortChart(chart2)
                                 
-                                contBairro++
-                            }while(bairro != null && contBairro < valuesB.length)
-
-                            contCidade++
-                        }while(cidade != null && contCidade < valuesC.length)
+                                chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
+                            })
+                        })
                     })
+
+                    if(diaouacu.length > 1){
+                        contDiaouAcu++
+                    }
                 })
 
-                Vue.set(app, 'chartDataSA', chart)
+                Vue.set(app, chartName, chart)
+
+                return chart
+            },
+            buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength){
+                if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
+                else label = informacao + ' em '
+
+                keyBusca = 'estados'
+                if(bairro != ''){
+                    keyBusca = 'bairros'
+                    label += bairro.toLowerCase()
+                }
+                else if(cidade != ''){
+                    keyBusca = 'cidades'
+                    label += cidade.toLowerCase()
+                }
+                else{
+                    label += estado.toLowerCase()
+                }
+
+                var chart2 = {
+                    columns: ['data'],
+                    rows: []
+                }
+                buscas[informacao][keyBusca].forEach((notificacao, index) =>{
+                    if( (keyBusca=='estados' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
+                        (keyBusca=='cidades' && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
+                        (keyBusca=='bairros' && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
+
+                            if(! chart2.columns.includes(label)){
+                                chart2.columns.push(label)
+                            }
+
+                            if(diaouacu == 'acumulados'){
+                                acumulado = notificacao.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if( (keyBusca=='estados' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                        (keyBusca=='cidades' && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
+                                        (keyBusca=='bairros' && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                        
+                                        if(informacao == 'Letalidade'){
+                                            acumulado += buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
+                                        }
+                                        else{
+                                            acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
+                                        }
+                                    }
+                                }
+                                chart2.rows.push({
+                                    [label] : acumulado,
+                                    'data' : notificacao.data_notificacao
+                                })
+                            }
+                            else{
+                                chart2.rows.push({
+                                    [label] : notificacao.quantidade_casos,
+                                    'data' : notificacao.data_notificacao
+                                })
+                            }
+                    }
+                })
+                return chart2
+            },
+            buildTaxaChart(informacao, diaouacu, estado, cidade, bairro){
+                if(informacao == 'Letalidade') funcao = 'Óbitos'
+                else funcao = 'Recuperados'
+
+                chart3 = this.filtro([funcao], [estado], [cidade], [bairro], '', [diaouacu])
+                chart4 = this.filtro(['Casos Confirmados'], [estado], [cidade], [bairro], '', [diaouacu])
+
+                chart5 = this.joinCharts(chart3, chart4, diaouacu)
+                
+                var chart2 = {
+                    columns: ['data'],
+                    rows: []
+                }
+                
+                if(bairro != '') localName = bairro.toLowerCase()
+                else if(cidade != '') localName = cidade.toLowerCase()
+                else localName = estado.toLowerCase()
+                
+                colunaTaxa = informacao + ' em ' + localName
+                colunaFuncao = funcao + ' em ' + localName
+                colunaConfirmado = 'Casos Confirmados em ' + localName
+                
+                chart5.columns[1] = colunaTaxa
+                chart5.columns.pop()
+                chart2.columns = chart5.columns
+
+                chart5.rows.forEach(row =>{
+                    chart2.rows.push({
+                        'data': row['data'],
+                        [colunaTaxa]: (row[colunaFuncao] / row[colunaConfirmado]) * 100
+                    })
+                })
+                
+                return chart2
+            },
+            sortChart(chart){
+                chart.rows.sort(function(a, b){ 
+                    const yearA = parseInt(a.data[0]+a.data[1]+a.data[2]+a.data[3])
+                    const monthA = parseInt(a.data[5]+a.data[6])
+                    const dayA = parseInt(a.data[8]+a.data[9])
+
+                    const yearB = parseInt(b.data[0]+b.data[1]+b.data[2]+b.data[3])
+                    const monthB = parseInt(b.data[5]+b.data[6])
+                    const dayB = parseInt(b.data[8]+b.data[9])
+                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
+                });
+
+                return chart
             },
             joinCharts(chart, chart2, diaouacu){
                 chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
-
+                
                 chart2.rows.forEach(row =>{
                     i = 0
                     achei = false
@@ -412,996 +436,45 @@
                     }
                 })
 
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
+                chart = this.sortChart(chart)
 
                 chart.columns.forEach(column =>{
                     if(column != 'data'){
                         for(i = 0; i < chart.rows.length; i++){
                             if(!chart.rows[i][[column]]){
-                                j = i
-                                for(;j >= 0; j--){
-                                    if(chart.rows[j][[column]]){
-                                        break
-                                    }
-                                }
-                                z = i
-                                for(;z < chart.rows.length; z++){
-                                    if(chart.rows[z][[column]]){
-                                        break
-                                    }
-                                }
-                                if(z < chart.rows.length && j >= 0){
-                                    chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
-                                }
-                                else{
-                                    if(diaouacu == 'acumulado'){
-                                        if(j >= 0){
-                                            chart.rows[i][[column]] = chart.rows[j][[column]]
+                                if(diaouacu == 'acumulados'){
+                                    j = i
+                                    for(;j >= 0; j--){
+                                        if(chart.rows[j][[column]]){
+                                            break
                                         }
-                                        else{
-                                            for(k = i; k >= 0; k--){
-                                                chart.rows[k][[column]] = 0
-                                            }
+                                    }
+                                    z = i
+                                    for(;z < chart.rows.length; z++){
+                                        if(chart.rows[z][[column]]){
+                                            break
                                         }
+                                    }
+
+                                    if(z < chart.rows.length && j >= 0){
+                                        chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
+                                    }
+                                    if(j >= 0){
+                                        chart.rows[i][[column]] = chart.rows[j][[column]]
                                     }
                                     else{
-                                        chart.rows[i][[column]] = 0
+                                        for(k = i; k >= 0; k--){
+                                            chart.rows[k][[column]] = 0
+                                        }
                                     }
+                                }
+                                else{
+                                    chart.rows[i][[column]] = 0
                                 }
                             }
                         }
                     }
                 })
-
-                return chart
-            },
-            filtroRecuperadosAcumulado(estados, cidades, bairros, graph){
-                estados = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-
-                if(estados == null || estados == []){
-                    console.log("Nada");
-                }else if(cidades == null || (cidades.length == 0)){
-                    estados.forEach(estado =>{
-                        estadoBaseRA.forEach((estadob, index) =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Recuperados em ' + estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                acumulado = estadob.quantidade_casos
-                                for(i = 0; i < index; i++){
-                                    if(estado.toLowerCase() == estadoBaseRA[i]['estado_residencia'].toLowerCase()){
-                                        acumulado += estadoBaseRA[i]['quantidade_casos']
-                                    }
-                                }
-                                chart.rows.push({
-                                    [label] : acumulado,
-                                    'data' : estadob.data_notificacao
-                                })
-                            }
-                        })
-                    })
-                }
-                else if(cidades != null && (cidades.length != 0)){ 
-                    if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
-                        cidades.forEach(cidade =>{
-                            cidadeBaseRA.forEach((cidadeb, index) =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Recuperados em ' + cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = cidadeb.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(cidade.toLowerCase() == cidadeBaseRA[i]['municipio'].toLowerCase()){
-                                            acumulado += cidadeBaseRA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : cidadeb.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                    else{ //pesquisa bairro
-                        bairros.forEach(bairro =>{
-                            bairroBaseRA.forEach((bairrob, index) =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Recuperados em ' + bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = bairrob.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(bairro.toLowerCase() == bairroBaseRA[i]['bairro'].toLowerCase()){
-                                            acumulado += bairroBaseRA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : bairrob.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
-                console.log("Chart: ", chart);
-                Vue.set(app, graph, chart)
-                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
-                return chart
-            },
-            filtroRecuperadosDiario(estados, cidades, bairros, graph){
-                estados = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-
-                if(estados == null || estados == []){
-                    console.log("Nada");
-                }else if(cidades == null || (cidades.length == 0)){
-                    estados.forEach(estado =>{
-                        
-                        estadoBaseR.forEach(estadob =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Recuperados em ' + estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
-                                    }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
-                                }
-                            }
-                        })
-                    })
-                }
-                else if(cidades != null && (cidades.length != 0)){ 
-                    if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
-                        cidades.forEach(cidade =>{
-                            cidadeBaseR.forEach(cidadeb =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Recuperados em ' + cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
-                                        }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                    else{ //pesquisa bairro
-                        bairros.forEach(bairro =>{
-                            bairroBaseR.forEach(bairrob =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Recuperados em ' + bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
-                                        }
-                                        
-                                    })
-                                    console.log("Dados append: ", chart.rows)
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
-                console.log("Chart: ", chart);
-                Vue.set(app, graph, chart)
-
-                return chart
-            },
-            filtroObitosAcumulado(estados, cidades, bairros, graph){
-                estados = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-
-                if(estados == null || estados == []){
-                    console.log("Nada");
-                }else if(cidades == null || (cidades.length == 0)){
-                    estados.forEach(estado =>{
-                        estadoBaseOA.forEach((estadob, index) =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Óbitos em ' + estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                acumulado = estadob.quantidade_casos
-                                for(i = 0; i < index; i++){
-                                    if(estado.toLowerCase() == estadoBaseOA[i]['estado_residencia'].toLowerCase()){
-                                        acumulado += estadoBaseOA[i]['quantidade_casos']
-                                    }
-                                }
-                                chart.rows.push({
-                                    [label] : acumulado,
-                                    'data' : estadob.data_notificacao
-                                })
-                            }
-                        })
-                    })
-                }
-                else if(cidades != null && (cidades.length != 0)){ 
-                    if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
-                        cidades.forEach(cidade =>{
-                            cidadeBaseOA.forEach((cidadeb, index) =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Óbitos em ' + cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = cidadeb.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(cidade.toLowerCase() == cidadeBaseOA[i]['municipio'].toLowerCase()){
-                                            acumulado += cidadeBaseOA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : cidadeb.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                    else{ //pesquisa bairro
-                        bairros.forEach(bairro =>{
-                            bairroBaseOA.forEach((bairrob, index) =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Óbitos em ' + bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = bairrob.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(bairro.toLowerCase() == bairroBaseOA[i]['bairro'].toLowerCase()){
-                                            acumulado += bairroBaseOA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : bairrob.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
-                console.log("Chart: ", chart);
-                Vue.set(app, graph, chart)
-                
-                return chart
-            },
-            filtroObitosDiario(estados, cidades, bairros, graph){
-                estados = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-
-                if(estados == null || estados == []){
-                    console.log("Nada");
-                }else if(cidades == null || (cidades.length == 0)){
-                    estados.forEach(estado =>{
-                        estadoBaseO.forEach(estadob =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Óbitos em ' + estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
-                                    }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
-                                }
-                            }
-                        })
-                    })
-                }
-                else if(cidades != null && (cidades.length != 0)){ 
-                    if(bairros == null || (bairros.length == 0)){ //pesquisa cidade
-                        cidades.forEach(cidade =>{
-                            cidadeBaseO.forEach(cidadeb =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Óbitos em ' + cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
-                                        }
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                    else{ //pesquisa bairro
-                        bairros.forEach(bairro =>{
-                            bairroBaseO.forEach(bairrob =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Óbitos em ' + bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
-                                        }
-                                        
-                                    })
-                                    console.log("Dados append: ", chart.rows)
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
-                console.log("Chart: ", chart);
-                Vue.set(app, graph, chart)
-
-                return chart
-            },
-            filterO: function(){
-                var object = []
-                var chart = {
-                    rows: [],
-                    columns: ['data', 'Óbitos', 'Óbitos Acumulados']
-                }
-                object = [...obitosBase]
-                
-                console.log('Obitos ', object,obitosBase, obitosBaseA)
-                obitosBase.forEach((obj,index) => {
-                    obitosBase[index]['estado_residencia'] = "Óbitos"
-                    obitosBase.forEach((obj2, index2) => {
-                        if(index2 > index){
-                            if(obj['data_notificacao'] == obj2['data_notificacao']){
-                                obitosBase[index]['quantidade_casos'] += obitosBase[index2]['quantidade_casos']                                
-                                obitosBase.splice(index2, 1)
-                            }
-                        }
-                    })
-                    
-                })
-                
-                var object2 = []
-                // obitosBase.forEach(valor => object2.push(valor))
-                var i=0
-                for(i=0;i<obitosBase.length; i++){
-                    object2.push(obitosBase[i])
-                }
-                var obj3 = []
-                object2.forEach((valor, index) => {
-                    object2[index]['estado_residencia'] = "Óbitos Acumulados"
-                    obj3.push(object2[index]['quantidade_casos'])
-                    if(index != 0){
-                        object2[index]['quantidade_casos'] += object2[index-1]['quantidade_casos'] 
-                    }
-                    chart.rows.push({'Óbitos Acumulados' : object2[index]['quantidade_casos'],
-                                            'data' : object2[index]['data_notificacao'], 'Óbitos':obj3[index]})
-                    
-                })
-                console.log('Charts: ', chart, obj3)
-                Vue.set(app, 'chartDataO', chart)
-                Vue.set(app, 'nObitos', chart.rows[chart.rows.length-1]['Óbitos Acumulados']) // Setando dashboard
-                Vue.set(app, 'nCasos', chart.rows[chart.rows.length-1]['Óbitos']) // Setando dashboard
-                return chart
-            },
-            filterSA: function (value, valuesC, valuesB){
-                value = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-                
-                if(value == null || value == []){
-                    console.log("Nada");
-                }else if(valuesC == null || (valuesC.length == 0)){
-                    //pesquisa por estado                    
-
-                    value.forEach(estado =>{
-                        estadoBaseSA.forEach((estadob, index) =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Casos suspeitos em '+ estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                acumulado = estadob.quantidade_casos
-                                for(i = 0; i < index; i++){
-                                    if(estado.toLowerCase() == estadoBaseSA[i]['estado_residencia'].toLowerCase()){
-                                        acumulado += estadoBaseSA[i]['quantidade_casos']
-                                    }
-                                }
-                                chart.rows.push({
-                                    [label] : acumulado,
-                                    'data' : estadob.data_notificacao
-                                })
-                            }
-                        })
-                    })
-                }
-                else if(valuesC != null && (valuesC.length != 0)){ 
-                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
-                        valuesC.forEach(cidade =>{
-                            cidadeBaseSA.forEach((cidadeb, index) =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Casos suspeitos em '+cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = cidadeb.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(cidade.toLowerCase() == cidadeBaseSA[i]['municipio'].toLowerCase()){
-                                            acumulado += cidadeBaseSA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : cidadeb.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }else{ //pesquisa bairro
-                        valuesB.forEach(bairro =>{
-                            bairroBaseSA.forEach((bairrob, index) =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Casos suspeitos em '+bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = bairrob.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(bairro.toLowerCase() == bairroBaseSA[i]['bairro'].toLowerCase()){
-                                            acumulado += bairroBaseSA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : bairrob.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                });
-                console.log("Chart: ", chart);
-                Vue.set(app, 'chartDataSA', chart)
-                
-                return chart
-            },
-            filterA: function (value, valuesC, valuesB){
-                value = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-                
-                if(value == null || value == []){
-                    console.log("Nada");
-                }else if(valuesC == null || (valuesC.length == 0)){
-                    //pesquisa por estado                    
-
-                    value.forEach(estado =>{
-                        estadoBaseA.forEach((estadob, index) =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Casos confirmados em '+estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                acumulado = estadob.quantidade_casos
-                                for(i = 0; i < index; i++){
-                                    if(estado.toLowerCase() == estadoBaseA[i]['estado_residencia'].toLowerCase()){
-                                        acumulado += estadoBaseA[i]['quantidade_casos']
-                                    }
-                                }
-                                chart.rows.push({
-                                    [label] : acumulado,
-                                    'data' : estadob.data_notificacao
-                                })
-                            }
-                        })
-                    })
-                }
-                else if(valuesC != null && (valuesC.length != 0)){ 
-                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
-                        valuesC.forEach(cidade =>{
-                            cidadeBaseA.forEach((cidadeb, index) =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Casos confirmados em '+cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    
-                                    acumulado = cidadeb.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(cidade.toLowerCase() == cidadeBaseA[i]['municipio'].toLowerCase()){
-                                            acumulado += cidadeBaseA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : cidadeb.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }else{ //pesquisa bairro
-                        valuesB.forEach(bairro =>{
-                            bairroBaseA.forEach((bairrob, index) =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Casos confirmados em '+bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    acumulado = bairrob.quantidade_casos
-                                    for(i = 0; i < index; i++){
-                                        if(bairro.toLowerCase() == bairroBaseA[i]['bairro'].toLowerCase()){
-                                            acumulado += bairroBaseA[i]['quantidade_casos']
-                                        }
-                                    }
-                                    chart.rows.push({
-                                        [label] : acumulado,
-                                        'data' : bairrob.data_notificacao
-                                    })
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                }); 
-                console.log("Chart: ", chart);
-                Vue.set(app, 'chartDataSA', chart)
-                console.log("FilterA: ", chart.rows);
-                return chart
-            },
-            filterS: function (value, valuesC, valuesB, graph){
-                value = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-                
-                if(value == null || value == []){
-                    console.log("Nada");
-                }else if(valuesC == null || (valuesC.length == 0)){
-                    //pesquisa por estado                    
-
-                    value.forEach(estado =>{
-                        estadoBaseS.forEach(estadob =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Casos suspeitos em '+estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
-                                    }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
-                                }
-                            }
-                        })
-                    })
-                }
-                else if(valuesC != null && (valuesC.length != 0)){ 
-                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
-                        valuesC.forEach(cidade =>{
-                            cidadeBaseS.forEach(cidadeb =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Casos suspeitos em '+cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
-                                        }
-                                       
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }else{ //pesquisa bairro
-                        valuesB.forEach(bairro =>{
-                            bairroBaseS.forEach(bairrob =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Casos suspeitos em '+bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
-                                        }
-                                        
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                }
-                chart.columns.forEach(elemento => {
-                    chart.rows.forEach( (row, index) => {
-                         if(row[elemento] != null && row[elemento] != undefined || elemento == 'data'){
-                            //console.log("Testando: ", row[elemento], row.length)
-                         }else{
-                            chart.rows[index] = Object.assign(row,{[elemento.toLowerCase()] : 0})
-                         }
-                    })
-                    
-                })
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                }); 
-                console.log("Chart: ", chart)
-                Vue.set(app, graph, chart)
-
-                return chart
-            },
-            filter: function (value, valuesC, valuesB, graph){
-                value = ['Pernambuco']
-                var chart = {
-                    columns: ['data'],
-                    rows: []
-                }
-                console.log("ValuesC: ", valuesC)
-                if(value == null || value == []){
-                    console.log("Nada");
-                }else if(valuesC == null || (valuesC.length == 0)){
-                    //pesquisa por estado                    
-
-                    value.forEach(estado =>{
-                        estadoBase.forEach(estadob =>{
-                            if(estado.toLowerCase() == estadob.estado_residencia.toLowerCase()){
-                                label = 'Casos confirmados em '+estadob.estado_residencia.toLowerCase()
-                                if(! chart.columns.includes(label)){
-                                    chart.columns.push(label)
-                                }
-                                // console.log("inclui ", chart.rows)
-                                if(chart.rows.length == 0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : (estadob.data_notificacao)
-                                    })
-                                }
-                                var i= 0
-                                chart.rows.forEach((element, index) =>{
-                                    if(element.data == estadob.data_notificacao){
-                                        chart.rows[index] = Object.assign({[label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao},element)
-                                        i=1;
-                                    }
-                                    
-                                })
-                                if(i==0){
-                                    chart.rows.push({
-                                        [label] : estadob.quantidade_casos,
-                                        'data' : estadob.data_notificacao
-                                    })
-                                }
-                            }
-                        })
-                    })
-                }
-                else if(valuesC != null && (valuesC.length != 0)){ 
-                    if(valuesB == null || (valuesB.length == 0)){ //pesquisa cidade
-                        valuesC.forEach(cidade =>{
-                            cidadeBase.forEach(cidadeb =>{
-                                if(cidade.toLowerCase() == cidadeb.municipio.toLowerCase()){
-                                    label = 'Casos confirmados em '+cidadeb.municipio.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == cidadeb.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao},element)
-                                            i=1;
-                                        }
-                                        
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : cidadeb.quantidade_casos,
-                                            'data' : cidadeb.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }else{ //pesquisa bairro
-                        valuesB.forEach(bairro =>{
-                            bairroBase.forEach(bairrob =>{
-                                if(bairro.toLowerCase() == bairrob.bairro.toLowerCase()){
-                                    label = 'Casos confirmados em '+bairrob.bairro.toLowerCase()
-                                    if(! chart.columns.includes(label)){
-                                        chart.columns.push(label)
-                                    }
-                                    // console.log("inclui ", chart.rows)
-                                    if(chart.rows.length == 0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                    var i= 0
-                                    chart.rows.forEach((element, index) =>{
-                                        if(element.data == bairrob.data_notificacao){
-                                            chart.rows[index] = Object.assign({[label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao},element)
-                                            i=1;
-                                        }
-                                        
-                                    })
-                                    if(i==0){
-                                        chart.rows.push({
-                                            [label] : bairrob.quantidade_casos,
-                                            'data' : bairrob.data_notificacao
-                                        })
-                                    }
-                                }
-                            })
-                        })
-                    }
-                }
-
-                chart.columns.forEach(elemento => {
-                    chart.rows.forEach( (row, index) => {
-                         if(row[elemento] != null && row[elemento] != undefined || elemento == 'data'){
-                            //console.log("Testando: ", row[elemento], row.length)
-                         }else{
-                            chart.rows[index] = Object.assign({[elemento.toLowerCase()] : 0},row)
-                         }
-                    })
-                    
-                })
-                chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[6]+a.data[7]+a.data[8]+a.data[9])
-                    const monthA = parseInt(a.data[3]+a.data[4])
-                    const dayA = parseInt(a.data[0]+a.data[1])
-                    const yearB = parseInt(b.data[6]+b.data[7]+b.data[8]+b.data[9])
-                    const monthB = parseInt(b.data[3]+b.data[4])
-                    const dayB = parseInt(b.data[0]+b.data[1])
-                    // console.log("DataA: ", a.data, b.data, dataA)
-                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
-                }); 
-                console.log("Chart: ", chart);
-                Vue.set(app, graph, chart)
 
                 return chart
             },
@@ -1443,13 +516,47 @@
         },
         mounted: function () {
             this.$nextTick(function () {
-                this.filterS(['Pernambuco'], [], [], 'chartDataS')
-                this.filter(['Pernambuco'], [], [], 'chartData')
-                this.filterSA(['Pernambuco'], [], [])
-                this.filtroRecuperadosAcumulado('Pernambuco', [], [], '')
-                this.filterO()
-                this.filterA(['Pernambuco'], [], [])
-                
+                this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
+                this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
+                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
+                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
+                this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
+                this.chartDataIsolamento = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, 'chartDataIsolamento', ['acumulados'])
+                console.log('Isolamento: ',this.chartDataIsolamento.rows[this.chartDataIsolamento.rows.length-1]['Isolamento Domiciliar em pernambuco'])
+                this.chartDataInternado = this.filtro(['Internado'], ['Pernambuco'], null, null, 'chartDataInternado', ['acumulados'])
+                console.log('Internamento: ',this.chartDataInternado.rows[this.chartDataInternado.rows.length-1]['Internado em pernambuco'])
+                this.pieObject.push({'eixo': 'Isolamento Domiciliar','valor': this.chartDataIsolamento.rows[this.chartDataIsolamento.rows.length-1]['Isolamento Domiciliar em pernambuco']})
+                this.pieObject.push({'eixo': 'Internado','valor': this.chartDataInternado.rows[this.chartDataInternado.rows.length-1]['Internado em pernambuco']})
+
+                // console.log('ChartData: ',this.chartDataSA.rows , this.chartDataSA.rows[this.chartDataSA.rows.length-1]['Casos Confirmados em pernambuco'])
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                this.pieObject.push({'eixo': 'Óbitos em pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em pernambuco']})
+                // console.log('Pie: ', this.pieObject)
+                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'] * 100) / 100 ) // Setando dashboard
+
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
+                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'] * 100) / 100 ) // Setando dashboard
+
+                chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
+                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
+
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                this.pieObject.push({'eixo': 'Recuperados em pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em pernambuco']})
+                // console.log('Pie: ', this.pieObject)
+                this.pieObject[0] = Object.assign(this.pieObject[0], {'Percentual': (this.pieObject[0]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
+                this.pieObject[1] = Object.assign(this.pieObject[1], {'Percentual': (this.pieObject[1]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
+                this.pieObject[2] = Object.assign(this.pieObject[2], {'Percentual': (this.pieObject[2]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
+                this.pieObject[3] = Object.assign(this.pieObject[3], {'Percentual': (this.pieObject[3]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
+                //console.log('PieValue: ',this.pieObject[2]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']))
+                // Vue.set(app, 'pieObject', )
+                var pieData = {
+                    'columns': ['eixo', 'valor', 'Percentual'],
+                    'rows': []
+                }
+                pieData.rows = Object.assign(pieData.rows, this.pieObject)
+                console.log('PieData: ', pieData)
+                Vue.set(app, 'chartDataPie', pieData) // Setando dashboard
+                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
             })
         },
     });
