@@ -151,7 +151,7 @@
               
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard de Pernambuco</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
           </div>
           <div style="display: flex;flex-direction: row;">
             <v-card
@@ -227,6 +227,94 @@
         </v-card>
       </template>
       
+
+      <!-- Dashboard -->
+      <template>
+        <v-card
+              class="mx-auto mt-6 pa-4"
+              max-width="1044"
+              width="1044"
+              height='600'
+              outlined
+              
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard de Pernambuco</v-list-item-title>
+          </div>
+          <div style="display: flex;flex-direction: row;">
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='220'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Óbitos Totais
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+                [[ nObitos ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='220'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Óbitos Diários
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+                [[ nCasos ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='220'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Recuperados Totais
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+                [[ nRecuperados ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+            </v-card>
+            
+          </div>
+          <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="980"
+                  width="975"
+                  height='220'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Taxa de Letalidade em Pernambuco
+              </p>
+              <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
+                <v-progress-circular
+                  :rotate="360"
+                  :size="100"
+                  :width="15"
+                  :value="nConf"
+                  color="rgb(113, 113, 113)"
+                >
+                  [[ nConf ]]%
+                </v-progress-circular>
+              </div>
+              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
+            </v-card>
+        </v-card>
+      </template>
+
 
       <template>
         <v-card
