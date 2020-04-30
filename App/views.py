@@ -14,6 +14,7 @@ import requests
 from datetime import date, datetime
 from django.db.models import Count
 from django.conf import settings
+from App import views
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
 # ? index é uma function view. uma função que retorna a view requisitada

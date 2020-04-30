@@ -25,7 +25,7 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('home', views.home, name="home"),
     path('graphs/', views.graphs, name="graphs"),
-    path('get/ajax/pins',views.get_pins, name="get_pins")
+    path('get/ajax/pins',views.get_pins, name="get_pins"),
 ]
 
 #views.listener(repeat=10, repeat_until=None)

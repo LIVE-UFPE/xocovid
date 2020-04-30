@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 # import App.IA.pipeline as pipe
 from django.utils import timezone
 import App.bot.stateCityData as bot
+import shutil
 
 collum_names = [
   'ID',      
@@ -75,23 +76,31 @@ def listener():
         prediction()
 
         send_prediction_to_db()
+
+        saveImages()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
 
-    print("Extraindo informações de outras bases")
+    #print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
-    
-    notifications = Notification.objects.all()
-    for notification in notifications:
-        if notification.estado_residencia != 'Pernambuco':
-            print('Pegueiiii')
-            notification.estado_residencia = 'Pernambuco'
-            notification.municipio = 'Recife'
-            notification.bairro = 'Boa Viagem'
-            notification.save()
 
     print("Listener parado")
+
+def saveImages():
+    print("Salvando Imagens no database")
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo/modelo_13-02-2020_06-04-2020.png"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelo.png"
+    shutil.copyfile(original, target)
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao/pred_07-04-2020_12-04-2020.png"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicao.png"
+    shutil.copyfile(original, target)
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_projecao/proj_13-04-2020_18-04-2020.png"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecao.png"
+    shutil.copyfile(original, target)
 
 def storeBot():
     print("Armazenando extrações")
@@ -344,6 +353,12 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
+
+        if notification.estado_residencia != 'Pernambuco':
+            notification.estado_residencia = 'Pernambuco'
+            notification.municipio = 'Recife'
+            notification.bairro = 'Boa Viagem'
+
         notification.save()
 
 def pre_processing(df):
