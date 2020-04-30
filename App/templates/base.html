@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script type="text/javascript" src="../static/filter.json"></script>
+        <script type="text/javascript" src="{% static 'filter/filter.json' %}"></script>
 
         <meta charset="utf-8">
         <title>XoCovid</title>
@@ -35,8 +35,15 @@
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
-        <script src="{% static 'leaflet-heat.js' %}"></script>
+        <script src="{% static 'heatmap/heatmap.js' %}"></script>
+        <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
+
+        <!-- * jQuery -->
+        <script
+            src="https://code.jquery.com/jquery-3.5.0.min.js"
+            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+            crossorigin="anonymous"></script>
 
         <style>
             .v-text-field, .v-btn {
@@ -88,14 +95,20 @@
 <script>
     {% if items_json %}
         var pins = {{ items_json|safe }};
+    {% else %}
+        var pins = ['']
     {% endif %}
     {% if predicts_json %}
         var predicts = {{ predicts_json|safe }};
+    {% else %}
+        var predicts = ['']
     {% endif %}
     {% if buscas %}
         var buscas= {{ buscas|safe }}
-    {% endif %}    
-    
+    {% else %}
+        var buscas = ['']
+    {% endif %}
+    console.log('buscas: ', buscas)
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -116,14 +129,19 @@
         }),
         components: {
             // ? esse é o metodo para importar componentes em Vue
-            'login': httpVueLoader("{% static 'vue-views/login.vue' %}"),
-            'covid-map': httpVueLoader("{% static 'vue-views/covidMap.vue' %}"),
+            'login': httpVueLoader("{% static 'login/login.vue' %}"),
+            'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
             VeLine,
             VeHistogram,
             VePie
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            nObitosBrasil: 0,
+            nConfirmadosBrasil: 0,
+            n100kBrasil: 0,
+            nLetalidadeBrasil: 0,
+            imageData:['https://images.unsplash.com/photo-1588025383511-12fe4bb4aaf0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1547&q=80','https://cdn.pixabay.com/photo/2015/06/19/21/24/the-road-815297__340.jpg', 'https://images.unsplash.com/photo-1588066737272-35a08f4d594e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1966&q=80', 'https://images.unsplash.com/photo-1588066898163-3c857fa857e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80', 'https://images.unsplash.com/photo-1588058365815-c96ac30ee30f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80'],
             chartDataPie: {
                 columns: ['date', 'cost', 'profit'],
                 rows: [
@@ -162,8 +180,6 @@
             conditionalDate: false,
             page: 1,
             pageOn: 0,
-            numberPages: 7,
-            imageData:['https://images.unsplash.com/photo-1588025383511-12fe4bb4aaf0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1547&q=80','https://cdn.pixabay.com/photo/2015/06/19/21/24/the-road-815297__340.jpg', 'https://images.unsplash.com/photo-1588066737272-35a08f4d594e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1966&q=80', 'https://images.unsplash.com/photo-1588066898163-3c857fa857e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80', 'https://images.unsplash.com/photo-1588058365815-c96ac30ee30f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80'],
             values: ['Pernambuco'],
             valuesC:  null,
             valuesD: null,
@@ -232,15 +248,75 @@
             avatar: false,
             rounded: false,
             pins: null,
-            datedb: new Date(),
-            predicts: null,
+            datedb: new Date(pins[0] + 'T00:00:00Z'),
+            predicts: predicts,
             useIa: false,
+            lastinterpol: new Date(pins[0] + 'T00:00:00Z'),
             diaOUAcu: 'acumulados',
             linhaOuHist: 'linhas'
         }),
+        mounted: function (){
+            // ? avançando 3 hrs p manter datedb ajustado
+            //this.datedb.setHours(this.datedb.getHours() + 3);
+            //console.log('pins[0] é ' + this.pins[0].data_notificacao + ' e datedb ' + this.datedb.toString() + 'e o dia em UTC é ' + this.datedb.toUTCString() + '\n');
+
+            this.$nextTick(function () {
+                this.setDashboardBrasil()
+                this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
+                this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
+                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
+                this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
+
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
+                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+
+                chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
+                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
+
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
+
+                var pieData = {
+                    'columns': ['eixo', 'valor'],
+                    'rows': []
+                }
+                chart = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Isolamento Domiciliar','valor': chart.rows[chart.rows.length-1]['Isolamento Domiciliar em pernambuco']})
+                chart = this.filtro(['Internado'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Internado','valor': chart.rows[chart.rows.length-1]['Internado em pernambuco']})
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Óbitos em pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em pernambuco']})
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Recuperados em pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em pernambuco']})
+                //pieData.rows[0]['Percentual'] = (pieData.rows[0]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[1]['Percentual'] = (pieData.rows[1]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[2]['Percentual'] = (pieData.rows[2]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                Vue.set(app, 'chartDataPie', pieData)
+            })
+        },
         methods: {
-            printName: function (value){
-                console.log("Teste ", value);
+            setDashboardBrasil: function (){
+                var obitos = 0
+                var confirmados = 0
+                var conf_100k = 0
+                var letalidade = 0
+
+                buscas['Casos Estado'].forEach(estado => {
+                   obitos += estado['obitos']
+                   confirmados += estado['confirmados']
+                   conf_100k += estado['confirmados_100k']
+                })
+                letalidade = (obitos/confirmados) * 100
+                conf_100k = conf_100k/buscas['Casos Estado'].length
+                Vue.set(app, 'nObitosBrasil', obitos)
+                Vue.set(app, 'nConfirmadosBrasil', confirmados)
+                Vue.set(app, 'n100kBrasil', Math.round(conf_100k * 100) / 100)
+                Vue.set(app, 'nLetalidadeBrasil', Math.round(letalidade * 100) / 100)
+                console.log('Dash value: ',letalidade,conf_100k,obitos, confirmados)
             },
             setCity: function (value, chips){
                 var objC = [];
@@ -285,7 +361,6 @@
                                 else
                                     chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
 
-                                
                                 chart2 = this.sortChart(chart2)
                                 
                                 chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
@@ -360,6 +435,7 @@
                             }
                     }
                 })
+
                 return chart2
             },
             buildTaxaChart(informacao, diaouacu, estado, cidade, bairro){
@@ -394,7 +470,7 @@
                         [colunaTaxa]: (row[colunaFuncao] / row[colunaConfirmado]) * 100
                     })
                 })
-                
+
                 return chart2
             },
             sortChart(chart){
@@ -480,85 +556,72 @@
             },
             dateBack: function (event) {
                 let test = new Date(this.datedb);
-                test.setDate( test.getDate() - 1 );
-                test.setHours(23,59,58);
+                if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
+                    test.setDate( test.getDate() - 1 );
+                    test.setHours(23,59,58);
 
-                let today = new Date();
-                today.setHours(23,59,59);
-                if( test < today ){
-                    this.useIa = false;
-                    console.log("não usando mais predições!")
+                    let today = new Date(this.lastinterpol);
+                    today.setHours(23,59,59);
+                    if( test < today ){
+                        if(this.useIa) console.log("não usando mais predições!")
+                        this.useIa = false;
+                        while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                            if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
+                                console.log('chegamos no primeiro dia!')
+                                break
+                            }else{
+                                test.setDate( test.getDate() - 1 )
+                            }
+                        }
+                    }
+                    
+
+                    this.datedb = test;
+                    console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                }else{
+                    console.log('não há dados antes desse dia!')
+                    return
                 }
-
-                this.datedb = test;
-                console.log("voltando um dia!("+this.datedb.toLocaleString('en-GB')+")");
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
-                test.setDate( test.getDate() + 1 );
-                let today = new Date();
-                today.setHours(23,59,59);
-                let tomorrow = new Date(today);
-                tomorrow.setDate( today.getDate() + 1 );
 
-                // se estou além de meia noite de hj e antes de meia noite de amanha
-                if(test > today && test < tomorrow ) {
-                    console.log("entrando nas predições!");
-                    this.useIa = true;
-                    this.datedb = test;
-                }else if(test < today){
-                    this.datedb = test;
-                    console.log("avançando um dia!("+this.datedb.toLocaleString('en-GB')+")");
-                }else {
-                    console.log("não podemos avançar mais do que amanhã!");
+                // ? se test nao for o ultimo dia:
+                if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
+                    test.setDate( test.getDate() + 1 );
+
+                    while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                        if(test.toISOString().substring(0,10) == pins[0]){
+                            console.log('chegamos no ultimo dia!')
+                            break
+                        }else{
+                            test.setDate( test.getDate() + 1 )
+                        }
+                    }
+
+                    this.datedb = test
+
+                }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
+                    let pred = new Date(this.datedb)
+                    pred.setDate( pred.getDate() + 1 );
+                    let afterAfterTomorrow = new Date(this.lastinterpol);
+                    afterAfterTomorrow.setHours(23,59,59);
+                    afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+
+                    // se estou antes de meia noite de amanha
+                    if(pred < afterAfterTomorrow ) {
+                        console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                        this.useIa = true;
+                        this.datedb = pred;
+                    }else {
+                        console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                        return
+                    }
+                    
+                    this.datedb = pred
                 }
             }
-        },
-        mounted: function () {
-            this.$nextTick(function () {
-                this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
-                this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
-                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
-                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
-                this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
-                this.chartDataIsolamento = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, 'chartDataIsolamento', ['acumulados'])
-                console.log('Isolamento: ',this.chartDataIsolamento.rows[this.chartDataIsolamento.rows.length-1]['Isolamento Domiciliar em pernambuco'])
-                this.chartDataInternado = this.filtro(['Internado'], ['Pernambuco'], null, null, 'chartDataInternado', ['acumulados'])
-                console.log('Internamento: ',this.chartDataInternado.rows[this.chartDataInternado.rows.length-1]['Internado em pernambuco'])
-                this.pieObject.push({'eixo': 'Isolamento Domiciliar','valor': this.chartDataIsolamento.rows[this.chartDataIsolamento.rows.length-1]['Isolamento Domiciliar em pernambuco']})
-                this.pieObject.push({'eixo': 'Internado','valor': this.chartDataInternado.rows[this.chartDataInternado.rows.length-1]['Internado em pernambuco']})
-
-                // console.log('ChartData: ',this.chartDataSA.rows , this.chartDataSA.rows[this.chartDataSA.rows.length-1]['Casos Confirmados em pernambuco'])
-                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
-                this.pieObject.push({'eixo': 'Óbitos em pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em pernambuco']})
-                // console.log('Pie: ', this.pieObject)
-                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'] * 100) / 100 ) // Setando dashboard
-
-                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
-                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'] * 100) / 100 ) // Setando dashboard
-
-                chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
-                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
-
-                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                this.pieObject.push({'eixo': 'Recuperados em pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em pernambuco']})
-                // console.log('Pie: ', this.pieObject)
-                this.pieObject[0] = Object.assign(this.pieObject[0], {'Percentual': (this.pieObject[0]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
-                this.pieObject[1] = Object.assign(this.pieObject[1], {'Percentual': (this.pieObject[1]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
-                this.pieObject[2] = Object.assign(this.pieObject[2], {'Percentual': (this.pieObject[2]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
-                this.pieObject[3] = Object.assign(this.pieObject[3], {'Percentual': (this.pieObject[3]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']+this.pieObject[3]['valor']))*100})
-                //console.log('PieValue: ',this.pieObject[2]['valor']/(this.pieObject[1]['valor']+this.pieObject[0]['valor']+this.pieObject[2]['valor']))
-                // Vue.set(app, 'pieObject', )
-                var pieData = {
-                    'columns': ['eixo', 'valor', 'Percentual'],
-                    'rows': []
-                }
-                pieData.rows = Object.assign(pieData.rows, this.pieObject)
-                console.log('PieData: ', pieData)
-                Vue.set(app, 'chartDataPie', pieData) // Setando dashboard
-                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
-            })
-        },
+        }
     });
     //Filter module
     var obj = [];

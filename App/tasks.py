@@ -1,4 +1,4 @@
-from .models import Notification, Prediction
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade
 import json
 import requests
 import pandas
@@ -7,57 +7,51 @@ from itertools import islice
 from background_task import background
 import os
 from datetime import datetime, timedelta
-# DEBUG comentando para pegar no windows
+# DEBUG comente para pegar no windows
 # import App.IA.pipeline as pipe
 from django.utils import timezone
+import App.bot.stateCityData as bot
 
 collum_names = [
-  'ID',              
+  'ID',      
   'Data Atualização',
   'Data da notificação',
   'Sexo',
   'Idade',
   'CEP residência',
-  'País de residência',
+  #'País de residência',
   'Estado de residência',
   'Município',
   'Endereço completo',
   'Data dos primeiros sintomas',
   'Paciente foi hospitalizado?',
-  'Data da internação hospitalar',
-  'Data da alta hospitalar',
-  'Data do isolamento',
-  'Paciente foi submetido a ventilação mecânica?',
-  'Situação de saúde do paciente no momento da notificação',
-  'Foi realizada coleta de amostra do paciente?',
-  'Foi para outro local de transmissão?',
-  'Outro local de transmissão, descrever (cidade, região, país)',
-  'Data da viagem de ida para outro local transmissão',
-  'Data da viagem de volta do outro local transmissão',
-  'Data da chegada no Brasil',
-  'Estado de notificação (UF)',
-  'Município de notificação',
+  #'Data da internação hospitalar',
+  #'Data da alta hospitalar',
+  #'Data do isolamento',
+  #'Paciente foi submetido a ventilação mecânica?',
+  #'Situação de saúde do paciente no momento da notificação',
+  #'Foi realizada coleta de amostra do paciente?',
+  #'Foi para outro local de transmissão?',
+  #'Outro local de transmissão, descrever (cidade, região, país)',
+  #'Data da viagem de ida para outro local transmissão',
+  #'Data da viagem de volta do outro local transmissão',
+  #'Data da chegada no Brasil',
+  #'Estado de notificação (UF)',
+  #'Município de notificação',
   'Coleta de exames',
   'Classificação final',
   'Resultado',
   'INTERNADO',
-  'EVOLUÇÃO'
-]
-
-parse_dates = [
-  'Data Atualização',
-  'Data da notificação',
-  'Data dos primeiros sintomas',
-  'Data da internação hospitalar',
-  'Data da alta hospitalar',
-  'Data do isolamento',
-  'Data da viagem de ida para outro local transmissão',
-  'Data da viagem de volta do outro local transmissão',
-  'Data da chegada no Brasil'
+  'EVOLUÇÃO',
+  #MODIFICACAO
+  #'Bairro',
+  #'Latitude',
+  #'Longitude'
 ]
 
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
 BASE_NAME = 'base_original.csv'
+#BASE_NAME = 'base_preprocessada.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -70,11 +64,10 @@ def listener():
             PATH_FILES+BASE_NAME,
             header = 0,
             names=collum_names,
-            parse_dates=parse_dates,
         )
-
+    
         df = pre_processing(df)
-
+    
         store_base(df)
 
         build_IAbase()
@@ -85,6 +78,10 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
 
+    print("Extraindo informações de outras bases")
+    #bot.processingData()
+    #storeBot()
+    
     notifications = Notification.objects.all()
     for notification in notifications:
         if notification.estado_residencia != 'Pernambuco':
@@ -94,8 +91,51 @@ def listener():
             notification.bairro = 'Boa Viagem'
             notification.save()
 
-    
     print("Listener parado")
+
+def storeBot():
+    print("Armazenando extrações")
+
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por cidade.csv', sep=',')
+
+    estados = []
+    for index, row in dfEstados.iterrows():
+            estados.append([row['date'], row['state'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+    cidades = []
+    for index, row in dfCidades.iterrows():
+        if pandas.notnull(row['estimated_population_2019']):
+            cidades.append([row['date'], row['state'], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    CasosEstado.objects.all().delete()
+    CasosCidade.objects.all().delete()
+
+    objs = [
+        CasosEstado(
+            data_atualizacao=m[0],
+            estado=m[1],
+            confirmados=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estados
+    ]
+    CasosEstado.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosCidade(
+            data_atualizacao=m[0],
+            estado=m[1],
+            cidade = m[2],
+            confirmados=m[3],
+            obitos=m[4],
+            populacao_estimada_2019 = m[5],
+            confirmados_100k = m[6],
+        )
+        for m in cidades
+    ]
+    CasosCidade.objects.bulk_create(objs=objs)
 
 def send_prediction_to_db():
     Prediction.objects.all().delete()
@@ -106,18 +146,20 @@ def send_prediction_to_db():
     )
     print("Armazenando predicoes")
 
-    maxPredction = df['prediction'].max()
+    #maxPredction = df['prediction'].max()
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['latitude'], row['longitude'], row['prediction']/maxPredction])
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
 
     objs = [
         Prediction(
             id=m[0],
             latitude=m[1],
             longitude=m[2],
-            prediction=m[3],
+            prediction1=m[3],
+            prediction2=m[4],
+            prediction3=m[5],
         )
         for m in predictions
     ]
@@ -222,11 +264,36 @@ def build_IAbase():
         data['INTERNADO'].append(notification.internado)
         data['EVOLUÇÃO'].append(notification.evolucao)
 
-    df = pandas.DataFrame(data, columns=collum_names)
+    df = pandas.DataFrame(data)
     df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
 def store_base(df):
+    pasta = PATH_FILES+'bases predicao/'
+
+    Interpolation.objects.all().delete()
+
+    for fileName in os.listdir(pasta):
+        a = pandas.read_csv(pasta+fileName, sep=',')
+
+        interporlations = []
+        date = datetime.strptime(fileName.split('predicao_covid19_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes do dia ' + str(date))
+        for index, row in a.iterrows():
+            interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
+        
+        objs = [
+            Interpolation(
+                latitude=m[0],
+                longitude=m[1],
+                prediction=m[2],
+                date=m[3],
+            )
+            for m in interporlations
+        ]
+        Interpolation.objects.bulk_create(objs=objs)
+
+    df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
@@ -234,49 +301,41 @@ def store_base(df):
             notification = Notification(id = int(row['ID']))
         print("Armazenando notificacao de ID: "+str(row['ID']))
         
-        if row['Data Atualização']:
-            try:
-                df.at[index,'Data Atualização'] = datetime.datetime.strptime(row['Data Atualização'].split(' ')[0],'%Y-%m-%d')
-            except ValueError:
-                df.at[index,'Data Atualização'] = datetime.datetime.strptime(row['Data Atualização'].split(' ')[0],'%m/%d/%y')
-        notification.data_notificacao = row['Data da notificação']
+        notification.data_atualizacao = buildDate(row['Data Atualização'])
+        notification.data_notificacao = buildDate(row['Data da notificação'])
         notification.sexo = str(row['Sexo']).title()
         if pandas.notnull(row['Idade']):
-            notification.idade = int(row['Idade'])
+            try:
+                notification.idade = int(row['Idade'])
+            except:
+                notification.idade = 0
         notification.cep = str(row['CEP residência'])
-        notification.pais_residencia = str(row['País de residência']).title()
+        #notification.pais_residencia = str(row['País de residência']).title()
         notification.estado_residencia = str(row['Estado de residência']).title()
         notification.municipio = str(row['Município']).title()
         notification.endereco = str(row['Endereço completo']).title()
-        if row['Data dos primeiros sintomas']:
-            try:
-                notification.data_primeiros_sintomas = datetime.datetime.strptime(row['Data dos primeiros sintomas'].split(' ')[0],'%m/%d/%Y')
-            except ValueError:
-                try:
-                    notification.data_primeiros_sintomas = datetime.datetime.strptime(row['Data dos primeiros sintomas'].split(' ')[0],'%m/%d/%y')
-                except ValueError:
-                    notification.data_primeiros_sintomas = None
+        notification.data_primeiros_sintomas = buildDate(row['Data dos primeiros sintomas'])
         notification.paciente_hospitalizado = str(row['Paciente foi hospitalizado?']).title()
-        notification.data_internacao = row['Data da internação hospitalar']
-        notification.data_alta = row['Data da alta hospitalar']
-        notification.data_isolamento = row['Data do isolamento']
-        notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilação mecânica?']).title()
-        notification.situacao_notificacao = str(row['Situação de saúde do paciente no momento da notificação']).title()
-        notification.coleta_amostra = str(row['Foi realizada coleta de amostra do paciente?']).title()
-        notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissão?']).title()
-        notification.outro_local_transmissao = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
-        notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissão']
-        notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissão']
-        if row['Data da chegada no Brasil']:
-            try:
-                notification.data_chegada_brasil = datetime.datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
-            except ValueError:
-                try:
-                    notification.data_chegada_brasil = datetime.datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
-                except ValueError:
-                    notification.data_chegada_brasil = None
-        notification.estado_notificacao = str(row['Estado de notificação (UF)']).title()
-        notification.municipio_notificacao = str(row['Município de notificação']).title()
+        #notification.data_internacao = row['Data da internação hospitalar']
+        #notification.data_alta = row['Data da alta hospitalar']
+        #notification.data_isolamento = row['Data do isolamento']
+        #notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilação mecânica?']).title()
+        #notification.situacao_notificacao = str(row['Situação de saúde do paciente no momento da notificação']).title()
+        #notification.coleta_amostra = str(row['Foi realizada coleta de amostra do paciente?']).title()
+        #notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissão?']).title()
+        #notification.outro_local_transmissao = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
+        #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissão']
+        #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissão']
+        #if row['Data da chegada no Brasil']:
+        #    try:
+        #        notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
+        #    except ValueError:
+        #        try:
+        #            notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
+        #        except ValueError:
+        #            notification.data_chegada_brasil = None
+        #notification.estado_notificacao = str(row['Estado de notificação (UF)']).title()
+        #notification.municipio_notificacao = str(row['Município de notificação']).title()
         notification.coleta_exames = str(row['Coleta de exames']).title()
         notification.classificacao = str(row['Classificação final']).title()
         notification.resultado = str(row['Resultado']).title()
@@ -295,15 +354,15 @@ def pre_processing(df):
     df = df.replace({np.nan: None})
 
     for index, row in df.iterrows():
-        address = str(row['Endereço completo'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
+        address = str(row['Endereço completo'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str('Brasil'"""row['País de residência']""")
         addressJSON = requestData(request=address, type='google')
         if pandas.notnull(addressJSON):
             print("Pre processando notificacao de ID: "+str(row['ID']))
 
             country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
 
-            if pandas.notnull(country):
-                df.at[index,'País de residência'] = country
+            #if pandas.notnull(country):
+            #    df.at[index,'País de residência'] = country
             if pandas.notnull(state):
                 df.at[index,'Estado de residência'] = state
             if pandas.notnull(city):
@@ -319,10 +378,10 @@ def pre_processing(df):
             print('Erro na busca do google maps')
 
     for index, row in df.iterrows():
-        if (pandas.isnull(row['Município']) or pandas.isnull(row['Estado de residência']) or pandas.isnull(row['País de residência']) or pandas.isnull(row['Latitude']) or pandas.isnull(row['Bairro'])) and pandas.notnull(row['CEP residência']):
+        if (pandas.isnull(row['Município']) or pandas.isnull(row['Estado de residência']) or pandas.isnull('Brasil'"""row['País de residência']""") or pandas.isnull(row['Latitude']) or pandas.isnull(row['Bairro'])) and pandas.notnull(row['CEP residência']):
             print("Pre processando notificacao de ID: "+str(row['ID']))
 
-            CEP = str(row['CEP residência'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str(row['País de residência'])
+            CEP = str(row['CEP residência'])+' '+str(row['Município'])+' '+str(row['Estado de residência'])+' '+str('Brasil'"""row['País de residência']""")
             addressJSON = requestData(request=CEP, type='google')
             if pandas.notnull(addressJSON):
                 country, state, city, neighborhood, cep, latitude, longitude = getDatas(json=addressJSON['results'])
@@ -335,8 +394,8 @@ def pre_processing(df):
                 if pandas.isnull(row['Latitude']):
                     df.at[index,'Latitude'] = latitude
                     df.at[index,'Longitude'] = longitude
-                if pandas.notnull(country):
-                    df.at[index,'País de residência'] = country
+                #if pandas.notnull(country):
+                #    df.at[index,'País de residência'] = country
                 if pandas.notnull(state):
                     df.at[index,'Estado de residência'] = state
                 if pandas.notnull(city):
@@ -347,8 +406,8 @@ def pre_processing(df):
     for index, row in df.iterrows():
         if pandas.notnull(row['Sexo']):
             df.at[index,'Sexo'] = str(row['Sexo']).title()
-        if pandas.notnull(row['País de residência']):
-            df.at[index,'País de residência'] = str(row['País de residência']).title()
+        #if pandas.notnull(row['País de residência']):
+        #    df.at[index,'País de residência'] = str(row['País de residência']).title()
         if pandas.notnull(row['Estado de residência']):
             df.at[index,'Estado de residência'] = str(row['Estado de residência']).title()
         if pandas.notnull(row['Município']):
@@ -357,20 +416,20 @@ def pre_processing(df):
             df.at[index,'Endereço completo'] = str(row['Endereço completo']).title()
         if pandas.notnull(row['Paciente foi hospitalizado?']):
             df.at[index,'Paciente foi hospitalizado?'] = str(row['Paciente foi hospitalizado?']).title()
-        if pandas.notnull(row['Paciente foi submetido a ventilação mecânica?']):
-            df.at[index,'Paciente foi submetido a ventilação mecânica?'] = str(row['Paciente foi submetido a ventilação mecânica?']).title()    
-        if pandas.notnull(row['Situação de saúde do paciente no momento da notificação']):
-            df.at[index,'Situação de saúde do paciente no momento da notificação'] = str(row['Situação de saúde do paciente no momento da notificação']).title()
-        if pandas.notnull(row['Foi realizada coleta de amostra do paciente?']):
-            df.at[index,'Foi realizada coleta de amostra do paciente?'] = str(row['Foi realizada coleta de amostra do paciente?']).title()    
-        if pandas.notnull(row['Foi para outro local de transmissão?']):
-            df.at[index,'Foi para outro local de transmissão?'] = str(row['Foi para outro local de transmissão?']).title()    
-        if pandas.notnull(row['Outro local de transmissão, descrever (cidade, região, país)']):
-            df.at[index,'Outro local de transmissão, descrever (cidade, região, país)'] = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
-        if pandas.notnull(row['Estado de notificação (UF)']):
-            df.at[index,'Estado de notificação (UF)'] = str(row['Estado de notificação (UF)']).title()
-        if pandas.notnull(row['Município de notificação']):
-            df.at[index,'Município de notificação'] = str(row['Município de notificação']).title()
+        #if pandas.notnull(row['Paciente foi submetido a ventilação mecânica?']):
+        #    df.at[index,'Paciente foi submetido a ventilação mecânica?'] = str(row['Paciente foi submetido a ventilação mecânica?']).title()    
+        #if pandas.notnull(row['Situação de saúde do paciente no momento da notificação']):
+        #    df.at[index,'Situação de saúde do paciente no momento da notificação'] = str(row['Situação de saúde do paciente no momento da notificação']).title()
+        #if pandas.notnull(row['Foi realizada coleta de amostra do paciente?']):
+        #    df.at[index,'Foi realizada coleta de amostra do paciente?'] = str(row['Foi realizada coleta de amostra do paciente?']).title()    
+        #if pandas.notnull(row['Foi para outro local de transmissão?']):
+        #    df.at[index,'Foi para outro local de transmissão?'] = str(row['Foi para outro local de transmissão?']).title()    
+        #if pandas.notnull(row['Outro local de transmissão, descrever (cidade, região, país)']):
+        #    df.at[index,'Outro local de transmissão, descrever (cidade, região, país)'] = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
+        #if pandas.notnull(row['Estado de notificação (UF)']):
+        #    df.at[index,'Estado de notificação (UF)'] = str(row['Estado de notificação (UF)']).title()
+        #if pandas.notnull(row['Município de notificação']):
+        #    df.at[index,'Município de notificação'] = str(row['Município de notificação']).title()
         if pandas.notnull(row['Coleta de exames']):
             df.at[index,'Coleta de exames'] = str(row['Coleta de exames']).title()
         if pandas.notnull(row['Classificação final']):
@@ -383,21 +442,29 @@ def pre_processing(df):
             df.at[index,'EVOLUÇÃO'] = str(row['EVOLUÇÃO']).title()
         if pandas.notnull(row['Bairro']):
             df.at[index,'Bairro'] = str(row['Bairro']).title()
-
+    
     df = df.replace({np.nan: None})
+
+    df.to_csv(PATH_FILES+'base_preprocessada.csv')
 
     return df
 
 def requestData(request=None, type='google'):
-	if type=='google':
-		url_api = ('https://maps.googleapis.com/maps/api/geocode/json?address='+request+'&key='+APIKEY+'&language=pt&region=BR')
-	elif type=='cep':
-		url_api = ('http://cep.republicavirtual.com.br/web_cep.php?cep='+request+'&formato=json')
+    if type=='google':
+        url_api = ('https://maps.googleapis.com/maps/api/geocode/json?address='+request+'&key='+APIKEY+'&language=pt&region=BR')
+    elif type=='cep':
+        url_api = ('http://cep.republicavirtual.com.br/web_cep.php?cep='+request+'&formato=json')
 
-	req = requests.get(url_api)
-	if req.status_code == 200:
-		dados_json = json.loads(req.text)
-		return dados_json
+    try:
+        req = requests.get(url_api)
+
+        if req.status_code == 200:
+            dados_json = json.loads(req.text)
+            return dados_json
+        else:
+            return None
+    except:
+        return None
 
 def getDatas(json):
 	country = None
@@ -431,3 +498,121 @@ def getDatas(json):
 		print('Erro na busca do google maps')
 	
 	return country, state, city, neighborhood, cep, latitude, longitude
+
+def buildDate(original_date):
+    dateBuilded = False
+    result_date = None
+
+    if original_date:
+        try:
+            result_date = datetime.strptime(str(original_date).split(' ')[0],'%m/%d/%Y')
+            dateBuilded = True
+        except ValueError:
+            pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%m/%d/%y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%d/%m/%Y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%d/%m/%y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%y/%d/%m')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y/%d/%m')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%y/%m/%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y/%m/%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%m-%d-%Y')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%m-%d-%y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%d-%m-%Y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%d-%m-%y')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%y-%d-%m')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y-%d-%m')
+                dateBuilded = True
+            except ValueError:
+                pass
+        
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%y-%m-%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y-%m-%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+    
+    return result_date

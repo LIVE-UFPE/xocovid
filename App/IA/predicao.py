@@ -5,6 +5,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.svm import SVR
 import os
+
 def avaliando(y_test, y_pred):
     rmse = mean_squared_error(y_test, y_pred , squared = False)
     print("rmse",rmse)
@@ -17,7 +18,7 @@ def avaliando(y_test, y_pred):
 
 def main():
     # Divide o em trino e teste
-    pasta = os.path.join(os.path.dirname(__file__))+'/bases predicao'            
+    pasta = './bases predicao'            
     caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
     arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
 
@@ -64,14 +65,35 @@ def main():
     linear_regression.fit(X_train, y_train)
     y_pred = linear_regression.predict(X_test)
     avaliando(y_test, y_pred)
-    df2 = pd.DataFrame(COVID_Test,columns=['lat', 'lng', 'd1','d2','d3','prediction'])
-    df2 = df2[['lat','lng','prediction']]
-    df2['prediction'] = y_pred
-    max_value = df2['prediction'].max()
-    min_value = df2['prediction'].min()
-    print(min_value,max_value)
-    df2['prediction'] = (df2['prediction'] - min_value) / (max_value - min_value)
-    df2.to_csv('saidaFinal.csv', index = False)
+
+    for addressFile in arquivos[int(0.7*len(arquivos))+1:]:#TODO: ajeitar o range (Qual intervalo de dias analisar?)
+        a = pd.read_csv(addressFile, sep=',')
+        COVID_Test = np.concatenate((COVID_Test, a), axis=0)
+    
+    ultimoCSV = pd.read_csv(arquivos[-1], sep=',')
+    print(ultimoCSV.columns)
+    # dia 1
+    day1_pred = linear_regression.predict(ultimoCSV[['longitude','latitude','day2','day3','prediction']].to_numpy())   
+    
+    ultimoCSV['prediction_day1'] = day1_pred
+
+    # dia 2
+    x2 = ultimoCSV.drop(['day1','day2'], axis=1)
+    x2 = np.array(x2)
+    day2_pred = linear_regression.predict(x2)
+
+    ultimoCSV['prediction_day2'] = day2_pred
+
+    # dia 3
+
+    x3 = ultimoCSV.drop(['day1','day2', 'day3'], axis=1)
+    x3 = np.array(x3)
+    day3_pred = linear_regression.predict(x3)
+
+    ultimoCSV['prediction_day3'] = day3_pred
+    ultimoCSV = ultimoCSV.drop(['prediction','day1', 'day2', 'day3'], axis=1)
+
+    ultimoCSV.to_csv('saidaFinal.csv', index = False)
 
 
     # # ### SVR Regression

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block body_block %}
 <v-container fluid class="primary d-flex flex-column justify-center align-center" fill-height :style="{fontFamily: 'Barlow, Helvetica, Arial, sans-serif',textAlign: 'center'}">
-    <v-card raised color="secondary" max-width="405px" max-height="600px" width="400px" fluid class="d-flex px-0 " :style="{paddingTop: '35px',borderRadius: '10px'}" >
+    <v-card raised color="secondary" max-width="405px" max-height="700px" width="400px" fluid class="d-flex px-0 " :style="{paddingTop: '35px',borderRadius: '10px'}" >
         <v-row class="mx-12 d-block"  justify="center" no-gutters > 
             <!-- <p class="text-center font-weight-bold ma-0 mb-5" :style="{fontSize: '60px',color: '#1E9CF8'}" >Logo</p> // ! Replacement for logo  -->
             <v-card-title class="justify-center font-weight-bold">Registre-se aqui</v-card-title>
@@ -24,7 +24,7 @@
         
                 <v-text-field 
                     required 
-                    label="Nome"
+                    label="Usuário"
                     name="username"
                 ></v-text-field> 
                 <v-text-field
@@ -39,10 +39,14 @@
                     name="email"
                 ></v-text-field>
                 <v-text-field
-                    label="ID"
+                    label="Chave de Acesso"
                     required
                     name="id"
                 ></v-text-field>
+
+                <script src='https://www.google.com/recaptcha/api.js'></script>
+                <div class="g-recaptcha" data-sitekey="6LcTWegUAAAAAHjPv-dXhkJcOPmLy-EJfbJEUhim"></div>
+
                 <v-btn
                     color="primary"
                     class="mt-2 mb-2"
