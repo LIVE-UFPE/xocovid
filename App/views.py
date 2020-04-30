@@ -4,14 +4,15 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, AccessKey, Interpolation
+from .models import Notification, Prediction, Interpolation
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import Manager
+from django.db.models import Manager, Q
 from django.db.models.query import QuerySet
 from .tasks import listener
 import json
 import requests
-from datetime import date
+from datetime import date, datetime
+from django.db.models import Count
 from django.conf import settings
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
@@ -20,51 +21,48 @@ def index(request):
     return render(request, 'index.html')
 
 def base(request):
-    bairros = []
-    cidades = []
-    estados = []
-    notifications = list(Notification.objects.all())
-    # DEBUG counter for null types
-    
-    for notification in notifications:
-        # if type(notification.data_notificacao) != type(NoneType()):
-        try:
-            if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
-                
-                if (notification.bairro not in bairros):
-                    bairros.append([notification.bairro])
-                    cidades.append(notification.municipio)
-                    estados.append(notification.estado_residencia)
-        except TypeError:
-            print(notification.bairro)
-    
-    return render(request, 'base.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
+    return render(request, 'base.html')
 
 def graphs(request):
     if request.user.is_authenticated == False:
         return user_login(request)
     else:
-        bairros = []
-        cidades = []
-        estados = []
-        notifications = list(Notification.objects.all())
-        # DEBUG counter for null types
+        buscas = {
+            'Casos Confirmados' : {
+                'estados' : list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+            'Casos Suspeitos' : {
+                'estados' : list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+            'Óbitos' : {
+                'estados' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+            'Recuperados' : {
+                'estados' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+            'Isolamento Domiciliar' : {
+                'estados' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+            'Internado' : {
+                'estados' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+            },
+        }
+
+        buscas = json.dumps(buscas, indent=4, sort_keys=True, default=str)
         
-        for notification in notifications:
-            # if type(notification.data_notificacao) != type(NoneType()):
-            try:
-                if (type(notification.bairro) is not type(None)) and (notification.bairro is not 'None' or ''):
-                    
-                    if (notification.bairro not in bairros):
-                        bairros.append(notification.municipio  + '/' + notification.estado_residencia + ' - ' + notification.bairro  )
-                        cidades.append(notification.municipio)
-                        estados.append(notification.estado_residencia)
-                        
-            except TypeError:
-                print(notification.bairro)
-                
-        
-        return render(request, 'graphs.html', {'bairros': bairros, 'estados':estados, 'cidades':cidades})
+        return render(request, 'graphs.html', {'buscas': buscas})
 
 def home(request):
     if request.user.is_authenticated == False:
@@ -94,7 +92,7 @@ def home(request):
 
         context["items_json"] = json.dumps(notifications)
         context["predicts_json"] = json.dumps(predicts)
-        return render(request, 'home.html',context)
+        return render(request, 'home.html', context)
 
 def get_pins(request):
     if request.user.is_authenticated == False:

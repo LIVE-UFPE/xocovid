@@ -80,8 +80,17 @@ def listener():
 
     print("Extraindo informações de outras bases")
     #bot.processingData()
-    storeBot()
+    #storeBot()
     
+    notifications = Notification.objects.all()
+    for notification in notifications:
+        if notification.estado_residencia != 'Pernambuco':
+            print('Pegueiiii')
+            notification.estado_residencia = 'Pernambuco'
+            notification.municipio = 'Recife'
+            notification.bairro = 'Boa Viagem'
+            notification.save()
+
     print("Listener parado")
 
 def storeBot():
@@ -127,8 +136,6 @@ def storeBot():
         for m in cidades
     ]
     CasosCidade.objects.bulk_create(objs=objs)
-
-
 
 def send_prediction_to_db():
     Prediction.objects.all().delete()

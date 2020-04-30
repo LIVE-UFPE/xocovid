@@ -25,6 +25,8 @@
 
         <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/line.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/histogram.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/pie.min.js"></script>
 
         <!-- * Leaflet imports -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
@@ -92,10 +94,19 @@
 
 <script>
     {% if items_json %}
-        var pins = {{ items_json|safe }}
+        var pins = {{ items_json|safe }};
+    {% else %}
+        var pins = ['']
     {% endif %}
     {% if predicts_json %}
-        var predicts = {{ predicts_json|safe }}
+        var predicts = {{ predicts_json|safe }};
+    {% else %}
+        var predicts = ['']
+    {% endif %}
+    {% if buscas %}
+        var buscas= {{ buscas|safe }}
+    {% else %}
+        var buscas = ['']
     {% endif %}
 
     const app = new Vue({
@@ -120,18 +131,61 @@
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'login/login.vue' %}"),
             'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
-            VeLine
+            VeLine,
+            VeHistogram,
+            VePie
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            chartDataPie: {
+                columns: ['date', 'cost', 'profit'],
+                rows: [
+                    { 'date': '01/01', 'cost': 123, 'profit': 3 },
+                    { 'date': '01/02', 'cost': 1223, 'profit': 6 },
+                    { 'date': '01/03', 'cost': 2123, 'profit': 90 },
+                    { 'date': '01/04', 'cost': 4123, 'profit': 12 },
+                    { 'date': '01/05', 'cost': 3123, 'profit': 15 },
+                    { 'date': '01/06', 'cost': 7123, 'profit': 20 }
+                ]
+            },
+            chartDataIsolamento: [],
+            chartDataInternado: [],
+            pieObject:[],
             itemsChips: [],
             itemsChipsC: [],
             itemsChipsD: [],
+            itemsChipsS: [],
+            itemsChipsCS: [],
+            itemsChipsDS: [],
+            itemsChipsSA: [],
+            itemsChipsCSA: [],
+            itemsChipsDSA: [],
+            itemsChipsA: [],
+            itemsChipsO: [],
+            itemsChipsCA: [],
+            itemsChipsDA: [],
             itemsChipsR: [],
-            values: null,
+            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade', 'Taxa de Recuperação'],
+            nObitos: '200',
+            nConf: 200,
+            nRecuperados: '200',
+            nCasos: '200',
+            picker: new Date().toISOString().substr(0, 10),
+            dataRelatorio: undefined,
+            conditionalDate: false,
+            page: 1,
+            pageOn: 0,
+            values: ['Pernambuco'],
             valuesC:  null,
             valuesD: null,
+            valuesS: ['Pernambuco'],
+            valuesCS:  null,
+            valuesDS: null,
+            valuesA: ['Pernambuco'],
+            valuesCA:  null,
+            valuesDA: null,
             valuesR: null,
+            valuesSelect: ['Casos Confirmados', 'Óbitos', 'Recuperados'],
             value: null,
             sheet: false,
             base: 0,
@@ -164,17 +218,11 @@
                 subtitle: "<span class='text--primary'>Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.",
                 },
             ],
-            chartData: {
-                columns: ['date', 'cost', 'profit', 'growthRate', 'people'],
-                rows: [
-                    { 'cost': 1523, 'date': '01/01', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
-                    { 'cost': 1223, 'date': '01/02', 'profit': 1523, 'growthRate': 0.345, 'people': 100 },
-                    { 'cost': 2123, 'date': '01/03', 'profit': 1523, 'growthRate': 0.7, 'people': 100 },
-                    { 'cost': 4123, 'date': '01/04', 'profit': 1523, 'growthRate': 0.31, 'people': 100 },
-                    { 'cost': 3123, 'date': '01/05', 'profit': 1523, 'growthRate': 0.12, 'people': 100 },
-                    { 'cost': 7123, 'date': '01/06', 'profit': 1523, 'growthRate': 0.65, 'people': 100 }
-                ]
-            },
+            chartDataS: {},
+            chartDataSA: {},
+            chartDataA: {},
+            chartData: {},
+            chartDataO: {},
             icons: [
                 'mdi-download',
                 'fab fa-twitter',
@@ -198,18 +246,54 @@
             datedb: new Date(pins[0] + 'T00:00:00Z'),
             predicts: predicts,
             useIa: false,
-            lastinterpol: new Date(pins[0] + 'T00:00:00Z')
+            lastinterpol: new Date(pins[0] + 'T00:00:00Z'),
+            diaOUAcu: 'acumulados',
+            linhaOuHist: 'linhas'
         }),
         mounted: function (){
             // ? avançando 3 hrs p manter datedb ajustado
             //this.datedb.setHours(this.datedb.getHours() + 3);
             //console.log('pins[0] é ' + this.pins[0].data_notificacao + ' e datedb ' + this.datedb.toString() + 'e o dia em UTC é ' + this.datedb.toUTCString() + '\n');
+
+            this.$nextTick(function () {
+                this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
+                this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
+                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
+                this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
+
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
+                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+
+                chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
+                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
+
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
+
+                var pieData = {
+                    'columns': ['eixo', 'valor'],
+                    'rows': []
+                }
+                chart = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Isolamento Domiciliar','valor': chart.rows[chart.rows.length-1]['Isolamento Domiciliar em pernambuco']})
+                chart = this.filtro(['Internado'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Internado','valor': chart.rows[chart.rows.length-1]['Internado em pernambuco']})
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Óbitos em pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em pernambuco']})
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                pieData.rows.push({'eixo': 'Recuperados em pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em pernambuco']})
+                //pieData.rows[0]['Percentual'] = (pieData.rows[0]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[1]['Percentual'] = (pieData.rows[1]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[2]['Percentual'] = (pieData.rows[2]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                Vue.set(app, 'chartDataPie', pieData)
+            })
         },
         methods: {
-            printName: function (value){
-                console.log("Teste ", value);
-            },
-            setCity: function (value){
+            setCity: function (value, chips){
                 var objC = [];
                 value.forEach(selecao =>{
                     data[0].estados.forEach(estado => {
@@ -218,22 +302,233 @@
                         }    
                     });
                 });
-                Vue.set(app, 'itemsChipsC', objC)
+                Vue.set(app, chips, objC)
             },
-            setDistrict: function (value){
+            setDistrict: function (value, chips){
                 var objD = [];
-                value.forEach(selecao =>{
+                value.forEach(selecao => {
                     data[0].bairros.forEach(cidade => {
-                        console.log("Cidade e value", cidade, Object.keys(cidade), value)
+                        //console.log("Cidade e value", cidade, Object.keys(cidade), value)
                         if(Object.keys(cidade)[0] == selecao){
                             objD = objD.concat(cidade[Object.keys(cidade)[0]]);
                         }
                     });
                 });
-                console.log("objD: ",objD);
-                Vue.set(app, 'itemsChipsD', objD)
+                Vue.set(app, chips, objD)
             },
-            
+            filtro(informacoes, estados, cidades, bairros, chartName, diaouacu){
+                var chart = {
+                    columns: ['data'],
+                    rows: []
+                }
+
+                var contDiaouAcu = 0
+                informacoes.forEach(informacao => {
+                    estados.forEach(estado =>{
+                        if(cidades == null || cidades.length == 0) cidades = ['']
+
+                        cidades.forEach(cidade =>{
+                            if(bairros == null || bairros.length == 0) bairros = ['']
+
+                            bairros.forEach(bairro =>{
+                                if(informacao == 'Letalidade' || informacao == 'Taxa de Recuperação')
+                                    chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
+                                else
+                                    chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
+
+                                chart2 = this.sortChart(chart2)
+                                
+                                chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
+                            })
+                        })
+                    })
+
+                    if(diaouacu.length > 1){
+                        contDiaouAcu++
+                    }
+                })
+
+                Vue.set(app, chartName, chart)
+
+                return chart
+            },
+            buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength){
+                if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
+                else label = informacao + ' em '
+
+                keyBusca = 'estados'
+                if(bairro != ''){
+                    keyBusca = 'bairros'
+                    label += bairro.toLowerCase()
+                }
+                else if(cidade != ''){
+                    keyBusca = 'cidades'
+                    label += cidade.toLowerCase()
+                }
+                else{
+                    label += estado.toLowerCase()
+                }
+
+                var chart2 = {
+                    columns: ['data'],
+                    rows: []
+                }
+                buscas[informacao][keyBusca].forEach((notificacao, index) =>{
+                    if( (keyBusca=='estados' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
+                        (keyBusca=='cidades' && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
+                        (keyBusca=='bairros' && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
+
+                            if(! chart2.columns.includes(label)){
+                                chart2.columns.push(label)
+                            }
+
+                            if(diaouacu == 'acumulados'){
+                                acumulado = notificacao.quantidade_casos
+                                for(i = 0; i < index; i++){
+                                    if( (keyBusca=='estados' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                        (keyBusca=='cidades' && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
+                                        (keyBusca=='bairros' && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                        
+                                        if(informacao == 'Letalidade'){
+                                            acumulado += buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
+                                        }
+                                        else{
+                                            acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
+                                        }
+                                    }
+                                }
+                                chart2.rows.push({
+                                    [label] : acumulado,
+                                    'data' : notificacao.data_notificacao
+                                })
+                            }
+                            else{
+                                chart2.rows.push({
+                                    [label] : notificacao.quantidade_casos,
+                                    'data' : notificacao.data_notificacao
+                                })
+                            }
+                    }
+                })
+
+                return chart2
+            },
+            buildTaxaChart(informacao, diaouacu, estado, cidade, bairro){
+                if(informacao == 'Letalidade') funcao = 'Óbitos'
+                else funcao = 'Recuperados'
+
+                chart3 = this.filtro([funcao], [estado], [cidade], [bairro], '', [diaouacu])
+                chart4 = this.filtro(['Casos Confirmados'], [estado], [cidade], [bairro], '', [diaouacu])
+
+                chart5 = this.joinCharts(chart3, chart4, diaouacu)
+                
+                var chart2 = {
+                    columns: ['data'],
+                    rows: []
+                }
+                
+                if(bairro != '') localName = bairro.toLowerCase()
+                else if(cidade != '') localName = cidade.toLowerCase()
+                else localName = estado.toLowerCase()
+                
+                colunaTaxa = informacao + ' em ' + localName
+                colunaFuncao = funcao + ' em ' + localName
+                colunaConfirmado = 'Casos Confirmados em ' + localName
+                
+                chart5.columns[1] = colunaTaxa
+                chart5.columns.pop()
+                chart2.columns = chart5.columns
+
+                chart5.rows.forEach(row =>{
+                    chart2.rows.push({
+                        'data': row['data'],
+                        [colunaTaxa]: (row[colunaFuncao] / row[colunaConfirmado]) * 100
+                    })
+                })
+
+                return chart2
+            },
+            sortChart(chart){
+                chart.rows.sort(function(a, b){ 
+                    const yearA = parseInt(a.data[0]+a.data[1]+a.data[2]+a.data[3])
+                    const monthA = parseInt(a.data[5]+a.data[6])
+                    const dayA = parseInt(a.data[8]+a.data[9])
+
+                    const yearB = parseInt(b.data[0]+b.data[1]+b.data[2]+b.data[3])
+                    const monthB = parseInt(b.data[5]+b.data[6])
+                    const dayB = parseInt(b.data[8]+b.data[9])
+                    return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
+                });
+
+                return chart
+            },
+            joinCharts(chart, chart2, diaouacu){
+                chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
+                
+                chart2.rows.forEach(row =>{
+                    i = 0
+                    achei = false
+                    for(; i < chart.rows.length; i++){
+                        if(chart.rows[i]['data'] == row['data']){
+                            achei = true
+                            break
+                        }
+                    }
+
+                    if(!achei){
+                        chart.rows.push({
+                            
+                            [chart.columns[chart.columns.length - 1]]: row[[chart.columns[chart.columns.length - 1]]],
+                            'data': row['data']
+                        })
+                    }
+                    else{
+                        chart.rows[i][[chart.columns[chart.columns.length - 1]]] = row[[chart.columns[chart.columns.length - 1]]]
+                    }
+                })
+
+                chart = this.sortChart(chart)
+
+                chart.columns.forEach(column =>{
+                    if(column != 'data'){
+                        for(i = 0; i < chart.rows.length; i++){
+                            if(!chart.rows[i][[column]]){
+                                if(diaouacu == 'acumulados'){
+                                    j = i
+                                    for(;j >= 0; j--){
+                                        if(chart.rows[j][[column]]){
+                                            break
+                                        }
+                                    }
+                                    z = i
+                                    for(;z < chart.rows.length; z++){
+                                        if(chart.rows[z][[column]]){
+                                            break
+                                        }
+                                    }
+
+                                    if(z < chart.rows.length && j >= 0){
+                                        chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
+                                    }
+                                    if(j >= 0){
+                                        chart.rows[i][[column]] = chart.rows[j][[column]]
+                                    }
+                                    else{
+                                        for(k = i; k >= 0; k--){
+                                            chart.rows[k][[column]] = 0
+                                        }
+                                    }
+                                }
+                                else{
+                                    chart.rows[i][[column]] = 0
+                                }
+                            }
+                        }
+                    }
+                })
+
+                return chart
+            },
             dateBack: function (event) {
                 let test = new Date(this.datedb);
                 if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
@@ -311,10 +606,9 @@
     });
     // console.log("Data: ", obj)
     Vue.set(app, 'itemsChips', obj)
+    Vue.set(app, 'itemsChipsS', obj)
+    Vue.set(app, 'itemsChipsSA', obj)
+    Vue.set(app, 'itemsChipsA', obj)
     // console.log("Values: ", value, values);
     //Filter module city
-
-    
-
-    
 </script>
