@@ -10,3 +10,4 @@ dj-database-url
 requests
 psycopg2
 Pillow
+matplotlib

@@ -373,6 +373,7 @@
                     columns: ['data'],
                     rows: []
                 }
+                
                 buscas[informacao][keyBusca].forEach((notificacao, index) =>{
                     if( (keyBusca=='estados' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
                         (keyBusca=='cidades' && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||

@@ -1,10 +1,12 @@
 import subprocess
 import os
-import App.predicao_arima.cumulativeSum as cumulativeSum
+import App.predicao_arima.cumulativeSum
 
-def arimaForecast(predictionFile):
+
+
+def arimaForecast(predictionFile,estado):
     # run ARIMA_prediction.R
-    arg = [predictionFile]
+    arg = [predictionFile,estado]
 
     # Define command and arguments
     command = '/usr/bin/Rscript'
@@ -18,8 +20,8 @@ def arimaForecast(predictionFile):
     print(cmd)
     subprocess.call(cmd)
     
-def main():
-    cumulativeSum.main()
-    arimaForecast('./baseARIMA_2020-04-12.csv')
+def main(estado):
+    arimaForecast(os.path.join(os.path.dirname(__file__))+'/baseARIMA.csv',estado)
+    
 
-#main()
+# main()

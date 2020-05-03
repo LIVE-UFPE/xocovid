@@ -10,8 +10,9 @@ from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
 # import App.IA.pipeline as pipe
 from django.utils import timezone
-import App.bot.stateCityData as bot
-import shutil
+import App.predicao_arima.stateCityData as bot
+import App.predicao_arima.pipelineArima as pipelineArima
+from distutils.dir_util import copy_tree
 
 collum_names = [
   'ID',      
@@ -76,37 +77,39 @@ def listener():
         prediction()
 
         send_prediction_to_db()
-
-        saveImages()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
 
-    #print("Extraindo informações de outras bases")
+    print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
+    print("Executando predicoes do Arima")
+    pipelineArima.main()
+    #saveImages()
 
     print("Listener parado")
 
 def saveImages():
     print("Salvando Imagens no database")
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo/modelo_13-02-2020_06-04-2020.png"
-    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelo.png"
-    shutil.copyfile(original, target)
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelos"
+    copy_tree(original, target)
+    
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao/pred_07-04-2020_12-04-2020.png"
-    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicao.png"
-    shutil.copyfile(original, target)
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicoes"
+    copy_tree(original, target)
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_projecao/proj_13-04-2020_18-04-2020.png"
-    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecao.png"
-    shutil.copyfile(original, target)
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecoes"
+    copy_tree(original, target)
 
 def storeBot():
     print("Armazenando extrações")
 
-    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
-    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por cidade.csv', sep=',')
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por cidade.csv', sep=',')
 
     estados = []
     for index, row in dfEstados.iterrows():

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import os
 
 
 def formatData(a):
@@ -46,7 +47,7 @@ def accumulate(datas, datas_confirmacoes, dataframe):
 
 def main():
     #loading the database
-    dados_PE = pd.read_csv("entradaPreProcessada.csv", delimiter=',')
+    dados_PE = pd.read_csv(os.path.join(os.path.dirname(__file__))+"/entradaPreProcessada.csv", delimiter=',')
 
     #Sorting the dataset by date
     dados_PE['Data da notificação'] = list(map(formatData, dados_PE['Data da notificação']))
@@ -66,7 +67,7 @@ def main():
 
     # exporting to a csv file
     df2 = pd.DataFrame({'dt_notificacao': dates, 'acumulado_confirmados': casos})
-    df2.to_csv("baseARIMA_" + str(dates[-1]) + ".csv", index=False)
+    df2.to_csv(os.path.join(os.path.dirname(__file__))+"/baseARIMA_" + str(dates[-1]) + ".csv", index=False)
 
 
-#main()
+main()
