@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, Interpolation
+from .models import Notification, Prediction, Interpolation, CasosEstado
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q
 from django.db.models.query import QuerySet
@@ -29,6 +29,7 @@ def graphs(request):
         return user_login(request)
     else:
         buscas = {
+            'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
             'Casos Confirmados' : {
                 'estados' : list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
                 'cidades' : list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
