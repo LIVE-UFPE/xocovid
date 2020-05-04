@@ -14,6 +14,7 @@ import requests
 from datetime import date, datetime
 from django.db.models import Count
 from django.conf import settings
+from App import views
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
 # ? index é uma function view. uma função que retorna a view requisitada
@@ -60,7 +61,7 @@ def graphs(request):
                 'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
         }
-        # print(buscas['Casos estado'])
+
         buscas = json.dumps(buscas, indent=4, sort_keys=True, default=str)
         
         return render(request, 'graphs.html', {'buscas': buscas})
