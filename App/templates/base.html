@@ -137,11 +137,14 @@
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            valueChipR: "Pernambuco - PE",
+            selecaoGraficoR: ["Pernambuco - PE"],
+            estadosSigla: [],
             nObitosBrasil: 0,
             nConfirmadosBrasil: 0,
             n100kBrasil: 0,
             nLetalidadeBrasil: 0,
-            imageData:['https://images.unsplash.com/photo-1588025383511-12fe4bb4aaf0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1547&q=80','https://cdn.pixabay.com/photo/2015/06/19/21/24/the-road-815297__340.jpg', 'https://images.unsplash.com/photo-1588066737272-35a08f4d594e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1966&q=80', 'https://images.unsplash.com/photo-1588066898163-3c857fa857e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80', 'https://images.unsplash.com/photo-1588058365815-c96ac30ee30f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80'],
+            imageData:['../static/graficos/modelos/modelo_PE.png','../static/graficos/predicoes/pred_PE.png','../static/graficos/projecoes/projecaoPE.png'],
             chartDataPie: {
                 columns: ['date', 'cost', 'profit'],
                 rows: [
@@ -297,6 +300,7 @@
                 //pieData.rows[2]['Percentual'] = (pieData.rows[2]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 Vue.set(app, 'chartDataPie', pieData)
+                Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
             })
         },
         methods: {
@@ -321,7 +325,7 @@
             },
             setCity: function (value, chips){
                 var objC = [];
-                value.forEach(selecao =>{
+                value.forEach(selecao => {
                     data[0].estados.forEach(estado => {
                         if(estado.nome == selecao){
                             objC = objC.concat(estado.cidades)
@@ -585,6 +589,14 @@
                     return
                 }
             },
+            renderGraficoR: function (selecaoGraficoR){
+                var imgUrlR = []
+                var sigla = selecaoGraficoR.split("- ").pop()
+                imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
+                imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
+                imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
+                Vue.set(app, 'imageData', imgUrlR)
+            },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
 
@@ -636,6 +648,15 @@
     Vue.set(app, 'itemsChipsS', obj)
     Vue.set(app, 'itemsChipsSA', obj)
     Vue.set(app, 'itemsChipsA', obj)
+    var estadoS = []
+    var folder = "../static/graficos/modelos/";
+    console.log(data[0].estados)
+    data[0].estados.forEach(estado => {
+        estadoS.push(estado.nome + ' - ' + estado.sigla)
+    })
+    Vue.set(app, 'estadosSigla', estadoS)
+
+    console.log('imgUrl: ', estadoS)
     // console.log("Values: ", value, values);
     //Filter module city
 </script>
