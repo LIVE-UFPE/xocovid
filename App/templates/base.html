@@ -273,29 +273,30 @@
                 this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
 
                 chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
-                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
 
                 chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
-                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em pernambuco'])) // Setando dashboard
+                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
 
                 chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
-                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em pernambuco'] * 100) / 100 ) // Setando dashboard
+                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em Pernambuco'] * 100) / 100 ) // Setando dashboard
 
                 chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em pernambuco']) // Setando dashboard
+                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
 
                 var pieData = {
                     'columns': ['eixo', 'valor'],
                     'rows': []
                 }
-                chart = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, '', ['acumulados'])
-                pieData.rows.push({'eixo': 'Isolamento Domiciliar','valor': chart.rows[chart.rows.length-1]['Isolamento Domiciliar em pernambuco']})
-                chart = this.filtro(['Internado'], ['Pernambuco'], null, null, '', ['acumulados'])
-                pieData.rows.push({'eixo': 'Internado','valor': chart.rows[chart.rows.length-1]['Internado em pernambuco']})
-                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
-                pieData.rows.push({'eixo': 'Óbitos em pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em pernambuco']})
-                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                pieData.rows.push({'eixo': 'Recuperados em pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em pernambuco']})
+                
+                chart = this.filtro(['Isolamento Domiciliar'], ['Pernambuco'], null, null, '', ['acumulados'], 1)
+                pieData.rows.push({'eixo': 'Isolamento Domiciliar','valor': chart.rows[chart.rows.length-1]['Isolamento Domiciliar em Pernambuco']})
+                chart = this.filtro(['Internado'], ['Pernambuco'], null, null, '', ['acumulados'], 1)
+                pieData.rows.push({'eixo': 'Internado','valor': chart.rows[chart.rows.length-1]['Internado em Pernambuco']})
+                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'], 1)
+                pieData.rows.push({'eixo': 'Óbitos em Pernambuco','valor': chart.rows[chart.rows.length-1]['Óbitos em Pernambuco']})
+                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'], 1)
+                pieData.rows.push({'eixo': 'Recuperados em Pernambuco','valor': chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']})
                 //pieData.rows[0]['Percentual'] = (pieData.rows[0]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 //pieData.rows[1]['Percentual'] = (pieData.rows[1]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 //pieData.rows[2]['Percentual'] = (pieData.rows[2]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
@@ -347,7 +348,7 @@
                 });
                 Vue.set(app, chips, objD)
             },
-            filtro(informacoes, estados, cidades, bairros, chartName, diaouacu){
+            filtro(informacoes, estados, cidades, bairros, chartName, diaouacu, base){
                 var chart = {
                     columns: ['data'],
                     rows: []
@@ -355,8 +356,10 @@
 
                 var contDiaouAcu = 0
                 informacoes.forEach(informacao => {
+                    if(estados == null || estados.length == 0) estados = ['']
+
                     estados.forEach(estado =>{
-                        if(estado == 'Pernambuco' || informacao == 'Casos Confirmados' || informacao == 'Óbitos' || informacao == 'Letalidade'){
+                        if(estado == 'Pernambuco' || informacao != 'Recuperados'){
                             if(cidades == null || cidades.length == 0) cidades = ['']
 
                             cidades.forEach(cidade =>{
@@ -366,8 +369,8 @@
                                     if(informacao == 'Letalidade' || informacao == 'Taxa de Recuperação')
                                         chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
                                     else
-                                        chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
-
+                                        chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length, base)
+                                    
                                     chart2 = this.sortChart(chart2)
                                     
                                     chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
@@ -385,69 +388,72 @@
 
                 return chart
             },
-            buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength){
+            buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
                 if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
                 else label = informacao + ' em '
-
-                if(estado != 'Pernambuco' || informacao == 'Casos Confirmados' || informacao == 'Óbitos' || informacao == 'Letalidade') keyBusca = 'estados2'
+                //console.log(base)
+                if(estado != 'Pernambuco' || (informacao != 'Recuperados' && informacao != 'Casos Suspeitos')){
+                    if(base == 2) keyBusca = 'estados2'
+                    else keyBusca = 'estados'
+                }
                 else keyBusca = 'estados'
-
+                
                 if(bairro != ''){
                     keyBusca = 'bairros'
-                    label += bairro.toLowerCase()
+                    label += bairro
                 }
                 else if(cidade != ''){
                     if(estado != 'Pernambuco') keyBusca = 'cidades2'
                     else keyBusca = 'cidades'
 
-                    label += cidade.toLowerCase()
+                    label += cidade
                 }
                 else{
-                    label += estado.toLowerCase()
+                    label += estado
+                }
+
+                if(estado == ''){
+                    keyBusca = 'brasil'
+                    label += 'Brasil'
                 }
 
                 var chart2 = {
                     columns: ['data'],
                     rows: []
                 }
-
+            
                 buscas[informacao][keyBusca].forEach((notificacao, index) =>{
-                    if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
+                    if( keyBusca=='brasil' ||
+                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
                         ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
                         (keyBusca=='bairros' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase() && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
-
+                            
                         if(! chart2.columns.includes(label)){
                             chart2.columns.push(label)
                         }
 
                         if(diaouacu == 'acumulados'){
                             acumulado = notificacao.quantidade_casos
-                            for(i = 0; i < index; i++){
-                                if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                    ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
-                                    (keyBusca=='bairros' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
-                                    
-                                    if(informacao == 'Letalidade'){
-                                        if(keyBusca != 'estados2' && keyBusca != 'cidades2')
-                                            acumulado += buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
-                                        else
-                                            acumulado = buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
-                                    }
-                                    else{
-                                        if(keyBusca != 'estados2' && keyBusca != 'cidades2')
-                                            acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
-                                        else
-                                            acumulado = buscas[informacao][keyBusca][i]['quantidade_casos']
+
+                            if(keyBusca != 'estados2' && keyBusca != 'cidades2' && keyBusca != 'brasil'){
+                                for(i = 0; i < index; i++){
+                                    if( keyBusca=='brasil' ||
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
+                                        (keyBusca=='bairros' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                        
+                                        acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
                                     }
                                 }
                             }
+
                             chart2.rows.push({
                                 [label] : acumulado,
                                 'data' : notificacao.data_notificacao
                             })
                         }
                         else{
-                            if(keyBusca != 'estados2' && keyBusca != 'cidades2'){
+                            if(keyBusca != 'estados2' && keyBusca != 'cidades2'  && keyBusca != 'brasil'){
                                 chart2.rows.push({
                                     [label] : notificacao.quantidade_casos,
                                     'data' : notificacao.data_notificacao
@@ -455,7 +461,8 @@
                             }
                             else if(index > 0){
                                 for(i = index - 1; i >= 0; i--){
-                                    if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                    if( keyBusca=='brasil' ||
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
                                         ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase())){
                                         chart2.rows.push({
                                             [label] : notificacao.quantidade_casos - buscas[informacao][keyBusca][i]['quantidade_casos'],
@@ -480,15 +487,16 @@
                 chart4 = this.filtro(['Casos Confirmados'], [estado], [cidade], [bairro], '', [diaouacu])
 
                 chart5 = this.joinCharts(chart3, chart4, diaouacu)
-
+                
                 var chart2 = {
                     columns: ['data'],
                     rows: []
                 }
                 
-                if(bairro != '') localName = bairro.toLowerCase()
-                else if(cidade != '') localName = cidade.toLowerCase()
-                else localName = estado.toLowerCase()
+                if(bairro != '') localName = bairro
+                else if(cidade != '') localName = cidade
+                else if (estado != '') localName = estado
+                else localName = 'Brasil'
                 
                 colunaTaxa = informacao + ' em ' + localName
                 colunaFuncao = funcao + ' em ' + localName
@@ -499,6 +507,7 @@
                 chart2.columns = chart5.columns
 
                 chart5.rows.forEach(row =>{
+                    console.log(row[colunaConfirmado])
                     if(row[colunaConfirmado] > 0){
                         chart2.rows.push({
                             'data': row['data'],
@@ -508,7 +517,7 @@
                     else{
                         chart2.rows.push({
                             'data': row['data'],
-                            [colunaTaxa]: 100
+                            [colunaTaxa]: 0
                         })
                     }
                 })

@@ -12,7 +12,7 @@ from .tasks import listener
 import json
 import requests
 from datetime import date, datetime
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
 
@@ -31,6 +31,7 @@ def graphs(request):
         buscas = {
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
             'Casos Confirmados' : {
+                'brasil'  : list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('quantidade_casos')).order_by('data_notificacao')),
                 'estados' : list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
                 'estados2': list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao')),
                 'cidades' : list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
@@ -43,6 +44,7 @@ def graphs(request):
                 'bairros' : list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Óbitos' : {
+                'brasil'  : list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('obitos')).order_by('data_notificacao')),
                 'estados' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
                 'estados2' : list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao')),
                 'cidades' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
