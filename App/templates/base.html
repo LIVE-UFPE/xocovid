@@ -184,6 +184,7 @@
             page: 1,
             pageOn: 0,
             values: ['Pernambuco'],
+            valuesCE: ['Pernambuco'],
             valuesC:  null,
             valuesD: null,
             valuesS: ['Pernambuco'],
@@ -355,22 +356,24 @@
                 var contDiaouAcu = 0
                 informacoes.forEach(informacao => {
                     estados.forEach(estado =>{
-                        if(cidades == null || cidades.length == 0) cidades = ['']
+                        if(estado == 'Pernambuco' || informacao == 'Casos Confirmados' || informacao == 'Óbitos' || informacao == 'Letalidade'){
+                            if(cidades == null || cidades.length == 0) cidades = ['']
 
-                        cidades.forEach(cidade =>{
-                            if(bairros == null || bairros.length == 0) bairros = ['']
+                            cidades.forEach(cidade =>{
+                                if(bairros == null || bairros.length == 0) bairros = ['']
 
-                            bairros.forEach(bairro =>{
-                                if(informacao == 'Letalidade' || informacao == 'Taxa de Recuperação')
-                                    chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
-                                else
-                                    chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
+                                bairros.forEach(bairro =>{
+                                    if(informacao == 'Letalidade' || informacao == 'Taxa de Recuperação')
+                                        chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
+                                    else
+                                        chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length)
 
-                                chart2 = this.sortChart(chart2)
-                                
-                                chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
+                                    chart2 = this.sortChart(chart2)
+                                    
+                                    chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
+                                })
                             })
-                        })
+                        }
                     })
 
                     if(diaouacu.length > 1){
@@ -386,13 +389,16 @@
                 if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
                 else label = informacao + ' em '
 
-                keyBusca = 'estados'
+                if(estado != 'Pernambuco') keyBusca = 'estados2'
+                else keyBusca = 'estados'
                 if(bairro != ''){
                     keyBusca = 'bairros'
                     label += bairro.toLowerCase()
                 }
                 else if(cidade != ''){
-                    keyBusca = 'cidades'
+                    if(estado != 'Pernambuco') keyBusca = 'cidades2'
+                    else keyBusca = 'cidades'
+
                     label += cidade.toLowerCase()
                 }
                 else{
@@ -403,44 +409,65 @@
                     columns: ['data'],
                     rows: []
                 }
-                
+
                 buscas[informacao][keyBusca].forEach((notificacao, index) =>{
-                    if( (keyBusca=='estados' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
-                        (keyBusca=='cidades' && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
-                        (keyBusca=='bairros' && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
+                    if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
+                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
+                        (keyBusca=='bairros' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase() && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
 
-                            if(! chart2.columns.includes(label)){
-                                chart2.columns.push(label)
-                            }
+                        if(! chart2.columns.includes(label)){
+                            chart2.columns.push(label)
+                        }
 
-                            if(diaouacu == 'acumulados'){
-                                acumulado = notificacao.quantidade_casos
-                                for(i = 0; i < index; i++){
-                                    if( (keyBusca=='estados' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                        (keyBusca=='cidades' && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
-                                        (keyBusca=='bairros' && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
-                                        
-                                        if(informacao == 'Letalidade'){
+                        if(diaouacu == 'acumulados'){
+                            acumulado = notificacao.quantidade_casos
+                            for(i = 0; i < index; i++){
+                                if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                    ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
+                                    (keyBusca=='bairros' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                    
+                                    if(informacao == 'Letalidade'){
+                                        if(keyBusca != 'estados2' && keyBusca != 'cidades2')
                                             acumulado += buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
-                                        }
-                                        else{
+                                        else
+                                            acumulado = buscas['Casos Confirmados'][keyBusca][i]['quantidade_casos'] / buscas['Óbitos'][keyBusca][i]['quantidade_casos']
+                                    }
+                                    else{
+                                        if(keyBusca != 'estados2' && keyBusca != 'cidades2')
                                             acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
-                                        }
+                                        else
+                                            acumulado = buscas[informacao][keyBusca][i]['quantidade_casos']
                                     }
                                 }
-                                chart2.rows.push({
-                                    [label] : acumulado,
-                                    'data' : notificacao.data_notificacao
-                                })
                             }
-                            else{
+                            chart2.rows.push({
+                                [label] : acumulado,
+                                'data' : notificacao.data_notificacao
+                            })
+                        }
+                        else{
+                            if(keyBusca != 'estados2' && keyBusca != 'cidades2'){
                                 chart2.rows.push({
                                     [label] : notificacao.quantidade_casos,
                                     'data' : notificacao.data_notificacao
                                 })
                             }
+                            else if(index > 0){
+                                for(i = index - 1; i >= 0; i--){
+                                    if( ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase())){
+                                        chart2.rows.push({
+                                            [label] : notificacao.quantidade_casos - buscas[informacao][keyBusca][i]['quantidade_casos'],
+                                            'data' : notificacao.data_notificacao
+                                        })
+                                        break
+                                    }
+                                }
+                            }
+                        }
                     }
                 })
+
 
                 return chart2
             },
@@ -495,7 +522,7 @@
             },
             joinCharts(chart, chart2, diaouacu){
                 chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
-                
+
                 chart2.rows.forEach(row =>{
                     i = 0
                     achei = false
@@ -508,7 +535,6 @@
 
                     if(!achei){
                         chart.rows.push({
-                            
                             [chart.columns[chart.columns.length - 1]]: row[[chart.columns[chart.columns.length - 1]]],
                             'data': row['data']
                         })
@@ -517,13 +543,13 @@
                         chart.rows[i][[chart.columns[chart.columns.length - 1]]] = row[[chart.columns[chart.columns.length - 1]]]
                     }
                 })
-
+                
                 chart = this.sortChart(chart)
 
                 chart.columns.forEach(column =>{
                     if(column != 'data'){
                         for(i = 0; i < chart.rows.length; i++){
-                            if(!chart.rows[i][[column]]){
+                            if(!chart.rows[i][[column]] && chart.rows[i][[column]] != 0){
                                 if(diaouacu == 'acumulados'){
                                     j = i
                                     for(;j >= 0; j--){
