@@ -62,7 +62,7 @@ def graphs(request):
             'Internado' : {
                 'estados' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
                 'cidades' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio'    ).annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
         }
 

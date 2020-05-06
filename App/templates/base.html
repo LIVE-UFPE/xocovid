@@ -173,7 +173,7 @@
             itemsChipsCA: [],
             itemsChipsDA: [],
             itemsChipsR: [],
-            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade', 'Taxa de Recuperação'],
+            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade'/*, 'Taxa de Recuperação'*/],
             nObitos: '200',
             nConf: 200,
             nRecuperados: '200',
@@ -389,8 +389,9 @@
                 if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
                 else label = informacao + ' em '
 
-                if(estado != 'Pernambuco') keyBusca = 'estados2'
+                if(estado != 'Pernambuco' || informacao == 'Casos Confirmados' || informacao == 'Óbitos' || informacao == 'Letalidade') keyBusca = 'estados2'
                 else keyBusca = 'estados'
+
                 if(bairro != ''){
                     keyBusca = 'bairros'
                     label += bairro.toLowerCase()
@@ -479,7 +480,7 @@
                 chart4 = this.filtro(['Casos Confirmados'], [estado], [cidade], [bairro], '', [diaouacu])
 
                 chart5 = this.joinCharts(chart3, chart4, diaouacu)
-                
+
                 var chart2 = {
                     columns: ['data'],
                     rows: []
@@ -498,10 +499,18 @@
                 chart2.columns = chart5.columns
 
                 chart5.rows.forEach(row =>{
-                    chart2.rows.push({
-                        'data': row['data'],
-                        [colunaTaxa]: (row[colunaFuncao] / row[colunaConfirmado]) * 100
-                    })
+                    if(row[colunaConfirmado] > 0){
+                        chart2.rows.push({
+                            'data': row['data'],
+                            [colunaTaxa]: (row[colunaFuncao] / row[colunaConfirmado]) * 100
+                        })
+                    }
+                    else{
+                        chart2.rows.push({
+                            'data': row['data'],
+                            [colunaTaxa]: 100
+                        })
+                    }
                 })
 
                 return chart2
