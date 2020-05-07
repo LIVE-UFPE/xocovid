@@ -62,11 +62,19 @@ class CasosEstado(models.Model):
     populacao_estimada_2019 = models.IntegerField(null=True)
     confirmados_100k = models.FloatField(null=True)
 
+class CasosEstadoHistorico(models.Model):
+    data_notificacao = models.DateField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    quantidade_casos = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
 class CasosCidade(models.Model):
-    data_atualizacao = models.DateField(null=True)
-    estado = models.CharField(max_length = 150, null=True)
-    cidade = models.CharField(max_length = 150, null=True)
-    confirmados = models.IntegerField(null=True)
+    data_notificacao = models.DateField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    municipio = models.CharField(max_length = 150, null=True)
+    quantidade_casos = models.IntegerField(null=True)
     obitos = models.IntegerField(null=True)
     populacao_estimada_2019 = models.IntegerField(null=True)
     confirmados_100k = models.FloatField(null=True)

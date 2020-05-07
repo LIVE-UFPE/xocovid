@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico
 import json
 import requests
 import pandas
@@ -82,9 +82,9 @@ def listener():
 
     print("Extraindo informações de outras bases")
     #bot.processingData()
-    #storeBot()
+    storeBot()
     print("Executando predicoes do Arima")
-    pipelineArima.main()
+    #pipelineArima.main()
     #saveImages()
 
     print("Listener parado")
@@ -106,20 +106,57 @@ def saveImages():
     copy_tree(original, target)
 
 def storeBot():
+    stateName = {
+        'AC': 'Acre',
+        'AL': 'Alagoas',
+        'AP': 'Amapá',
+        'AM': 'Amazonas',
+        'BA': 'Bahia',
+        'CE': 'Ceará',
+        'DF': 'Distrito Federal',
+        'ES': 'Espírito Santo',
+        'GO': 'Goiás',
+        'MA': 'Maranhão',
+        'MT': 'Mato Grosso',
+        'MS': 'Mato Grosso do Sul',
+        'MG': 'Minas Gerais',
+        'PA': 'Pará',
+        'PB': 'Paraíba',
+        'PR': 'Paraná',
+        'PE': 'Pernambuco',
+        'PI': 'Piauí',
+        'RJ': 'Rio de Janeiro',
+        'RN': 'Rio Grande do Norte',
+        'RS': 'Rio Grande do Sul',
+        'RO': 'Rondônia',
+        'RR': 'Roraima',
+        'SC': 'Santa Catarina',
+        'SP': 'São Paulo',
+        'SE': 'Sergipe',
+        'TO': 'Tocantins'
+    }
+
     print("Armazenando extrações")
 
     dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
+    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Casos por Estado.csv', sep=',')
     dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por cidade.csv', sep=',')
 
     estados = []
     for index, row in dfEstados.iterrows():
             estados.append([row['date'], row['state'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    estadosHistorico = []
+    for index, row in dfEstadosHistorico.iterrows():
+            estadosHistorico.append([row['date'], stateName[row['state']], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
     cidades = []
     for index, row in dfCidades.iterrows():
         if pandas.notnull(row['estimated_population_2019']):
-            cidades.append([row['date'], row['state'], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+            cidades.append([row['date'], stateName[row['state']], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
 
     CasosEstado.objects.all().delete()
+    CasosEstadoHistorico.objects.all().delete()
     CasosCidade.objects.all().delete()
 
     objs = [
@@ -136,11 +173,24 @@ def storeBot():
     CasosEstado.objects.bulk_create(objs=objs)
 
     objs = [
+        CasosEstadoHistorico(
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            quantidade_casos=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estadosHistorico
+    ]
+    CasosEstadoHistorico.objects.bulk_create(objs=objs)
+
+    objs = [
         CasosCidade(
-            data_atualizacao=m[0],
-            estado=m[1],
-            cidade = m[2],
-            confirmados=m[3],
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            municipio = m[2],
+            quantidade_casos=m[3],
             obitos=m[4],
             populacao_estimada_2019 = m[5],
             confirmados_100k = m[6],

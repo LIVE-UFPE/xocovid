@@ -4,15 +4,15 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, Interpolation, CasosEstado
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import Manager, Q
+from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
 from .tasks import listener
 import json
 import requests
 from datetime import date, datetime
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
 
@@ -31,34 +31,40 @@ def graphs(request):
         buscas = {
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
             'Casos Confirmados' : {
+                'brasil'  : list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('quantidade_casos')).order_by('data_notificacao')),
                 'estados' : list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'estados2': list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades2': list(CasosCidade.objects.all().values('municipio', 'data_notificacao', 'quantidade_casos', 'estado_residencia').order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Casos Suspeitos' : {
                 'estados' : list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Óbitos' : {
+                'brasil'  : list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('obitos')).order_by('data_notificacao')),
                 'estados' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'estados2' : list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades2' : list(CasosCidade.objects.all().values('municipio', 'data_notificacao', 'obitos', 'estado_residencia').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Recuperados' : {
                 'estados' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Isolamento Domiciliar' : {
                 'estados' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
             'Internado' : {
                 'estados' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'cidades' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
-                'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'cidades' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
+                'bairros' : list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio'    ).annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao')),
             },
         }
 

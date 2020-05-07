@@ -14,15 +14,10 @@
             style="z-index: 1"
           >
           <!-- style="" -->
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon disabled></v-app-bar-nav-icon>
             
-            <v-toolbar-title class="ml-10" style="width: 100%;display: flex;flex-direction: row;justify-content: center;font-weight: 900;">
-              <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
-                <v-avatar left>
-                  <v-icon>mdi-chart-pie</v-icon>
-                </v-avatar>
-                DataPred
-              </div>
+            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+              <img style="margin-left: 30px;height: 25px;" src='../static/logo/logoWhite.png'/>
             </v-toolbar-title>
       
             <v-spacer></v-spacer>
@@ -41,9 +36,9 @@
               <v-list class="mt-10">
                 <v-list-item
                   @click="load_option(n)"
-                  href="logout"
+                  href="/logout"
                 >
-                  <v-list-item-title href="logout">Sair</v-list-item-title>
+                  <v-list-item-title href="/logout">Sair</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -69,7 +64,6 @@
             <div  class="text-center">
               <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório</v-list-item-title>
             </div>
-            
             <!-- <div style="display:flex;flex-direction:row;justify-content: center">
               <div style="width: 900px;" class="pr-4 pl-4 mt-4"> 
                 <v-autocomplete
@@ -118,7 +112,6 @@
                       small-chips
                       label="Selecione o estado"
                       width="400"
-                      
                     ></v-autocomplete>
                     <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar Estado</v-btn>
                   </div> 
@@ -203,13 +196,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Óbitos Totais
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nObitosBrasil ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
@@ -218,13 +211,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Casos Confirmados
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nConfirmadosBrasil ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
@@ -233,16 +226,16 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Confirmados Relativo
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ n100kBrasil ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
+              <div class="pa-0 mt-0" style="text-align: center;">Valores para 100.000 habitantes</div>
             </v-card>
             
           </div>
@@ -280,7 +273,6 @@
               width="1044"
               height='600'
               outlined
-              
         >
           <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard de Pernambuco</v-list-item-title>
@@ -290,13 +282,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Óbitos Totais
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nObitos ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
@@ -305,13 +297,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Óbitos Diários
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nCasos ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
@@ -320,13 +312,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Recuperados Totais
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nRecuperados ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
@@ -369,7 +361,7 @@
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados Acumulados</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados Acumulados em Pernambuco</v-list-item-title>
           </div>
           <ve-pie :data="chartDataPie"></ve-pie>
           <div class="pa-0 mt-4 mb-8" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, em que a soma das 4 distribuições equivale a 100% do total.  </div>
@@ -386,7 +378,7 @@
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos e Acumulados em Pernambuco</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</v-list-item-title>
           </div>
           <ve-line :data="chartDataO" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
@@ -403,9 +395,15 @@
                 @click="printName(values)"
                 @change="setCity(values, 'itemsChipsC')"
                 multiple
-                disabled
               ></v-autocomplete>
-              
+            </div>
+            <div>
+              <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, null, null, 'chartDataO', ['diários', 'acumulados'])">
+                  <v-icon class="pr-2">mdi-download-outline</v-icon>
+                   Filtrar
+                </v-btn>
+              </div>
             </div>
         </v-card>
       </template>
@@ -498,7 +496,7 @@
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
             <div style="width: 100%;" class="pr-4" >
               <v-autocomplete
-                v-model="values"
+                v-model="valuesCE"
                 :items="itemsChips"
                 outlined
                 dense
@@ -507,9 +505,8 @@
                 label="Selecione o estado"
                 width="400"
                 @click="printName(values)"
-                @change="setCity(values, 'itemsChipsC')"
+                @change="setCity(valuesCE, 'itemsChipsC')"
                 multiple
-                disabled
               ></v-autocomplete>
             </div> 
               <div style="width: 100%;" class="pl-4 pr-4" >
@@ -524,7 +521,7 @@
                   width="400"
                   @change="setDistrict(valuesC, 'itemsChipsD')"
                   @click="printName(valuesC)"
-                  @mousedown="setCity(values, 'itemsChipsC')"
+                  @mousedown="setCity(valuesCE, 'itemsChipsC')"
                   multiple
                 ></v-autocomplete>
               </div>
@@ -543,7 +540,7 @@
               </div>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados'], values, valuesC, valuesD, 'chartData', ['diários'])">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários'])">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>
@@ -645,7 +642,6 @@
                 width="400"
                 @change="setCity(valuesA, 'itemsChipsCA')"
                 multiple
-                disabled
               ></v-autocomplete>
             </div> 
               <div style="width: 100%;" class="pl-4 pr-4" >
@@ -700,17 +696,11 @@
             class="lighten-1 white--text text-center"
             color="#1E9CF8"
           >
-            <v-card-text>
-              <v-btn
-                v-for="icon in icons"
-                :key="icon"
-                class="mx-4 white--text"
-                icon
-              >
-                <v-icon size="24px">{{ icon }}</v-icon>
-              </v-btn>
+
+            <v-card-text class="pa-12">
+              <img style="height: 55px;" src='../static/logo/logoWhite.png'/>
             </v-card-text>
-      
+            
             <v-card-text style="width:100%" class="white--text pt-0">
               The Vehicle Innovation Laboratory (LIVE) is a laboratory of the UFPE Informatics Center and was created in 2015 with the objective of developing innovation projects in the context of smart cities. We carry out research and development projects in partnership with industry and funding agencies in various segments such as Automotive, IoT, Embedded Systems, Energy, High Performance Computing, Electronics, Urban Mobility, Connectivity and Artificial Intelligence. 
             </v-card-text>

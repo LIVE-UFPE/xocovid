@@ -3,7 +3,9 @@
     <v-container fluid class="primary d-flex flex-column justify-center align-center" fill-height :style="{fontFamily: 'Barlow, Helvetica, Arial, sans-serif',textAlign: 'center'}">
         <v-card raised color="secondary" max-width="405px" max-height="700px" width="400px" fluid class="d-flex px-0 " :style="{paddingTop: '35px',borderRadius: '10px'}" >
             <v-row class="mx-12 d-block"  justify="center" no-gutters > 
-                <p class="text-center font-weight-bold ma-0 mb-8" :style="{fontSize: '60px',color: '#1E9CF8'}" >Logo</p> <!-- // ! Replacement for logo  -->
+                <p class="text-center font-weight-bold  mt-10" :style="{fontSize: '60px',color: '#1E9CF8'}" >
+                    <img style="height: 85px;" src='../static/logo/logoSGIS.png'/>
+                </p> <!-- // ! Replacement for logo  -->
                 
                 <v-alert 
                     v-if="{{ login_error|safe }} == true" 
@@ -39,7 +41,7 @@
                     ></v-text-field> 
 
                     <script src='https://www.google.com/recaptcha/api.js'></script>
-                    <div class="g-recaptcha" data-sitekey="6LcTWegUAAAAAHjPv-dXhkJcOPmLy-EJfbJEUhim"></div>
+                    <div light class="g-recaptcha" data-sitekey="6LcTWegUAAAAAHjPv-dXhkJcOPmLy-EJfbJEUhim"></div>
 
                     <v-btn
                         color="primary"
@@ -88,4 +90,5 @@
             <input type="submit" name="" value="Entrar">
         </v-btn>
     </v-form>
-</v-card> {% endcomment %}
+</v-card> 
+{% endcomment %}
