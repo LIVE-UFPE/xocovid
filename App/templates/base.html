@@ -137,6 +137,12 @@
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            jobObitosTotais: 200,
+            jobObitosDiarios: 0,
+            jobConf: 200,
+            jobConfRel: 200,
+            jobLetalidade: 200,
+            selecaoDashboard: ["Pernambuco - PE"],
             valueChipR: "Pernambuco - PE",
             selecaoGraficoR: ["Pernambuco - PE"],
             estadosSigla: [],
@@ -272,6 +278,7 @@
                 this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
                 this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
 
+                // informacoes, estados, cidades, bairros, chartName, diaouacu, base
                 chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
                 Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
 
@@ -303,9 +310,36 @@
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 Vue.set(app, 'chartDataPie', pieData)
                 Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
+                Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
             })
         },
         methods: {
+            jobDash: function (estado){
+                // ? dados: nObitos nCasos nRecuperados nConf
+                // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
+                
+                this.jobObitosTotais = buscas['Casos Estado'].find(function(iter){
+                    if(iter['estado'] == estado.split("- ").pop()){    
+                        return iter
+                    }
+                })['obitos']
+                console.log(this.jobObitosTotais)
+                
+                this.jobConfRel = buscas['Casos Estado'].find(function(iter){
+                    if(iter['estado'] == estado.split("- ").pop()){
+                        return iter
+                    }
+                })['confirmados_100k']
+
+                this.jobConf = buscas['Casos Estado'].find(function(iter){
+                    if(iter['estado'] == estado.split("- ").pop()){
+                        return iter
+                    }
+                })['confirmados']
+                // obitos / casos confirmados
+                this.jobLetalidade = this.jobObitosTotais / this.jobConf
+                
+            },
             setDashboardBrasil: function (){
                 var obitos = 0
                 var confirmados = 0
