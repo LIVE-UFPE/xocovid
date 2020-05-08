@@ -150,7 +150,7 @@
             nConfirmadosBrasil: 0,
             n100kBrasil: 0,
             nLetalidadeBrasil: 0,
-            imageData:['../static/graficos/modelos/modelo_PE.png','../static/graficos/predicoes/pred_PE.png','../static/graficos/projecoes/projecaoPE.png'],
+            imageData:['../static/graficos/projecoes/projecaoPE.png', '../static/graficos/modelos/modelo_PE.png','../static/graficos/predicoes/pred_PE.png'],
             chartDataPie: {
                 columns: ['date', 'cost', 'profit'],
                 rows: [
@@ -739,6 +739,7 @@
     var estadoS = []
     var folder = "../static/graficos/modelos/";
     console.log(data[0].estados)
+    //estadoS.push('Brasil')
     data[0].estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
