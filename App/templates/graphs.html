@@ -402,6 +402,20 @@
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
             <div style="width: 100%;" class="pr-4" >
               <v-autocomplete
+                v-model="personalizadoPaises"
+                :items="personalizadoPaises"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o país"
+                width="400"
+                multiple
+                disabled
+              ></v-autocomplete>
+            </div>
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
                 v-model="values"
                 :items="itemsChips"
                 outlined
@@ -528,6 +542,20 @@
           </div>
           <ve-line :data="chartData" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="personalizadoPaises"
+                :items="personalizadoPaises"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o país"
+                width="400"
+                multiple
+                disabled
+              ></v-autocomplete>
+            </div>
             <div style="width: 100%;" class="pr-4" >
               <v-autocomplete
                 v-model="valuesCE"
@@ -664,6 +692,20 @@
             </div> 
           </div>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="personalizadoPaises"
+                :items="personalizadoPaises"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o país"
+                width="400"
+                multiple
+                disabled
+              ></v-autocomplete>
+            </div>
             <div style="width: 100%;" class="pr-4" >
               <v-autocomplete
                 v-model="valuesA"
