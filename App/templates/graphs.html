@@ -173,6 +173,7 @@
                   </v-pagination>
                 </div>
               </div>
+              <div class="pa-0 mt-0" style="text-align: left;">Obs.: O intervalo de confiança é de +/- 95%</div>
             </v-card>
   
           </v-card>
@@ -414,9 +415,25 @@
                 multiple
               ></v-autocomplete>
             </div>
+            <div style="width: 100%;" class="pl-4 pr-4" >
+              <v-autocomplete
+                v-model="valuesCS"
+                :items="itemsChipsCS"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione a cidade"
+                width="400"
+                @change="setDistrict(valuesCS, 'itemsChipsDS')"
+                @click="printName(valuesCS)"
+                @mousedown="setCity(values, 'itemsChipsCS')"
+                multiple
+              ></v-autocomplete>
+            </div>
             <div>
               <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, null, null, 'chartDataO', ['diários', 'acumulados'])">
+                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
                   <v-icon class="pr-2">mdi-download-outline</v-icon>
                    Filtrar
                 </v-btn>
@@ -507,7 +524,7 @@
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Por dia</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</v-list-item-title>
           </div>
           <ve-line :data="chartData" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
@@ -557,7 +574,7 @@
               </div>-->
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários'])">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados', 'Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários', 'acumulados'])">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
                      Filtrar
                   </v-btn>

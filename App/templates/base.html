@@ -275,10 +275,10 @@
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
 
-                this.filtro(['Projecao', 'lo80', 'hi80', 'lo95', 'hi95'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
+                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
                 this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
                 //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
-                this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
+                this.filtro(['Casos Confirmados', 'Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários', 'acumulados'])
                 this.filtro(['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
 
                 // informacoes, estados, cidades, bairros, chartName, diaouacu, base
@@ -602,7 +602,7 @@
                 
                 chart = this.sortChart(chart)
 
-                if(informacao!='lo80' && informacao!='hi80' && informacao!='lo95' && informacao!='hi95'){
+                if(informacao!='lo80' && informacao!='hi80' && informacao!='Limite de Confiança Inferior' && informacao!='Limite de Confiança Superior'){
                     chart.columns.forEach(column =>{
                         if(column != 'data'){
                             for(i = 0; i < chart.rows.length; i++){
@@ -678,12 +678,12 @@
                 var sigla = selecaoGraficoR.split("- ").pop()
                 var nomeEstado = selecaoGraficoR.split(" - ")[0]
                 
+                imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
                 imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
                 imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
-                imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
                 Vue.set(app, 'imageData', imgUrlR)
 
-                this.filtro(['Projecao', 'lo80', 'hi80', 'lo95', 'hi95'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
+                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);

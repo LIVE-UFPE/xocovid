@@ -28,6 +28,7 @@ def graphs(request):
     if request.user.is_authenticated == False:
         return user_login(request)
     else:
+        #jahkdjsa
         buscas = {
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
             'Projecao': {
@@ -39,10 +40,10 @@ def graphs(request):
             'hi80': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi80').annotate(quantidade_casos=F('hi80')).order_by('data_notificacao'))
             },
-            'lo95': {
+            'Limite de Confiança Inferior': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'lo95').annotate(quantidade_casos=F('lo95')).order_by('data_notificacao'))
             },
-            'hi95': {
+            'Limite de Confiança Superior': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi95').annotate(quantidade_casos=F('hi95')).order_by('data_notificacao'))
             },
             'Casos Confirmados' : {
