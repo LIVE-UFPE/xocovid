@@ -14,9 +14,11 @@
             style="z-index: 1"
           >
           <!-- style="" -->
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon disabled></v-app-bar-nav-icon>
             
-            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">Logo</v-toolbar-title>
+            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+              <img style="margin-left: 30px;height: 25px;" src='../static/logo/logoWhite.png'/>
+            </v-toolbar-title>
       
             <v-spacer></v-spacer>
 
@@ -34,9 +36,9 @@
               <v-list class="mt-10">
                 <v-list-item
                   @click="load_option(n)"
-                  href="logout"
+                  href="/logout"
                 >
-                  <v-list-item-title href="logout">Sair</v-list-item-title>
+                  <v-list-item-title href="/logout">Sair</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -195,13 +197,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Óbitos Totais
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nObitosBrasil ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
@@ -210,13 +212,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Casos Confirmados
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nConfirmadosBrasil ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
@@ -225,13 +227,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Confirmados Relativo
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ n100kBrasil ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
@@ -297,13 +299,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Óbitos Totais
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobObitosTotais ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
@@ -312,13 +314,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Casos Confirmados
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobConf ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
@@ -327,13 +329,13 @@
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
                   width="300"
-                  height='220'
+                  height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Confirmados Relativo
               </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 60px">
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobConfRel.toFixed(3) ]]
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
@@ -712,14 +714,7 @@
             color="#1E9CF8"
           >
             <v-card-text>
-              <v-btn
-                v-for="icon in icons"
-                :key="icon"
-                class="mx-4 white--text"
-                icon
-              >
-                <v-icon size="24px">{{ icon }}</v-icon>
-              </v-btn>
+              <img style="height: 55px;" src='../static/logo/logoWhite.png'/>
             </v-card-text>
       
             <v-card-text style="width:100%" class="white--text pt-0">
