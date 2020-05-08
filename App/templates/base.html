@@ -272,6 +272,7 @@
 
             this.$nextTick(function () {
                 this.setDashboardBrasil()
+                this.jobDash('Pernambuco - PE')
 
                 this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
                 this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
@@ -337,7 +338,7 @@
                     }
                 })['confirmados']
                 // obitos / casos confirmados
-                this.jobLetalidade = this.jobObitosTotais / this.jobConf
+                this.jobLetalidade = (this.jobObitosTotais / this.jobConf) * 100
                 
             },
             setDashboardBrasil: function (){
