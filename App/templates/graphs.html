@@ -161,7 +161,8 @@
                   </v-chip>
                 </div>
                 <div  class="text-center">
-                  <img class="mb-4" style="border-radius: 20px;" :src= "imageData[page-1]" width="auto" height="480">
+                  <ve-line v-if="page==1" :data="chartProjecao" ></ve-line>
+                  <img v-else class="mb-4" style="border-radius: 20px;" :src= "imageData[page-1]" width="auto" height="480">
                   <!-- <img class="mb-4" style="border-radius: 20px;" src= "../static/graficos/modelos/modelo_AL.png" width="640" height="480"> -->
                   <v-pagination
                     v-model="page"
@@ -422,7 +423,7 @@
         </v-card>
       </template>
 
-      <template>
+      <!--<template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
@@ -492,7 +493,7 @@
 
             </div>
         </v-card>
-      </template>
+      </template>-->
 
 
       <template>
@@ -539,7 +540,7 @@
                   multiple
                 ></v-autocomplete>
               </div>
-              <div style="width: 100%;" class="pl-4">
+              <!--<div style="width: 100%;" class="pl-4">
                 <v-autocomplete
                   v-model="valuesD"
                   :items="itemsChipsD"
@@ -551,7 +552,7 @@
                   multiple
                   width="400"
                 ></v-autocomplete>
-              </div>
+              </div>-->
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
                   <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários'])">
@@ -674,7 +675,7 @@
                   multiple
                 ></v-autocomplete>
               </div>
-              <div style="width: 100%;" class="pl-4">
+              <!--<div style="width: 100%;" class="pl-4">
                 <v-autocomplete
                   v-model="valuesDA"
                   :items="itemsChipsDA"
@@ -686,7 +687,7 @@
                   multiple
                   width="400"
                 ></v-autocomplete>
-              </div>
+              </div>-->
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
                   <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(valuesSelect, valuesA, valuesCA, valuesDA, 'chartDataSA', [diaOUAcu])">

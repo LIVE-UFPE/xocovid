@@ -179,7 +179,7 @@
             itemsChipsCA: [],
             itemsChipsDA: [],
             itemsChipsR: [],
-            itemsChipsSelect: ['Casos Confirmados', 'Casos Suspeitos', 'Óbitos', 'Recuperados', 'Letalidade'/*, 'Taxa de Recuperação'*/],
+            itemsChipsSelect: ['Casos Confirmados', /*'Casos Suspeitos',*/ 'Óbitos', /*'Recuperados',*/ 'Letalidade'/*, 'Taxa de Recuperação'*/],
             nObitos: '200',
             nConf: 200,
             nRecuperados: '200',
@@ -200,7 +200,7 @@
             valuesCA:  null,
             valuesDA: null,
             valuesR: null,
-            valuesSelect: ['Casos Confirmados', 'Óbitos', 'Recuperados'],
+            valuesSelect: ['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/],
             value: null,
             sheet: false,
             base: 0,
@@ -237,6 +237,7 @@
             chartDataSA: {},
             chartDataA: {},
             chartData: {},
+            chartProjecao: {},
             chartDataO: {},
             icons: [
                 'mdi-download',
@@ -274,10 +275,11 @@
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
 
+                this.filtro(['Projecao', 'lo80', 'hi80', 'lo95', 'hi95'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
                 this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
-                this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
+                //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
                 this.filtro(['Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários'])
-                this.filtro(['Casos Confirmados', 'Óbitos', 'Recuperados'], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
+                this.filtro(['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
 
                 // informacoes, estados, cidades, bairros, chartName, diaouacu, base
                 chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
@@ -289,8 +291,8 @@
                 chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
                 Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em Pernambuco'] * 100) / 100 ) // Setando dashboard
 
-                chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
+                //chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                //Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
 
                 var pieData = {
                     'columns': ['eixo', 'valor'],
@@ -406,9 +408,12 @@
                                     else
                                         chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length, base)
                                     
+                                    console.log(informacao)
+                                    console.log(chart2)
+
                                     chart2 = this.sortChart(chart2)
                                     
-                                    chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu])
+                                    chart = this.joinCharts(chart, chart2, diaouacu[contDiaouAcu], informacao)
                                 })
                             })
                         }
@@ -426,28 +431,24 @@
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
                 if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
                 else label = informacao + ' em '
-                //console.log(base)
-                if(estado != 'Pernambuco' || (informacao != 'Recuperados' && informacao != 'Casos Suspeitos')){
-                    if(base == 2) keyBusca = 'estados2'
-                    else keyBusca = 'estados'
-                }
-                else keyBusca = 'estados'
-                
+
                 if(bairro != ''){
                     keyBusca = 'bairros'
                     label += bairro
                 }
                 else if(cidade != ''){
-                    if(estado != 'Pernambuco') keyBusca = 'cidades2'
+                    if(base == 2) keyBusca = 'cidades2'
                     else keyBusca = 'cidades'
 
                     label += cidade
                 }
-                else{
+                else if(estado != ''){
+                    if(base == 2) keyBusca = 'estados2'
+                    else keyBusca = 'estados'
+
                     label += estado
                 }
-
-                if(estado == ''){
+                else{
                     keyBusca = 'brasil'
                     label += 'Brasil'
                 }
@@ -456,7 +457,7 @@
                     columns: ['data'],
                     rows: []
                 }
-            
+                
                 buscas[informacao][keyBusca].forEach((notificacao, index) =>{
                     if( keyBusca=='brasil' ||
                         ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
@@ -482,10 +483,12 @@
                                 }
                             }
 
-                            chart2.rows.push({
-                                [label] : acumulado,
-                                'data' : notificacao.data_notificacao
-                            })
+                            if(acumulado){
+                                chart2.rows.push({
+                                    [label] : acumulado,
+                                    'data' : notificacao.data_notificacao
+                                })
+                            }
                         }
                         else{
                             if(keyBusca != 'estados2' && keyBusca != 'cidades2'  && keyBusca != 'brasil'){
@@ -521,7 +524,7 @@
                 chart3 = this.filtro([funcao], [estado], [cidade], [bairro], '', [diaouacu])
                 chart4 = this.filtro(['Casos Confirmados'], [estado], [cidade], [bairro], '', [diaouacu])
 
-                chart5 = this.joinCharts(chart3, chart4, diaouacu)
+                chart5 = this.joinCharts(chart3, chart4, diaouacu, informacao)
                 
                 var chart2 = {
                     columns: ['data'],
@@ -573,7 +576,7 @@
 
                 return chart
             },
-            joinCharts(chart, chart2, diaouacu){
+            joinCharts(chart, chart2, diaouacu, informacao){
                 chart.columns = [...new Set([...chart.columns, ...chart2.columns])]
 
                 chart2.rows.forEach(row =>{
@@ -599,43 +602,45 @@
                 
                 chart = this.sortChart(chart)
 
-                chart.columns.forEach(column =>{
-                    if(column != 'data'){
-                        for(i = 0; i < chart.rows.length; i++){
-                            if(!chart.rows[i][[column]] && chart.rows[i][[column]] != 0){
-                                if(diaouacu == 'acumulados'){
-                                    j = i
-                                    for(;j >= 0; j--){
-                                        if(chart.rows[j][[column]]){
-                                            break
+                if(informacao!='lo80' && informacao!='hi80' && informacao!='lo95' && informacao!='hi95'){
+                    chart.columns.forEach(column =>{
+                        if(column != 'data'){
+                            for(i = 0; i < chart.rows.length; i++){
+                                if(!chart.rows[i][[column]] && chart.rows[i][[column]] != 0){
+                                    if(diaouacu == 'acumulados'){
+                                        j = i
+                                        for(;j >= 0; j--){
+                                            if(chart.rows[j][[column]]){
+                                                break
+                                            }
                                         }
-                                    }
-                                    z = i
-                                    for(;z < chart.rows.length; z++){
-                                        if(chart.rows[z][[column]]){
-                                            break
+                                        z = i
+                                        for(;z < chart.rows.length; z++){
+                                            if(chart.rows[z][[column]]){
+                                                break
+                                            }
                                         }
-                                    }
 
-                                    if(z < chart.rows.length && j >= 0){
-                                        chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
-                                    }
-                                    if(j >= 0){
-                                        chart.rows[i][[column]] = chart.rows[j][[column]]
+                                        if(z < chart.rows.length && j >= 0){
+                                            chart.rows[i][[column]] = Math.floor(((chart.rows[j][[column]] + chart.rows[z][[column]])/2))
+                                        }
+                                        if(j >= 0){
+                                            chart.rows[i][[column]] = chart.rows[j][[column]]
+                                        }
+                                        else{
+                                            for(k = i; k >= 0; k--){
+                                                chart.rows[k][[column]] = 0
+                                            }
+                                        }
                                     }
                                     else{
-                                        for(k = i; k >= 0; k--){
-                                            chart.rows[k][[column]] = 0
-                                        }
+                                        chart.rows[i][[column]] = 0
                                     }
-                                }
-                                else{
-                                    chart.rows[i][[column]] = 0
                                 }
                             }
                         }
-                    }
-                })
+                    })
+                }
 
                 return chart
             },
@@ -671,10 +676,14 @@
             renderGraficoR: function (selecaoGraficoR){
                 var imgUrlR = []
                 var sigla = selecaoGraficoR.split("- ").pop()
+                var nomeEstado = selecaoGraficoR.split(" - ")[0]
+                
                 imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
                 imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
                 imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
                 Vue.set(app, 'imageData', imgUrlR)
+
+                this.filtro(['Projecao', 'lo80', 'hi80', 'lo95', 'hi95'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);

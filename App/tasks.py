@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao
 import json
 import requests
 import pandas
@@ -51,6 +51,36 @@ collum_names = [
   #'Longitude'
 ]
 
+stateName = {
+    'AC': 'Acre',
+    'AL': 'Alagoas',
+    'AP': 'Amapá',
+    'AM': 'Amazonas',
+    'BA': 'Bahia',
+    'CE': 'Ceará',
+    'DF': 'Distrito Federal',
+    'ES': 'Espírito Santo',
+    'GO': 'Goiás',
+    'MA': 'Maranhão',
+    'MT': 'Mato Grosso',
+    'MS': 'Mato Grosso do Sul',
+    'MG': 'Minas Gerais',
+    'PA': 'Pará',
+    'PB': 'Paraíba',
+    'PR': 'Paraná',
+    'PE': 'Pernambuco',
+    'PI': 'Piauí',
+    'RJ': 'Rio de Janeiro',
+    'RN': 'Rio Grande do Norte',
+    'RS': 'Rio Grande do Sul',
+    'RO': 'Rondônia',
+    'RR': 'Roraima',
+    'SC': 'Santa Catarina',
+    'SP': 'São Paulo',
+    'SE': 'Sergipe',
+    'TO': 'Tocantins'
+}
+
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
 BASE_NAME = 'base_original.csv'
 #BASE_NAME = 'base_preprocessada.csv'
@@ -80,14 +110,66 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
 
-    print("Extraindo informações de outras bases")
+    #print("Extraindo informações de outras bases")
     #bot.processingData()
-    storeBot()
-    print("Executando predicoes do Arima")
+    #storeBot()
+    #print("Executando predicoes do Arima")
     #pipelineArima.main()
     #saveImages()
+    storeProjections()
 
     print("Listener parado")
+
+def storeProjections():
+    print("Armazenando projecoes")
+
+    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'
+    Projecao.objects.all().delete()
+    for fileName in os.listdir(pasta):
+        if fileName.find('.png') == -1:
+            a = pandas.read_csv(pasta+fileName, sep=',')
+            a = a.replace({np.nan: None})
+
+            if fileName.split('projecao')[1].split('.csv')[0] != 'Brasil':
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0]]
+            else:
+                nomeEstado = 'Brasil'
+
+            print('Armazenando projecoes de ' + nomeEstado)
+                
+            projections = []
+            for index, row in a.iterrows():
+                data_notificacao = buildDate(row['dt_notificacao'])
+
+                if pandas.notnull(row['acumulado_confirmados']):
+                    quantidade_casos = round(row['acumulado_confirmados'])
+                else:
+                    quantidade_casos = None
+
+                if pandas.notnull(row['Lo.80']):
+                    lo80 = round(row['Lo.80'])
+                else:
+                    lo80 = None
+                
+                if pandas.notnull(row['Hi.80']):
+                    hi80 = round(row['Hi.80'])
+                else:
+                    hi80 = None
+
+                if pandas.notnull(row['Lo.95']):
+                    lo95 = round(row['Lo.95'])
+                else:
+                    lo95 = None
+                
+                if pandas.notnull(row['Hi.95']):
+                    hi95 = round(row['Hi.95'])
+                else:
+                    hi95 = None
+                
+                projecao = Projecao(data_notificacao=data_notificacao, quantidade_casos=quantidade_casos, lo80=lo80, hi80=hi80, lo95=lo95, hi95=hi95, estado_residencia=nomeEstado)
+
+                projecao.save()
+
 
 def saveImages():
     print("Salvando Imagens no database")
@@ -106,36 +188,6 @@ def saveImages():
     copy_tree(original, target)
 
 def storeBot():
-    stateName = {
-        'AC': 'Acre',
-        'AL': 'Alagoas',
-        'AP': 'Amapá',
-        'AM': 'Amazonas',
-        'BA': 'Bahia',
-        'CE': 'Ceará',
-        'DF': 'Distrito Federal',
-        'ES': 'Espírito Santo',
-        'GO': 'Goiás',
-        'MA': 'Maranhão',
-        'MT': 'Mato Grosso',
-        'MS': 'Mato Grosso do Sul',
-        'MG': 'Minas Gerais',
-        'PA': 'Pará',
-        'PB': 'Paraíba',
-        'PR': 'Paraná',
-        'PE': 'Pernambuco',
-        'PI': 'Piauí',
-        'RJ': 'Rio de Janeiro',
-        'RN': 'Rio Grande do Norte',
-        'RS': 'Rio Grande do Sul',
-        'RO': 'Rondônia',
-        'RR': 'Roraima',
-        'SC': 'Santa Catarina',
-        'SP': 'São Paulo',
-        'SE': 'Sergipe',
-        'TO': 'Tocantins'
-    }
-
     print("Armazenando extrações")
 
     dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
@@ -679,6 +731,13 @@ def buildDate(original_date):
         if dateBuilded == False:
             try:
                 result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y-%m-%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0]+'/2020','%d/%m/%Y')
                 dateBuilded = True
             except ValueError:
                 pass

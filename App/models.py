@@ -79,6 +79,15 @@ class CasosCidade(models.Model):
     populacao_estimada_2019 = models.IntegerField(null=True)
     confirmados_100k = models.FloatField(null=True)
 
+class Projecao(models.Model):
+    data_notificacao = models.DateField(null=True)
+    quantidade_casos = models.IntegerField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    lo80 = models.IntegerField(null=True)
+    hi80 = models.IntegerField(null=True)
+    lo95 = models.IntegerField(null=True)
+    hi95 = models.IntegerField(null=True)
+
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)
     used = models.BooleanField(default=False)
