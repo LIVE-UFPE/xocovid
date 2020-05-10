@@ -109,6 +109,13 @@
         var buscas = ['']
     {% endif %}
 
+    {% if maior_int %}
+        //maior intensidade, global!!
+        var maior_int = {{ maior_int|safe }}
+    {% else %}
+        var maior_int = 0.0
+    {% endif %}
+
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -137,6 +144,7 @@
         // usando /\ como o nome da tag no código HTML (exemplo: <main-app></main-app>) 
         },
         data: () => ({
+            //? props da graphs
             jobObitosTotais: 200,
             jobObitosDiarios: 0,
             jobConf: 200,
@@ -259,19 +267,19 @@
             nav: false,
             avatar: false,
             rounded: false,
+            diaOUAcu: 'acumulados',
+            linhaOuHist: 'linhas',
+
+            //? props da home
             pins: null,
             datedb: new Date(pins[0] + 'T00:00:00Z'),
             predicts: predicts,
             useIa: false,
             lastinterpol: new Date(pins[0] + 'T00:00:00Z'),
-            diaOUAcu: 'acumulados',
-            linhaOuHist: 'linhas'
+            maiorint: maior_int,
         }),
         mounted: function (){
-            // ? avançando 3 hrs p manter datedb ajustado
-            //this.datedb.setHours(this.datedb.getHours() + 3);
-            //console.log('pins[0] é ' + this.pins[0].data_notificacao + ' e datedb ' + this.datedb.toString() + 'e o dia em UTC é ' + this.datedb.toUTCString() + '\n');
-
+            
             this.$nextTick(function () {
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
@@ -318,6 +326,7 @@
             })
         },
         methods: {
+            //? metodos da graph
             jobDash: function (estado){
                 // ? dados: nObitos nCasos nRecuperados nConf
                 // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
@@ -645,6 +654,21 @@
 
                 return chart
             },
+            renderGraficoR: function (selecaoGraficoR){
+                var imgUrlR = []
+                var sigla = selecaoGraficoR.split("- ").pop()
+                var nomeEstado = selecaoGraficoR.split(" - ")[0]
+                
+                imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
+                imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
+                imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
+                Vue.set(app, 'imageData', imgUrlR)
+
+                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
+            },
+
+
+            //? metodos da home
             dateBack: function (event) {
                 let test = new Date(this.datedb);
                 if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
@@ -673,18 +697,6 @@
                     console.log('não há dados antes desse dia!')
                     return
                 }
-            },
-            renderGraficoR: function (selecaoGraficoR){
-                var imgUrlR = []
-                var sigla = selecaoGraficoR.split("- ").pop()
-                var nomeEstado = selecaoGraficoR.split(" - ")[0]
-                
-                imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
-                imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
-                imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
-                Vue.set(app, 'imageData', imgUrlR)
-
-                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);

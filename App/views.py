@@ -111,9 +111,12 @@ def home(request):
             notifications.append(
                 note.isoformat()
             )
-        print('temos',len(notifications),'datas com interpolação:')
-        print(notifications)
-
+        # DEBUG datas com interpolacao
+        # print('temos',len(notifications),'datas com interpolação:')
+        # print(notifications)
+        maior_int = Interpolation.objects.order_by('-prediction').first().prediction
+        print('maior int é',maior_int)
+        context["maior_int"] = json.dumps(maior_int)
         context["items_json"] = json.dumps(notifications)
         context["predicts_json"] = json.dumps(predicts)
         return render(request, 'home.html', context)

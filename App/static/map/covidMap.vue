@@ -28,6 +28,7 @@ module.exports = {
         datedb: Date,
         predicts: Array,
         lastinterpol: Date,
+        maiorint: Number,
     },
     methods: {
         getpins(){
@@ -79,12 +80,14 @@ module.exports = {
                         'maxOpacity': .7,
                     })
                     this.heatmap.setData({
-                        max: maior_int,
+                        // max: maior_int,
+                        max: this.maiorint,
                         min: 0,
                         data: pins_heat,
                     });
 
                     console.log(`adicionando um total de ${pinsLen} no mapa`)
+                    console.log(`maior intensidade do DB é ${this.maiorint}, a dessa interpolação é de ${maior_int}`)
                     
                     this.txtsnack = "Mapa de calor atualizado!"
                     this.snackbar = true
@@ -99,13 +102,13 @@ module.exports = {
 
         // TODO resolve location
         if(!("geolocation" in navigator)){
-            console.log('fazer oq qd n tem localizaçao??');
+            // console.log('fazer oq qd n tem localizaçao??');
             //TODO fazer isso aq, agr é o centro de recife
             this.position = L.latLng(-8.046, -34.927);
         }else{
             // get position, runs asyncly
             navigator.geolocation.getCurrentPosition(pos => {
-                console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
+                //console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
                 this.position = L.latLng(pos.coords.latitude,pos.coords.longitude);
                 try{
                     this.mymap = L.map('mapid').setView(this.position, 13);
@@ -302,10 +305,12 @@ module.exports = {
                     'maxOpacity': .7,
                 })
                 this.heatmap.setData({
-                    max: maior_int,
+                    // max: maior_int,
+                    max: this.maiorint,
                     min: 0,
                     data: pins_heat
                 });
+                cons_log += 'maior intensidade do DB é de ' + this.maiorint.toString() +'\n'
                 console.log(cons_log)
             }else{
                 this.getpins()
