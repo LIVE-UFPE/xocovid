@@ -88,6 +88,13 @@ class Projecao(models.Model):
     lo95 = models.IntegerField(null=True)
     hi95 = models.IntegerField(null=True)
 
+class CasosPernambuco(models.Model):
+    data_atualizacao = models.DateField(null=True)
+    obitos = models.IntegerField(null=True)
+    recuperados = models.IntegerField(null=True)
+    isolamento = models.IntegerField(null=True)
+    internados = models.IntegerField(null=True)
+
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)
     used = models.BooleanField(default=False)

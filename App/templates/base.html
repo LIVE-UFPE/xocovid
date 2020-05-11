@@ -303,7 +303,16 @@
                 //chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
                 //Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
 
-                var pieData = {
+                this.setPieChart()
+
+                Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
+                Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
+            })
+        },
+        methods: {
+            //? metodos da graph
+            setPieChart: function (){
+                /*var pieData = {
                     'columns': ['eixo', 'valor'],
                     'rows': []
                 }
@@ -320,13 +329,18 @@
                 //pieData.rows[1]['Percentual'] = (pieData.rows[1]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 //pieData.rows[2]['Percentual'] = (pieData.rows[2]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
+                Vue.set(app, 'chartDataPie', pieData)*/
+
+                var pieData = {
+                    'columns': ['eixo', 'valor'],
+                    'rows': [{'eixo': 'Isolamento Domiciliar', 'valor': buscas['PieChartData'][0]['isolamento']},
+                             {'eixo': 'Internado', 'valor': buscas['PieChartData'][0]['internados']},
+                             {'eixo': 'Óbitos', 'valor': buscas['PieChartData'][0]['obitos']},
+                             {'eixo': 'Recuperados', 'valor': buscas['PieChartData'][0]['recuperados']}]
+                }
+
                 Vue.set(app, 'chartDataPie', pieData)
-                Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
-                Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
-            })
-        },
-        methods: {
-            //? metodos da graph
+            },
             jobDash: function (estado){
                 // ? dados: nObitos nCasos nRecuperados nConf
                 // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
@@ -336,7 +350,7 @@
                         return iter
                     }
                 })['obitos']
-                console.log(this.jobObitosTotais)
+                //console.log(this.jobObitosTotais)
                 
                 this.jobConfRel = buscas['Casos Estado'].find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){
@@ -370,7 +384,7 @@
                 Vue.set(app, 'nConfirmadosBrasil', confirmados)
                 Vue.set(app, 'n100kBrasil', Math.round(conf_100k * 100) / 100)
                 Vue.set(app, 'nLetalidadeBrasil', Math.round(letalidade * 100) / 100)
-                console.log('Dash value: ',letalidade,conf_100k,obitos, confirmados)
+                //console.log('Dash value: ',letalidade,conf_100k,obitos, confirmados)
             },
             setCity: function (value, chips){
                 var objC = [];
@@ -417,9 +431,6 @@
                                         chart2 = this.buildTaxaChart(informacao, diaouacu[contDiaouAcu], estado, cidade, bairro)
                                     else
                                         chart2 = this.buildChart(informacao, estado, cidade, bairro, diaouacu[contDiaouAcu], diaouacu.length, base)
-                                    
-                                    console.log(informacao)
-                                    console.log(chart2)
 
                                     chart2 = this.sortChart(chart2)
                                     
@@ -555,7 +566,6 @@
                 chart2.columns = chart5.columns
 
                 chart5.rows.forEach(row =>{
-                    console.log(row[colunaConfirmado])
                     if(row[colunaConfirmado] > 0){
                         chart2.rows.push({
                             'data': row['data'],
@@ -751,14 +761,14 @@
     Vue.set(app, 'itemsChipsA', obj)
     var estadoS = []
     var folder = "../static/graficos/modelos/";
-    console.log(data[0].estados)
+    //console.log(data[0].estados)
     //estadoS.push('Brasil')
     data[0].estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSigla', estadoS)
 
-    console.log('imgUrl: ', estadoS)
+    //console.log('imgUrl: ', estadoS)
     // console.log("Values: ", value, values);
     //Filter module city
 </script>

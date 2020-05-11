@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
@@ -30,6 +30,7 @@ def graphs(request):
     else:
         #jahkdjsa
         buscas = {
+            'PieChartData': list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados')),
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
             'Projeção média esperada': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao'))

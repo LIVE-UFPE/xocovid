@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
 import json
 import requests
 import pandas
@@ -13,6 +13,8 @@ from django.utils import timezone
 import App.predicao_arima.stateCityData as bot
 import App.predicao_arima.pipelineArima as pipelineArima
 from distutils.dir_util import copy_tree
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 collum_names = [
   'ID',      
@@ -110,15 +112,55 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
 
-    #print("Extraindo informações de outras bases")
-    #bot.processingData()
-    #storeBot()
+    print("Extraindo informações de outras bases")
+    bot.processingData()
+    storeBot()
     #print("Executando predicoes do Arima")
     #pipelineArima.main()
     #saveImages()
-    storeProjections()
+    #storeProjections()
+    #getCasosPernambuco()
 
     print("Listener parado")
+
+def getCasosPernambuco():
+    print("Extraindo casos de Pernambuco")
+    content = urlopen("https://dados.seplag.pe.gov.br/apps/corona_dados.html")
+    res = BeautifulSoup(content.read(), "html.parser")
+    tags = res.findAll("script")
+
+    casos = str(tags[21])
+    inicio = casos.index('{')
+    casos = casos[inicio:]
+    casos = casos.replace("</script>", "")
+
+    casos_dict = json.loads(casos)
+
+    casos_data = pandas.DataFrame()
+
+    cols = ['dt_referencia', 'dt_atualizacao','confirmados','obitos','tx_obitos','recuperados', 
+    'tx_recuperados','isolamento','tx_isolamento','enfermaria','tx_enfermaria','uti','tx_uti',
+    'testes_novos','testes_acumulados','tx_testes','leitos_uti','tx_oc_uti','leitos_enf','tc_oc_enf']
+
+
+    data = casos_dict["x"]["data"]
+
+
+    for i, coluna in enumerate(data):
+        casos_data[cols[i]] = coluna
+    print("passei daqui")
+
+    print('Armazenando casos')
+    
+    CasosPernambuco.objects.all().delete()
+    casoPernambuco = CasosPernambuco(
+        data_atualizacao = casos_data.iloc[-1]['dt_atualizacao'], 
+        obitos = casos_data.iloc[-1]['obitos'], 
+        recuperados = casos_data.iloc[-1]['recuperados'], 
+        isolamento = casos_data.iloc[-1]['isolamento'],
+        internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
+    casoPernambuco.save()
+
 
 def storeProjections():
     print("Armazenando projecoes")
