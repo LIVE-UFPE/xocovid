@@ -284,7 +284,7 @@
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
 
-                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
+                this.filtro(['Projeção média esperada', /*'lo80', 'hi80',*/ 'Melhor cenário', 'Pior cenário'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
                 this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
                 //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
                 this.filtro(['Casos Confirmados', 'Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários', 'acumulados'])
@@ -612,7 +612,7 @@
                 
                 chart = this.sortChart(chart)
 
-                if(informacao!='lo80' && informacao!='hi80' && informacao!='Limite de Confiança Inferior' && informacao!='Limite de Confiança Superior'){
+                if(informacao!='lo80' && informacao!='hi80' && informacao!='Melhor cenário' && informacao!='Pior cenário'){
                     chart.columns.forEach(column =>{
                         if(column != 'data'){
                             for(i = 0; i < chart.rows.length; i++){
@@ -664,7 +664,7 @@
                 imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
                 Vue.set(app, 'imageData', imgUrlR)
 
-                this.filtro(['Projecao', /*'lo80', 'hi80',*/ 'Limite de Confiança Inferior', 'Limite de Confiança Superior'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
+                this.filtro(['Projeção média esperada', /*'lo80', 'hi80',*/ 'Melhor cenário', 'Pior cenário'], [nomeEstado], null, null, 'chartProjecao', ['acumulados'])
             },
 
 

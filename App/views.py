@@ -31,7 +31,7 @@ def graphs(request):
         #jahkdjsa
         buscas = {
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
-            'Projecao': {
+            'Projeção média esperada': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
             },
             'lo80': {
@@ -40,10 +40,10 @@ def graphs(request):
             'hi80': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi80').annotate(quantidade_casos=F('hi80')).order_by('data_notificacao'))
             },
-            'Limite de Confiança Inferior': {
+            'Melhor cenário': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'lo95').annotate(quantidade_casos=F('lo95')).order_by('data_notificacao'))
             },
-            'Limite de Confiança Superior': {
+            'Pior cenário': {
                 'estados2': list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi95').annotate(quantidade_casos=F('hi95')).order_by('data_notificacao'))
             },
             'Casos Confirmados' : {
