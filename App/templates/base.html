@@ -666,9 +666,15 @@
             },
             renderGraficoR: function (selecaoGraficoR){
                 var imgUrlR = []
-                var sigla = selecaoGraficoR.split("- ").pop()
+                if(selecaoGraficoR != 'Projecao de Confirmados no Brasil' && selecaoGraficoR != 'Projecao de Óbitos no Brasil')
+                    sigla = selecaoGraficoR.split("- ").pop()
+                else if(selecaoGraficoR == 'Projecao de Confirmados no Brasil')
+                    sigla = 'Brasil'
+                else
+                    sigla = ''
+
+
                 var nomeEstado = selecaoGraficoR.split(" - ")[0]
-                
                 imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
                 imgUrlR.push('../static/graficos/modelos/modelo_'+sigla+'.png')
                 imgUrlR.push('../static/graficos/predicoes/pred_'+sigla+'.png')
@@ -763,6 +769,8 @@
     var folder = "../static/graficos/modelos/";
     //console.log(data[0].estados)
     //estadoS.push('Brasil')
+    estadoS.push('Projecao de Confirmados no Brasil')
+    estadoS.push('Projecao de Óbitos no Brasil')
     data[0].estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
