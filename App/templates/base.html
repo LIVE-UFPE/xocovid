@@ -154,6 +154,7 @@
             valueChipR: "Pernambuco - PE",
             selecaoGraficoR: ["Pernambuco - PE"],
             estadosSigla: [],
+            estadosSiglaDashboard: [],
             nObitosBrasil: 0,
             nConfirmadosBrasil: 0,
             n100kBrasil: 0,
@@ -767,14 +768,20 @@
     Vue.set(app, 'itemsChipsA', obj)
     var estadoS = []
     var folder = "../static/graficos/modelos/";
+
     //console.log(data[0].estados)
-    //estadoS.push('Brasil')
     estadoS.push('Projecao de Confirmados no Brasil')
     estadoS.push('Projecao de Óbitos no Brasil')
     data[0].estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSigla', estadoS)
+
+    estadoS = []
+    data[0].estados.forEach(estado => {
+        estadoS.push(estado.nome + ' - ' + estado.sigla)
+    })
+    Vue.set(app, 'estadosSiglaDashboard', estadoS)
 
     //console.log('imgUrl: ', estadoS)
     // console.log("Values: ", value, values);
