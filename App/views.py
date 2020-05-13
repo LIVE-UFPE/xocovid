@@ -16,6 +16,7 @@ from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
+import os
 
 LIBERAR_ACESSO = True
 
@@ -31,6 +32,9 @@ def graphs(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+            data = json.load(json_file)
+
         buscas = {
             'PieChartData': list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados')),
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
@@ -89,7 +93,7 @@ def graphs(request):
 
         buscas = json.dumps(buscas, indent=4, sort_keys=True, default=str)
         
-        return render(request, 'graphs.html', {'buscas': buscas})
+        return render(request, 'graphs.html', {'buscas': buscas, 'data': data})
 
 def home(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:

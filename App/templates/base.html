@@ -3,8 +3,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script type="text/javascript" src="{% static 'filter/filter.json' %}"></script>
-
         <meta charset="utf-8">
         <title>XoCovid</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
@@ -93,6 +91,8 @@
 </html>
 
 <script>
+    
+
     {% if items_json %}
         var pins = {{ items_json|safe }};
     {% else %}
@@ -107,6 +107,11 @@
         var buscas= {{ buscas|safe }}
     {% else %}
         var buscas = ['']
+    {% endif %}
+    {% if data %}
+        var data= {{ data|safe }}
+    {% else %}
+        var data = ['']
     {% endif %}
 
     {% if maior_int %}
@@ -390,7 +395,7 @@
             setCity: function (value, chips){
                 var objC = [];
                 value.forEach(selecao => {
-                    data[0].estados.forEach(estado => {
+                    data.estados.forEach(estado => {
                         if(estado.nome == selecao){
                             objC = objC.concat(estado.cidades)
                         }    
@@ -401,7 +406,7 @@
             setDistrict: function (value, chips){
                 var objD = [];
                 value.forEach(selecao => {
-                    data[0].bairros.forEach(cidade => {
+                    data.bairros.forEach(cidade => {
                         //console.log("Cidade e value", cidade, Object.keys(cidade), value)
                         if(Object.keys(cidade)[0] == selecao){
                             objD = objD.concat(cidade[Object.keys(cidade)[0]]);
@@ -585,11 +590,11 @@
             },
             sortChart(chart){
                 chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[0]+a.data[1]+a.data[2]+a.data[3])
+                    const yearA = parseInt(a.data+a.data[1]+a.data[2]+a.data[3])
                     const monthA = parseInt(a.data[5]+a.data[6])
                     const dayA = parseInt(a.data[8]+a.data[9])
 
-                    const yearB = parseInt(b.data[0]+b.data[1]+b.data[2]+b.data[3])
+                    const yearB = parseInt(b.data+b.data[1]+b.data[2]+b.data[3])
                     const monthB = parseInt(b.data[5]+b.data[6])
                     const dayB = parseInt(b.data[8]+b.data[9])
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
@@ -757,7 +762,7 @@
     });
     //Filter module
     var obj = [];
-    data[0].estados.forEach(estado => {
+    data.estados.forEach(estado => {
         obj.push(estado.nome);
         
     });
@@ -769,16 +774,16 @@
     var estadoS = []
     var folder = "../static/graficos/modelos/";
 
-    //console.log(data[0].estados)
+    //console.log(data.estados)
     estadoS.push('Projecao de Confirmados no Brasil')
     estadoS.push('Projecao de Óbitos no Brasil')
-    data[0].estados.forEach(estado => {
+    data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSigla', estadoS)
 
     estadoS = []
-    data[0].estados.forEach(estado => {
+    data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSiglaDashboard', estadoS)
