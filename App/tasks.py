@@ -111,15 +111,15 @@ def listener():
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
-
+    
     #print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
     #print("Executando predicoes do Arima")
     #pipelineArima.main()
     saveImages()
-    #storeProjections()
-    #getCasosPernambuco()
+    storeProjections()
+    getCasosPernambuco()
     
     print("Listener parado")
 
@@ -172,10 +172,10 @@ def storeProjections():
             a = pandas.read_csv(pasta+fileName, sep=',')
             a = a.replace({np.nan: None})
 
-            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-10')[0]
-
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]
+            
             if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
-                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-10')[0]]
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]]
             elif fileEstadoNome == 'BrasilConfirmados':
                 nomeEstado = 'Projecao de Confirmados no Brasil'
             else:
@@ -215,7 +215,6 @@ def storeProjections():
                 projecao = Projecao(data_notificacao=data_notificacao, quantidade_casos=quantidade_casos, lo80=lo80, hi80=hi80, lo95=lo95, hi95=hi95, estado_residencia=nomeEstado)
 
                 projecao.save()
-
 
 def saveImages():
     print("Salvando Imagens no database")
