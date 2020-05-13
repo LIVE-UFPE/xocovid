@@ -106,7 +106,7 @@
     {% if data %}
         var data= {{ data|safe }}
     {% else %}
-        var data = ['']
+        var data = {'estados': ['']}
     {% endif %}
 
     {% if maior_int %}
@@ -115,6 +115,8 @@
     {% else %}
         var maior_int = 0.0
     {% endif %}
+
+    var template = {{ template|safe }}
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
@@ -281,32 +283,35 @@
         }),
         mounted: function (){
             this.$nextTick(function () {
-                this.setDashboardBrasil()
-                this.jobDash('Pernambuco - PE')
+                //console.log()
+                if(template == 'graphs'){
+                    this.setDashboardBrasil()
+                    this.jobDash('Pernambuco - PE')
 
-                this.filtro(['Projeção média esperada', /*'lo80', 'hi80',*/ 'Melhor cenário', 'Pior cenário'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
-                this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
-                //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
-                this.filtro(['Casos Confirmados', 'Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários', 'acumulados'])
-                this.filtro(['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
+                    this.filtro(['Projeção média esperada', /*'lo80', 'hi80',*/ 'Melhor cenário', 'Pior cenário'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
+                    this.filtro(['Óbitos', 'Óbitos'], ['Pernambuco'], null, null, 'chartDataO', ['diários', 'acumulados'])
+                    //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
+                    this.filtro(['Casos Confirmados', 'Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários', 'acumulados'])
+                    this.filtro(['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
 
-                // informacoes, estados, cidades, bairros, chartName, diaouacu, base
-                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
-                Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
+                    // informacoes, estados, cidades, bairros, chartName, diaouacu, base
+                    chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
+                    Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
 
-                chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
-                Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
+                    chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
+                    Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
 
-                chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
-                Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em Pernambuco'] * 100) / 100 ) // Setando dashboard
+                    chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
+                    Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em Pernambuco'] * 100) / 100 ) // Setando dashboard
 
-                //chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                //Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
+                    //chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
+                    //Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
 
-                this.setPieChart()
+                    this.setPieChart()
 
-                Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
-                Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
+                    Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
+                    Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
+                }
             })
         },
         methods: {
@@ -331,6 +336,7 @@
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 Vue.set(app, 'chartDataPie', pieData)*/
 
+                buscaResponse = []
 
                 var request = $.ajax({
                     context: this,
@@ -358,6 +364,7 @@
                 // ? dados: nObitos nCasos nRecuperados nConf
                 // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
 
+                buscaResponse = []
                 var request = $.ajax({
                     context: this,
                     type: 'GET',
@@ -397,6 +404,7 @@
                 var conf_100k = 0
                 var letalidade = 0
 
+                buscaResponse = []
                 var request = $.ajax({
                     context: this,
                     type: 'GET',
