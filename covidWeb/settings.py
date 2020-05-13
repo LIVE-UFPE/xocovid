@@ -38,7 +38,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost',
-    'xocovid.herokuapp.com'
+    'xocovid.herokuapp.com',
+    'covidsgis.herokuapp.com'
 ]
 
 # Application definition
