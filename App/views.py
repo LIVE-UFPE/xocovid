@@ -35,7 +35,7 @@ def graphs(request):
         with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
             data = json.load(json_file)
         
-        return render(request, 'graphs.html', {'data': data})
+        return render(request, 'graphs.html', {'template': "'graphs'", 'data': data})
 
 def home(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
@@ -65,6 +65,7 @@ def home(request):
         # print(notifications)
         maior_int = Interpolation.objects.order_by('-prediction').first().prediction
         print('maior int é',maior_int)
+        context['template'] = "'home'"
         context["maior_int"] = json.dumps(maior_int)
         context["items_json"] = json.dumps(notifications)
         context["predicts_json"] = json.dumps(predicts)
@@ -216,6 +217,8 @@ def register(request):
                 return HttpResponseRedirect(reverse('user_login'))
                         
         context['register_error'] = 'true'
+
+        context['template']: "'register'"
     
     return render(request,'registration.html',context)
 
@@ -254,9 +257,9 @@ def user_login(request):
             
             print("Someone tried to login and failed.")
             print("They used username: {} and password: {}".format(username,password))
-            return render(request, 'login.html', {'login_error':'true'})
+            return render(request, 'login.html', {'template': "'login'", 'login_error':'true'})
         else:
-            return render(request, 'login.html', {'login_error':'false'})
+            return render(request, 'login.html', {'template': "'login'", 'login_error':'false'})
 
 """
 ! Funcionamento das views
