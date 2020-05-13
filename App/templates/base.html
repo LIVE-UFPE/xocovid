@@ -3,8 +3,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script type="text/javascript" src="{% static 'filter/filter.json' %}"></script>
-
         <meta charset="utf-8">
         <title>XoCovid</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
@@ -93,6 +91,8 @@
 </html>
 
 <script>
+    
+
     {% if items_json %}
         var pins = {{ items_json|safe }};
     {% else %}
@@ -103,10 +103,10 @@
     {% else %}
         var predicts = ['']
     {% endif %}
-    {% if buscas %}
-        var buscas= {{ buscas|safe }}
+    {% if data %}
+        var data= {{ data|safe }}
     {% else %}
-        var buscas = ['']
+        var data = ['']
     {% endif %}
 
     {% if maior_int %}
@@ -280,7 +280,6 @@
             maiorint: maior_int,
         }),
         mounted: function (){
-            
             this.$nextTick(function () {
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
@@ -332,34 +331,58 @@
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 Vue.set(app, 'chartDataPie', pieData)*/
 
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'PieChartData', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
                 var pieData = {
                     'columns': ['eixo', 'valor'],
-                    'rows': [{'eixo': 'Isolamento Domiciliar', 'valor': buscas['PieChartData'][0]['isolamento']},
-                             {'eixo': 'Internado', 'valor': buscas['PieChartData'][0]['internados']},
-                             {'eixo': 'Óbitos', 'valor': buscas['PieChartData'][0]['obitos']},
-                             {'eixo': 'Recuperados', 'valor': buscas['PieChartData'][0]['recuperados']}]
+                    'rows': [{'eixo': 'Isolamento Domiciliar', 'valor': buscaResponse[0]['isolamento']},
+                             {'eixo': 'Internado', 'valor': buscaResponse[0]['internados']},
+                             {'eixo': 'Óbitos', 'valor': buscaResponse[0]['obitos']},
+                             {'eixo': 'Recuperados', 'valor': buscaResponse[0]['recuperados']}]
                 }
 
                 Vue.set(app, 'chartDataPie', pieData)
             },
+            
             jobDash: function (estado){
                 // ? dados: nObitos nCasos nRecuperados nConf
                 // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
-                
-                this.jobObitosTotais = buscas['Casos Estado'].find(function(iter){
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
+                this.jobObitosTotais = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){    
                         return iter
                     }
                 })['obitos']
                 //console.log(this.jobObitosTotais)
                 
-                this.jobConfRel = buscas['Casos Estado'].find(function(iter){
+                this.jobConfRel = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){
                         return iter
                     }
                 })['confirmados_100k']
 
-                this.jobConf = buscas['Casos Estado'].find(function(iter){
+                this.jobConf = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){
                         return iter
                     }
@@ -374,13 +397,24 @@
                 var conf_100k = 0
                 var letalidade = 0
 
-                buscas['Casos Estado'].forEach(estado => {
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
+                buscaResponse.forEach(estado => {
                    obitos += estado['obitos']
                    confirmados += estado['confirmados']
                    conf_100k += estado['confirmados_100k']
                 })
                 letalidade = (obitos/confirmados) * 100
-                conf_100k = conf_100k/buscas['Casos Estado'].length
+                conf_100k = conf_100k/buscaResponse.length
                 Vue.set(app, 'nObitosBrasil', obitos)
                 Vue.set(app, 'nConfirmadosBrasil', confirmados)
                 Vue.set(app, 'n100kBrasil', Math.round(conf_100k * 100) / 100)
@@ -390,7 +424,7 @@
             setCity: function (value, chips){
                 var objC = [];
                 value.forEach(selecao => {
-                    data[0].estados.forEach(estado => {
+                    data.estados.forEach(estado => {
                         if(estado.nome == selecao){
                             objC = objC.concat(estado.cidades)
                         }    
@@ -401,7 +435,7 @@
             setDistrict: function (value, chips){
                 var objD = [];
                 value.forEach(selecao => {
-                    data[0].bairros.forEach(cidade => {
+                    data.bairros.forEach(cidade => {
                         //console.log("Cidade e value", cidade, Object.keys(cidade), value)
                         if(Object.keys(cidade)[0] == selecao){
                             objD = objD.concat(cidade[Object.keys(cidade)[0]]);
@@ -479,8 +513,23 @@
                     columns: ['data'],
                     rows: []
                 }
-                
-                buscas[informacao][keyBusca].forEach((notificacao, index) =>{
+                buscaResponse = []
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": informacao, "keyBusca": keyBusca},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    },
+                    error: function (response) {
+                        console.log("erro na requisição atual, ou ela foi cancelada")
+                    }
+                })
+
+                buscaResponse.forEach((notificacao, index) =>{
                     if( keyBusca=='brasil' ||
                         ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
                         ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
@@ -496,11 +545,11 @@
                             if(keyBusca != 'estados2' && keyBusca != 'cidades2' && keyBusca != 'brasil'){
                                 for(i = 0; i < index; i++){
                                     if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
-                                        (keyBusca=='bairros' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase()) ||
+                                        (keyBusca=='bairros' && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscaResponse[i]['bairro'].toLowerCase())){
                                         
-                                        acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
+                                        acumulado += buscaResponse[i]['quantidade_casos']
                                     }
                                 }
                             }
@@ -522,10 +571,10 @@
                             else if(index > 0){
                                 for(i = index - 1; i >= 0; i--){
                                     if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase())){
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase())){
                                         chart2.rows.push({
-                                            [label] : notificacao.quantidade_casos - buscas[informacao][keyBusca][i]['quantidade_casos'],
+                                            [label] : notificacao.quantidade_casos - buscaResponse[i]['quantidade_casos'],
                                             'data' : notificacao.data_notificacao
                                         })
                                         break
@@ -585,11 +634,11 @@
             },
             sortChart(chart){
                 chart.rows.sort(function(a, b){ 
-                    const yearA = parseInt(a.data[0]+a.data[1]+a.data[2]+a.data[3])
+                    const yearA = parseInt(a.data+a.data[1]+a.data[2]+a.data[3])
                     const monthA = parseInt(a.data[5]+a.data[6])
                     const dayA = parseInt(a.data[8]+a.data[9])
 
-                    const yearB = parseInt(b.data[0]+b.data[1]+b.data[2]+b.data[3])
+                    const yearB = parseInt(b.data+b.data[1]+b.data[2]+b.data[3])
                     const monthB = parseInt(b.data[5]+b.data[6])
                     const dayB = parseInt(b.data[8]+b.data[9])
                     return new Date(yearA, monthA, dayA) - new Date(yearB, monthB, dayB); 
@@ -757,7 +806,8 @@
     });
     //Filter module
     var obj = [];
-    data[0].estados.forEach(estado => {
+
+    data.estados.forEach(estado => {
         obj.push(estado.nome);
         
     });
@@ -769,16 +819,16 @@
     var estadoS = []
     var folder = "../static/graficos/modelos/";
 
-    //console.log(data[0].estados)
+    //console.log(data.estados)
     estadoS.push('Projecao de Confirmados no Brasil')
     estadoS.push('Projecao de Óbitos no Brasil')
-    data[0].estados.forEach(estado => {
+    data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSigla', estadoS)
 
     estadoS = []
-    data[0].estados.forEach(estado => {
+    data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
     Vue.set(app, 'estadosSiglaDashboard', estadoS)
