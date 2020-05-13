@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 # Create your models here.
 class UserProfileInfo(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
+    email = models.CharField(max_length = 150, null=True)
+    instituicao = models.CharField(max_length = 150, null=True)
     def __str__(self):
         return self.user.username
 
@@ -53,6 +55,47 @@ class Interpolation(models.Model):
     longitude = models.FloatField(null=True)
     prediction = models.FloatField(null=True)
     date = models.DateField(null=True)
+
+class CasosEstado(models.Model):
+    data_atualizacao = models.DateField(null=True)
+    estado = models.CharField(max_length = 150, null=True)
+    confirmados = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
+class CasosEstadoHistorico(models.Model):
+    data_notificacao = models.DateField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    quantidade_casos = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
+class CasosCidade(models.Model):
+    data_notificacao = models.DateField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    municipio = models.CharField(max_length = 150, null=True)
+    quantidade_casos = models.IntegerField(null=True)
+    obitos = models.IntegerField(null=True)
+    populacao_estimada_2019 = models.IntegerField(null=True)
+    confirmados_100k = models.FloatField(null=True)
+
+class Projecao(models.Model):
+    data_notificacao = models.DateField(null=True)
+    quantidade_casos = models.IntegerField(null=True)
+    estado_residencia = models.CharField(max_length = 150, null=True)
+    lo80 = models.IntegerField(null=True)
+    hi80 = models.IntegerField(null=True)
+    lo95 = models.IntegerField(null=True)
+    hi95 = models.IntegerField(null=True)
+
+class CasosPernambuco(models.Model):
+    data_atualizacao = models.DateField(null=True)
+    obitos = models.IntegerField(null=True)
+    recuperados = models.IntegerField(null=True)
+    isolamento = models.IntegerField(null=True)
+    internados = models.IntegerField(null=True)
 
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)

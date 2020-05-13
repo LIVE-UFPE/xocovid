@@ -14,9 +14,11 @@
             style="z-index: 1"
           >
           <!-- style="" -->
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon disabled></v-app-bar-nav-icon>
             
-            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">Logo</v-toolbar-title>
+            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+              <img style="margin-left: 30px;height: 25px;" src='../static/logo/logoWhite.png'/>
+            </v-toolbar-title>
       
             <v-spacer></v-spacer>
 
@@ -222,7 +224,7 @@
         
             <v-btn disabled style="background-color: white !important;" >
               <div class="text-center">
-                <v-list-item-title style="color:#1E9CF8;font-size: x-large;"><b>[[datedb.toLocaleString('en-GB').substring(0,10)]]</b></v-list-item-title>
+                <v-list-item-title style="color:#1E9CF8;font-size: x-large;"><b>[[datedb.toISOString().substring(0,10)]]</b></v-list-item-title>
               </div> 
             </v-btn>
         
@@ -331,10 +333,9 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <covid-map :pins="pins" :datedb="datedb" :predicts="useIa ? predicts : []" ></covid-map>
+      <covid-map :datedb="datedb" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorint="maiorint" ></covid-map>
     </v-app>
   </div>
 </html>
 
 {% endblock %}
-

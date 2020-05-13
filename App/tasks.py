@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation
+from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
 import json
 import requests
 import pandas
@@ -8,8 +8,13 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-import App.IA.pipeline as pipe
+# import App.IA.pipeline as pipe
 from django.utils import timezone
+import App.predicao_arima.stateCityData as bot
+import App.predicao_arima.pipelineArima as pipelineArima
+from distutils.dir_util import copy_tree
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 collum_names = [
   'ID',      
@@ -48,6 +53,36 @@ collum_names = [
   #'Longitude'
 ]
 
+stateName = {
+    'AC': 'Acre',
+    'AL': 'Alagoas',
+    'AP': 'Amapá',
+    'AM': 'Amazonas',
+    'BA': 'Bahia',
+    'CE': 'Ceará',
+    'DF': 'Distrito Federal',
+    'ES': 'Espírito Santo',
+    'GO': 'Goiás',
+    'MA': 'Maranhão',
+    'MT': 'Mato Grosso',
+    'MS': 'Mato Grosso do Sul',
+    'MG': 'Minas Gerais',
+    'PA': 'Pará',
+    'PB': 'Paraíba',
+    'PR': 'Paraná',
+    'PE': 'Pernambuco',
+    'PI': 'Piauí',
+    'RJ': 'Rio de Janeiro',
+    'RN': 'Rio Grande do Norte',
+    'RS': 'Rio Grande do Sul',
+    'RO': 'Rondônia',
+    'RR': 'Roraima',
+    'SC': 'Santa Catarina',
+    'SP': 'São Paulo',
+    'SE': 'Sergipe',
+    'TO': 'Tocantins'
+}
+
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
 BASE_NAME = 'base_original.csv'
 #BASE_NAME = 'base_preprocessada.csv'
@@ -58,7 +93,7 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    try:
+    """try:
         df = pandas.read_csv(
             PATH_FILES+BASE_NAME,
             header = 0,
@@ -69,15 +104,197 @@ def listener():
     
         store_base(df)
 
-        #build_IAbase()
+        build_IAbase()
 
-        #prediction()
+        prediction()
 
-        #send_prediction_to_db()
+        send_prediction_to_db()
     except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")
+        print("Nenhuma base de dados para ser pre_processada")"""
+    
+    #print("Extraindo informações de outras bases")
+    #bot.processingData()
+    #storeBot()
+    #print("Executando predicoes do Arima")
+    #pipelineArima.main()
+    saveImages()
+    storeProjections()
+    getCasosPernambuco()
     
     print("Listener parado")
+
+def getCasosPernambuco():
+    print("Extraindo casos de Pernambuco")
+    content = urlopen("https://dados.seplag.pe.gov.br/apps/corona_dados.html")
+    res = BeautifulSoup(content.read(), "html.parser")
+    tags = res.findAll("script")
+
+    casos = str(tags[21])
+    inicio = casos.index('{')
+    casos = casos[inicio:]
+    casos = casos.replace("</script>", "")
+
+    casos_dict = json.loads(casos)
+
+    casos_data = pandas.DataFrame()
+
+    cols = ['dt_referencia', 'dt_atualizacao','confirmados','obitos','tx_obitos','recuperados', 
+    'tx_recuperados','isolamento','tx_isolamento','enfermaria','tx_enfermaria','uti','tx_uti',
+    'testes_novos','testes_acumulados','tx_testes','leitos_uti','tx_oc_uti','leitos_enf','tc_oc_enf']
+
+
+    data = casos_dict["x"]["data"]
+
+
+    for i, coluna in enumerate(data):
+        casos_data[cols[i]] = coluna
+    print("passei daqui")
+
+    print('Armazenando casos')
+    
+    CasosPernambuco.objects.all().delete()
+    casoPernambuco = CasosPernambuco(
+        data_atualizacao = casos_data.iloc[-1]['dt_atualizacao'], 
+        obitos = casos_data.iloc[-1]['obitos'], 
+        recuperados = casos_data.iloc[-1]['recuperados'], 
+        isolamento = casos_data.iloc[-1]['isolamento'],
+        internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
+    casoPernambuco.save()
+
+
+def storeProjections():
+    print("Armazenando projecoes")
+
+    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'
+    Projecao.objects.all().delete()
+    for fileName in os.listdir(pasta):
+        if fileName.find('.png') == -1:
+            a = pandas.read_csv(pasta+fileName, sep=',')
+            a = a.replace({np.nan: None})
+
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]
+            
+            if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]]
+            elif fileEstadoNome == 'BrasilConfirmados':
+                nomeEstado = 'Projecao de Confirmados no Brasil'
+            else:
+                nomeEstado = 'Projecao de Óbitos no Brasil'
+
+            print('Armazenando projecoes de ' + nomeEstado)
+                
+            projections = []
+            for index, row in a.iterrows():
+                data_notificacao = buildDate(row['dt_notificacao'])
+
+                if pandas.notnull(row['acumulado_confirmados']):
+                    quantidade_casos = round(row['acumulado_confirmados'])
+                else:
+                    quantidade_casos = None
+
+                if pandas.notnull(row['Lo.80']):
+                    lo80 = round(row['Lo.80'])
+                else:
+                    lo80 = None
+                
+                if pandas.notnull(row['Hi.80']):
+                    hi80 = round(row['Hi.80'])
+                else:
+                    hi80 = None
+
+                if pandas.notnull(row['Lo.95']):
+                    lo95 = round(row['Lo.95'])
+                else:
+                    lo95 = None
+                
+                if pandas.notnull(row['Hi.95']):
+                    hi95 = round(row['Hi.95'])
+                else:
+                    hi95 = None
+                
+                projecao = Projecao(data_notificacao=data_notificacao, quantidade_casos=quantidade_casos, lo80=lo80, hi80=hi80, lo95=lo95, hi95=hi95, estado_residencia=nomeEstado)
+
+                projecao.save()
+
+def saveImages():
+    print("Salvando Imagens no database")
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelos"
+    copy_tree(original, target)
+    
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicoes"
+    copy_tree(original, target)
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecoes"
+    copy_tree(original, target)
+
+def storeBot():
+    print("Armazenando extrações")
+
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
+    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por cidade.csv', sep=',')
+
+    estados = []
+    for index, row in dfEstados.iterrows():
+            estados.append([row['date'], row['state'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    estadosHistorico = []
+    for index, row in dfEstadosHistorico.iterrows():
+            estadosHistorico.append([row['date'], stateName[row['state']], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    cidades = []
+    for index, row in dfCidades.iterrows():
+        if pandas.notnull(row['estimated_population_2019']):
+            cidades.append([row['date'], stateName[row['state']], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    CasosEstado.objects.all().delete()
+    CasosEstadoHistorico.objects.all().delete()
+    CasosCidade.objects.all().delete()
+
+    objs = [
+        CasosEstado(
+            data_atualizacao=m[0],
+            estado=m[1],
+            confirmados=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estados
+    ]
+    CasosEstado.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosEstadoHistorico(
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            quantidade_casos=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estadosHistorico
+    ]
+    CasosEstadoHistorico.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosCidade(
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            municipio = m[2],
+            quantidade_casos=m[3],
+            obitos=m[4],
+            populacao_estimada_2019 = m[5],
+            confirmados_100k = m[6],
+        )
+        for m in cidades
+    ]
+    CasosCidade.objects.bulk_create(objs=objs)
 
 def send_prediction_to_db():
     Prediction.objects.all().delete()
@@ -213,7 +430,7 @@ def build_IAbase():
 def store_base(df):
     pasta = PATH_FILES+'bases predicao/'
 
-    """Interpolation.objects.all().delete()
+    Interpolation.objects.all().delete()
 
     for fileName in os.listdir(pasta):
         a = pandas.read_csv(pasta+fileName, sep=',')
@@ -233,7 +450,7 @@ def store_base(df):
             )
             for m in interporlations
         ]
-        Interpolation.objects.bulk_create(objs=objs)"""
+        Interpolation.objects.bulk_create(objs=objs)
 
     df = df.replace({np.nan: None})
     for index, row in df.iterrows():
@@ -286,6 +503,12 @@ def store_base(df):
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
+
+        if notification.estado_residencia != 'Pernambuco':
+            notification.estado_residencia = 'Pernambuco'
+            notification.municipio = 'Recife'
+            notification.bairro = 'Boa Viagem'
+
         notification.save()
 
 def pre_processing(df):
@@ -553,6 +776,13 @@ def buildDate(original_date):
         if dateBuilded == False:
             try:
                 result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y-%m-%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0]+'/2020','%d/%m/%Y')
                 dateBuilded = True
             except ValueError:
                 pass

@@ -19,24 +19,96 @@ module.exports = {
             heatmap: null,
             txtsnack: 'Oi',
             snackbar: false,
+            pins: [],
+            request: null
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
     props: {
-        pins: Array,
         datedb: Date,
         predicts: Array,
+        lastinterpol: Date,
+        maiorint: Number,
     },
-    mounted: function (){
+    methods: {
+        getpins(){
+            console.log(`datedb é ${this.datedb.toISOString()}`)
+            if (this.request != null) {
+                this.request.abort();
+                // console.log('cancelando requisição anterior')
+            }
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get/ajax/pins",
+                // TODO ajeitar async call
+                data: {"day": this.datedb.toISOString().substring(0,10)},
+                success: function (response) {
+                    // seta pins
+                    this.request = null
+                    this.pins = response
+                    // console.log('acabei AGORA os pins')
+                    // console.log(this.pins)
+                    let pinsLen = this.pins.length;
+                    let pins_heat = [];
+                    let maior_int = 0.0
+                    let menor_int = 0.0
+                    // TODO não precisar iterar de novo aqui
+                    for( var i = 0; i < pinsLen; i++){
+                        pins_heat.push({
+                        'lat': this.pins[i].latitude,
+                        'lng': this.pins[i].longitude,
+                        'intensidade': this.pins[i].intensidade,
+                        })
+                        if(maior_int < this.pins[i].intensidade) maior_int = this.pins[i].intensidade;
+                        if(menor_int > this.pins[i].intensidade) menor_int = this.pins[i].intensidade;
+                    }
+                    this.heatmap.reconfigure({
+                        gradient: {
+                            '.3': 'green',
+                            '.65': 'yellow',
+                            '1': 'red',
+                        },
+                        //? raio em pixels (na proporção 1/2 pixel/metro)
+                        // TODO ajustar raio e formula de raio em todo canto
+                        'radius': this.radius,
+                        'scaleRadius': false,
+                        latField: 'lat',
+                        lngField: 'lng',
+                        valueField: 'intensidade',
+                        "useLocalExtrema": false,
+                        'maxOpacity': .7,
+                    })
+                    this.heatmap.setData({
+                        // max: maior_int,
+                        max: this.maiorint,
+                        min: 0,
+                        data: pins_heat,
+                    });
+
+                    console.log(`adicionando um total de ${pinsLen} no mapa`)
+                    console.log(`maior intensidade do DB é ${this.maiorint}, a dessa interpolação é de ${maior_int}`)
+                    
+                    this.txtsnack = "Mapa de calor atualizado!"
+                    this.snackbar = true
+                },
+                error: function (response) {
+                    console.log("erro na requisição atual, ou ela foi cancelada")
+                }
+            })
+        }
+    },
+    mounted() {
+
         // TODO resolve location
         if(!("geolocation" in navigator)){
-            console.log('fazer oq qd n tem localizaçao??');
+            // console.log('fazer oq qd n tem localizaçao??');
             //TODO fazer isso aq, agr é o centro de recife
             this.position = L.latLng(-8.046, -34.927);
         }else{
             // get position, runs asyncly
             navigator.geolocation.getCurrentPosition(pos => {
-                console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
+                //console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
                 this.position = L.latLng(pos.coords.latitude,pos.coords.longitude);
                 try{
                     this.mymap = L.map('mapid').setView(this.position, 13);
@@ -58,23 +130,16 @@ module.exports = {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de Recife
             maxZoom: 18,
-            minZoom: 12,
+            minZoom: 9,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(this.mymap);
 
-
-        let pinsLen = this.pins.length;
-        let pins_heat = [];
-        for( var i = 0; i < pinsLen; i++){
-            pins_heat.push({
-                'lat': this.pins[i].latitude,
-                'lng': this.pins[i].longitude,
-                'intensidade': 0.35,
-            })
-        }
+        this.getpins()
+        this.txtsnack = 'Carregando pontos...'
+        this.snackbar = true
 
         this.heatmap = new HeatmapOverlay({
             gradient: {
@@ -83,7 +148,8 @@ module.exports = {
                 '1': 'red',
             },
             //? raio em pixels (na proporção 1/2 pixel/metro)
-            'radius': 50,
+            // TODO ajustar raio e formula de raio em todo canto
+            'radius': this.radius,
             'scaleRadius': false,
             latField: 'lat',
             lngField: 'lng',
@@ -95,12 +161,6 @@ module.exports = {
 
         this.heatmap.addTo(this.mymap);
 
-        this.heatmap.setData({
-            max: 1,
-            min: 0,
-            data: pins_heat,
-        });
-
         this.mymap.on('zoomend', function(ev) {
             if ( ev.target._zoom >= 14 ) {
                 let config = {
@@ -109,7 +169,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': 50,
+                    'radius': 25,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -120,7 +180,7 @@ module.exports = {
                     'blur': 0.85,
                 };
                 console.log('mudando raio para '+ config.radius.toString()+'\n');
-                console.log(ev.target);
+                // console.log(ev.target);
                 let id = 0
                 while(true){
                     try {
@@ -140,7 +200,7 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': Math.floor( 50 / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                    'radius': Math.floor( 25 / ( Math.pow(2,14 - ev.target._zoom) ) ),
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -152,7 +212,7 @@ module.exports = {
 
                 };
                 console.log('mudando raio para '+ config.radius.toString()+'\n');
-                console.log(ev.target);
+                // console.log(ev.target);
                 let id = 0
                 while(true){
                     try {
@@ -168,7 +228,6 @@ module.exports = {
             }
         });
 
-        console.log(`adicionando um total de ${pinsLen} no mapa`)
     },
     computed: {
         // * abreviado de datewatch: function (){}
@@ -177,19 +236,18 @@ module.exports = {
         },
         radius() {
             let zum = this.mymap.getZoom();
-            if ( zum >= 14 ) return 50;
-            else return Math.floor( 50 / ( Math.pow(2,14 - zum) ) );
+            if ( zum >= 14 ) return 25;
+            else return Math.floor( 25 / ( Math.pow(2,14 - zum) ) );
         }
     },
     watch: {
-        // ? mudar o array de entrada do heatmap de acordo com o botão pressionado em home.html
         // * abreviado de datewatch: function (){}
         datewatch() {
             let pins_heat = [];
-            let config = {};
             // DEBUG lista pro console.log
-            let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toLocaleString('en-GB') + '\n';
+            let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toISOString() + '\n';
             let qtd_pins_excluidos = 0
+            let qtd_pins_inseridos = 0
             let predLen = this.predicts.length;
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
@@ -200,10 +258,12 @@ module.exports = {
             // * insere array de predições, vazio caso não seja hora de inserir
             if (predLen != [].length) {
                 // ? datedb tem horário 23:59:58
-                let data = new Date();
+
+                let data = new Date(this.lastinterpol);
                 let data_intensidade = '';
                 data.setHours(23,59,59);
                 data.setDate( data.getDate() + 1 );
+                console.log(`lastinterpol é ${this.lastinterpol} e data ${data.toISOString()}`);
                 if( this.datedb < data ){
                     data_intensidade = '1';
                     this.txtsnack = 'Os dados agora são previstos pela IA';
@@ -228,51 +288,14 @@ module.exports = {
                     media += this.predicts[i].intensidade
                 }
                 cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+'\nMédia: ' + (media/predLen).toString() +'\nIntensidade: '+data_intensidade+'\nRaio: '+ this.radius.toString()+'\n';
-                config = {
-                    gradient: {
-                        '.3': 'green',
-                        '.65': 'yellow',
-                        '1': 'red',
-                    },
-                    'radius': this.radius,
-                    'scaleRadius': false,
-                    latField: 'lat',
-                    lngField: 'lng',
-                    valueField: 'intensidade',
-                    "useLocalExtrema": false,
-                    'minOpacity': 0,
-                    'maxOpacity': .7,
-                    'blur': 0.85,
-
-                };
-            }else{
-                let pinsLen = this.pins.length;
-                let data_notification = new Date();
-                // * pega os pins que batem com a data desejada ou antes e joga em pins_heat
-                for( var i = 0; i < pinsLen; i++){
-
-                    // TODO think of UTC issue
-                    data_notification = new Date(this.pins[i].data_notificacao);
-                    // pega somente os pins cuja data antecede a desejada pelo usuario (menor ou igual)
-                    if (data_notification <= this.datedb){
-                        pins_heat.push({
-                            'lat': this.pins[i].latitude,
-                            'lng': this.pins[i].longitude,
-                            'intensidade': 0.35,
-                        })
-                    }else{
-                        cons_log += 'pin com data ' + data_notification.toISOString() + '\n';
-                        qtd_pins_excluidos += 1;
-                    }
-                }
-                cons_log += '\nQuantidade de pins não inseridos: ' + qtd_pins_excluidos.toString() + '\n';
-                config = {
+                this.heatmap.reconfigure({
                     gradient: {
                         '.3': 'green',
                         '.65': 'yellow',
                         '1': 'red',
                     },
                     //? raio em pixels (na proporção 1/2 pixel/metro)
+                    // TODO ajustar raio e formula de raio em todo canto
                     'radius': this.radius,
                     'scaleRadius': false,
                     latField: 'lat',
@@ -280,16 +303,20 @@ module.exports = {
                     valueField: 'intensidade',
                     "useLocalExtrema": false,
                     'maxOpacity': .7,
-                };
+                })
+                this.heatmap.setData({
+                    // max: maior_int,
+                    max: this.maiorint,
+                    min: 0,
+                    data: pins_heat
+                });
+                cons_log += 'maior intensidade do DB é de ' + this.maiorint.toString() +'\n'
+                console.log(cons_log)
+            }else{
+                this.getpins()
+                this.txtsnack = 'Carregando pontos...'
+                this.snackbar = true
             }
-
-            this.heatmap.reconfigure(config)
-            this.heatmap.setData({
-                max: maior_int == 0.0 ? 1 : maior_int,
-                min: menor_int,
-                data: pins_heat
-            });
-            console.log(cons_log)
         }
     }
 }

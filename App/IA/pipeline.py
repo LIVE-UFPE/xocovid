@@ -6,7 +6,7 @@ import App.IA.predicao as predicao
 
 def main():
     print("Inicio do pipeline")
-    pre_processing.main()
+    # pre_processing.main()
     casesbyday.main()
     interpolacao.main()
     predicao.main()
