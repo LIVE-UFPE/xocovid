@@ -95,8 +95,8 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DB_NAME', 'd1ibhu3tsi7ghj'),
         'USER': os.environ.get('DB_USER', 'tslryogoucxpjv'),
-        'PASSWORD': os.environ.get('DB_PASS', '53d3caaf2ac40618ad2b45d061db6aef1d4ca1ce63610281270c1816eb61c29b'),
-        'HOST': 'ec2-52-202-146-43.compute-1.amazonaws.com',
+        'PASSWORD': os.environ.get('DB_PASS', '32432025'),
+        'HOST': '172.20.36.172',
         'PORT': '5432'
     }
 }"""

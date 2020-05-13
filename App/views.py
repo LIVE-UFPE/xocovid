@@ -17,6 +17,8 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 
+LIBERAR_ACESSO = True
+
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
 # ? index é uma function view. uma função que retorna a view requisitada
 def index(request):
@@ -26,10 +28,9 @@ def base(request):
     return render(request, 'base.html')
 
 def graphs(request):
-    if request.user.is_authenticated == False:
+    if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        #jahkdjsa
         buscas = {
             'PieChartData': list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados')),
             'Casos Estado' : list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019')),
@@ -91,7 +92,7 @@ def graphs(request):
         return render(request, 'graphs.html', {'buscas': buscas})
 
 def home(request):
-    if request.user.is_authenticated == False:
+    if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
         context = {}
@@ -124,37 +125,35 @@ def home(request):
         return render(request, 'home.html', context)
 
 def get_pins(request):
-    if request.user.is_authenticated == False:
-        return user_login(request)
-    else:
-        # ? starting trial to use AJAX
-        if request.is_ajax and request.method == "GET":
-            day = request.GET.get("day")
-            notifications = []
-            print('day é', day)
-                        
-            for notification in Interpolation.objects.filter(date__exact= day):
-                notifications.append({
-                    "latitude": notification.latitude,
-                    "longitude": notification.longitude,
-                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
-                    "intensidade": notification.prediction
-                })
-            print('enviando',len(notifications), 'pontos')
-            
-            return JsonResponse(notifications, safe=False)
-            # TODO get predictions
-        else: return JsonResponse({error: "deu erro aí"})
-        # # DEBUG type test
-        # print("De",len(notifications),",",null_notes,"tem dados nulos")
+    # ? starting trial to use AJAX
+    if request.is_ajax and request.method == "GET":
+        day = request.GET.get("day")
+        notifications = []
+        print('day é', day)
+                    
+        for notification in Interpolation.objects.filter(date__exact= day):
+            notifications.append({
+                "latitude": notification.latitude,
+                "longitude": notification.longitude,
+                "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                "intensidade": notification.prediction
+            })
+        print('enviando',len(notifications), 'pontos')
+        
+        return JsonResponse(notifications, safe=False)
+        # TODO get predictions
+    else: return JsonResponse({error: "deu erro aí"})
+    # # DEBUG type test
+    # print("De",len(notifications),",",null_notes,"tem dados nulos")
 
 @login_required
 def tela_exemplo(request, id):
     return render(request, 'exemplo/tela_exemplo.html', {'id':id,})
 
-@login_required
 def user_logout(request):
-    logout(request)
+    if request.user.is_authenticated:
+        logout(request)
+
     return HttpResponseRedirect(reverse('user_login'))
 
 def register(request):
@@ -194,7 +193,7 @@ def register(request):
     return render(request,'registration.html',context)
 
 def user_login(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated or LIBERAR_ACESSO == True:
         return home(request)
     else:
         if request.method == 'POST':
