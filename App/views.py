@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
+from .models import UserProfileInfo, Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
@@ -15,6 +15,7 @@ from datetime import date, datetime
 from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
+from django.contrib.auth.models import User
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
 # ? index é uma function view. uma função que retorna a view requisitada
@@ -161,8 +162,10 @@ def register(request):
 
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
-        accesskey = AccessKey.objects.filter(key=request.POST['id'])
-        if user_form.is_valid() and accesskey:
+        #accesskey = AccessKey.objects.filter(key=request.POST['id'])
+        
+        #if user_form.is_valid() and accesskey:
+        if user_form.is_valid():
             ''' Begin reCAPTCHA validation '''
             recaptcha_response = request.POST.get('g-recaptcha-response')
             data = {
@@ -174,15 +177,17 @@ def register(request):
             ''' End reCAPTCHA validation '''
 
             if result['success']:
-                if accesskey[0].used == False:
-                    user = user_form.save()
-                    user.set_password(user.password)
-                    user.save()
+                #if accesskey[0].used == False:
+                user = user_form.save()
+                user.set_password(user.password)    
+                user.save()
 
-                    accesskey[0].used = True
-                    accesskey[0].save()
+                UserProfileInfo(user=user, email=request.POST['email'], instituicao=request.POST['instituicao']).save()
 
-                    return HttpResponseRedirect(reverse('user_login'))
+                #accesskey[0].used = True
+                #accesskey[0].save()
+
+                return HttpResponseRedirect(reverse('user_login'))
                         
         context['register_error'] = 'true'
     
@@ -200,10 +205,12 @@ def user_login(request):
             else:
                 kwargs = {'username': username}
             try:
-                user = get_user_model().objects.get(**kwargs)
+                username = get_user_model().objects.get(**kwargs)
             except User.DoesNotExist:
-                user = None
-                
+                username = None
+
+            user = authenticate(username=username, password=password)
+
             if user:
                 if user.is_active:
                     ''' Begin reCAPTCHA validation '''
