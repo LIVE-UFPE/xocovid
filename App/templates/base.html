@@ -103,11 +103,6 @@
     {% else %}
         var predicts = ['']
     {% endif %}
-    {% if buscas %}
-        var buscas= {{ buscas|safe }}
-    {% else %}
-        var buscas = ['']
-    {% endif %}
     {% if data %}
         var data= {{ data|safe }}
     {% else %}
@@ -285,7 +280,6 @@
             maiorint: maior_int,
         }),
         mounted: function (){
-            
             this.$nextTick(function () {
                 this.setDashboardBrasil()
                 this.jobDash('Pernambuco - PE')
@@ -337,34 +331,58 @@
                 //pieData.rows[3]['Percentual'] = (pieData.rows[3]['valor']/(pieData.rows[0]['valor']+pieData.rows[1]['valor']+pieData.rows[2]['valor']+pieData.rows[3]['valor']))*100
                 Vue.set(app, 'chartDataPie', pieData)*/
 
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'PieChartData', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
                 var pieData = {
                     'columns': ['eixo', 'valor'],
-                    'rows': [{'eixo': 'Isolamento Domiciliar', 'valor': buscas['PieChartData'][0]['isolamento']},
-                             {'eixo': 'Internado', 'valor': buscas['PieChartData'][0]['internados']},
-                             {'eixo': 'Óbitos', 'valor': buscas['PieChartData'][0]['obitos']},
-                             {'eixo': 'Recuperados', 'valor': buscas['PieChartData'][0]['recuperados']}]
+                    'rows': [{'eixo': 'Isolamento Domiciliar', 'valor': buscaResponse[0]['isolamento']},
+                             {'eixo': 'Internado', 'valor': buscaResponse[0]['internados']},
+                             {'eixo': 'Óbitos', 'valor': buscaResponse[0]['obitos']},
+                             {'eixo': 'Recuperados', 'valor': buscaResponse[0]['recuperados']}]
                 }
 
                 Vue.set(app, 'chartDataPie', pieData)
             },
+            
             jobDash: function (estado){
                 // ? dados: nObitos nCasos nRecuperados nConf
                 // ! dashboard de PE tem obitos totais, obitos diarios, recuperados totais e letalidade em PE
-                
-                this.jobObitosTotais = buscas['Casos Estado'].find(function(iter){
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
+                this.jobObitosTotais = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){    
                         return iter
                     }
                 })['obitos']
                 //console.log(this.jobObitosTotais)
                 
-                this.jobConfRel = buscas['Casos Estado'].find(function(iter){
+                this.jobConfRel = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){
                         return iter
                     }
                 })['confirmados_100k']
 
-                this.jobConf = buscas['Casos Estado'].find(function(iter){
+                this.jobConf = buscaResponse.find(function(iter){
                     if(iter['estado'] == estado.split("- ").pop()){
                         return iter
                     }
@@ -379,13 +397,24 @@
                 var conf_100k = 0
                 var letalidade = 0
 
-                buscas['Casos Estado'].forEach(estado => {
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
+                buscaResponse.forEach(estado => {
                    obitos += estado['obitos']
                    confirmados += estado['confirmados']
                    conf_100k += estado['confirmados_100k']
                 })
                 letalidade = (obitos/confirmados) * 100
-                conf_100k = conf_100k/buscas['Casos Estado'].length
+                conf_100k = conf_100k/buscaResponse.length
                 Vue.set(app, 'nObitosBrasil', obitos)
                 Vue.set(app, 'nConfirmadosBrasil', confirmados)
                 Vue.set(app, 'n100kBrasil', Math.round(conf_100k * 100) / 100)
@@ -484,8 +513,23 @@
                     columns: ['data'],
                     rows: []
                 }
-                
-                buscas[informacao][keyBusca].forEach((notificacao, index) =>{
+                buscaResponse = []
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": informacao, "keyBusca": keyBusca},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    },
+                    error: function (response) {
+                        console.log("erro na requisição atual, ou ela foi cancelada")
+                    }
+                })
+
+                buscaResponse.forEach((notificacao, index) =>{
                     if( keyBusca=='brasil' ||
                         ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
                         ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
@@ -501,11 +545,11 @@
                             if(keyBusca != 'estados2' && keyBusca != 'cidades2' && keyBusca != 'brasil'){
                                 for(i = 0; i < index; i++){
                                     if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase()) ||
-                                        (keyBusca=='bairros' && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscas[informacao][keyBusca][i]['bairro'].toLowerCase())){
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase()) ||
+                                        (keyBusca=='bairros' && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscaResponse[i]['bairro'].toLowerCase())){
                                         
-                                        acumulado += buscas[informacao][keyBusca][i]['quantidade_casos']
+                                        acumulado += buscaResponse[i]['quantidade_casos']
                                     }
                                 }
                             }
@@ -527,10 +571,10 @@
                             else if(index > 0){
                                 for(i = index - 1; i >= 0; i--){
                                     if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscas[informacao][keyBusca][i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscas[informacao][keyBusca][i]['municipio'].toLowerCase())){
+                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
+                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase())){
                                         chart2.rows.push({
-                                            [label] : notificacao.quantidade_casos - buscas[informacao][keyBusca][i]['quantidade_casos'],
+                                            [label] : notificacao.quantidade_casos - buscaResponse[i]['quantidade_casos'],
                                             'data' : notificacao.data_notificacao
                                         })
                                         break
@@ -762,6 +806,7 @@
     });
     //Filter module
     var obj = [];
+
     data.estados.forEach(estado => {
         obj.push(estado.nome);
         
