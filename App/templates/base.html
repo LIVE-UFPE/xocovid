@@ -286,6 +286,7 @@
                 //console.log()
                 if(template == 'graphs'){
                     this.setDashboardBrasil()
+                    
                     this.jobDash('Pernambuco - PE')
 
                     this.filtro(['Projeção média esperada', /*'lo80', 'hi80',*/ 'Melhor cenário', 'Pior cenário'], ['Pernambuco'], null, null, 'chartProjecao', ['acumulados'])
@@ -293,19 +294,6 @@
                     //this.filtro(['Casos Suspeitos'], ['Pernambuco'], null, null, 'chartDataS', ['diários'])
                     this.filtro(['Casos Confirmados', 'Casos Confirmados'], ['Pernambuco'], null, null, 'chartData', ['diários', 'acumulados'])
                     this.filtro(['Casos Confirmados', 'Óbitos'/*, 'Recuperados'*/], ['Pernambuco'], null, null, 'chartDataSA', ['acumulados'])
-
-                    // informacoes, estados, cidades, bairros, chartName, diaouacu, base
-                    chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['acumulados'])
-                    Vue.set(app, 'nObitos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
-
-                    chart = this.filtro(['Óbitos'], ['Pernambuco'], null, null, '', ['diários'])
-                    Vue.set(app, 'nCasos', Math.round(chart.rows[chart.rows.length-1]['Óbitos em Pernambuco'])) // Setando dashboard
-
-                    chart = this.buildTaxaChart('Letalidade', 'acumulados', 'Pernambuco', '', '')
-                    Vue.set(app, 'nConf', Math.round(chart.rows[chart.rows.length-1]['Letalidade em Pernambuco'] * 100) / 100 ) // Setando dashboard
-
-                    //chart = this.filtro(['Recuperados'], ['Pernambuco'], null, null, '', ['acumulados'])
-                    //Vue.set(app, 'nRecuperados', chart.rows[chart.rows.length-1]['Recuperados em Pernambuco']) // Setando dashboard
 
                     this.setPieChart()
 
@@ -342,7 +330,7 @@
                     context: this,
                     type: 'GET',
                     url: "get_data",
-                    data: {"informacao": 'PieChartData', "keyBusca": ''},
+                    data: {"informacao": 'PieChartData', "keyBusca": '', "estado": '', "cidade": '', "bairro": ''},
                     async: false,
                     success: function (response) {
                         buscaResponse = JSON.parse(response)
@@ -369,31 +357,19 @@
                     context: this,
                     type: 'GET',
                     url: "get_data",
-                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    data: {"informacao": 'Casos Estado', "keyBusca": '', "estado": estado.split("- ").pop(), "cidade": '', "bairro": ''},
                     async: false,
                     success: function (response) {
-                        buscaResponse = JSON.parse(response)
+                        buscaResponse = JSON.parse(response)[0]
                     }
                 })
 
-                this.jobObitosTotais = buscaResponse.find(function(iter){
-                    if(iter['estado'] == estado.split("- ").pop()){    
-                        return iter
-                    }
-                })['obitos']
+                this.jobObitosTotais = buscaResponse['obitos']
                 //console.log(this.jobObitosTotais)
                 
-                this.jobConfRel = buscaResponse.find(function(iter){
-                    if(iter['estado'] == estado.split("- ").pop()){
-                        return iter
-                    }
-                })['confirmados_100k']
+                this.jobConfRel = buscaResponse['confirmados_100k']
 
-                this.jobConf = buscaResponse.find(function(iter){
-                    if(iter['estado'] == estado.split("- ").pop()){
-                        return iter
-                    }
-                })['confirmados']
+                this.jobConf = buscaResponse['confirmados']
                 // obitos / casos confirmados
                 this.jobLetalidade = (this.jobObitosTotais / this.jobConf) * 100
                 
@@ -409,7 +385,7 @@
                     context: this,
                     type: 'GET',
                     url: "get_data",
-                    data: {"informacao": 'Casos Estado', "keyBusca": ''},
+                    data: {"informacao": 'Casos Estado', "keyBusca": '', "estado": '', "cidade": '', "bairro": ''},
                     async: false,
                     success: function (response) {
                         buscaResponse = JSON.parse(response)
@@ -527,7 +503,7 @@
                     context: this,
                     type: 'GET',
                     url: "get_data",
-                    data: {"informacao": informacao, "keyBusca": keyBusca},
+                    data: {"informacao":informacao, "keyBusca":keyBusca, "estado":estado, "cidade":cidade, "bairro":bairro},
                     async: false,
                     success: function (response) {
                         buscaResponse = JSON.parse(response)
@@ -537,57 +513,39 @@
                     }
                 })
 
-                buscaResponse.forEach((notificacao, index) =>{
-                    if( keyBusca=='brasil' ||
-                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase()) ||
-                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase()) ||
-                        (keyBusca=='bairros' && estado.toLowerCase() == notificacao.estado_residencia.toLowerCase() && cidade.toLowerCase() == notificacao.municipio.toLowerCase() && bairro.toLowerCase() == notificacao.bairro.toLowerCase())){
-                            
-                        if(! chart2.columns.includes(label)){
-                            chart2.columns.push(label)
+                buscaResponse.forEach((notificacao, index) =>{        
+                    if(! chart2.columns.includes(label)){
+                        chart2.columns.push(label)
+                    }
+
+                    if(diaouacu == 'acumulados'){
+                        acumulado = notificacao.quantidade_casos
+
+                        if(keyBusca != 'estados2' && keyBusca != 'cidades2' && keyBusca != 'brasil'){
+                            for(i = 0; i < index; i++) acumulado += buscaResponse[i]['quantidade_casos']
                         }
 
-                        if(diaouacu == 'acumulados'){
-                            acumulado = notificacao.quantidade_casos
-
-                            if(keyBusca != 'estados2' && keyBusca != 'cidades2' && keyBusca != 'brasil'){
-                                for(i = 0; i < index; i++){
-                                    if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase()) ||
-                                        (keyBusca=='bairros' && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase() && bairro.toLowerCase() == buscaResponse[i]['bairro'].toLowerCase())){
-                                        
-                                        acumulado += buscaResponse[i]['quantidade_casos']
-                                    }
-                                }
-                            }
-
-                            if(acumulado){
-                                chart2.rows.push({
-                                    [label] : acumulado,
-                                    'data' : notificacao.data_notificacao
-                                })
-                            }
+                        if(acumulado){
+                            chart2.rows.push({
+                                [label] : acumulado,
+                                'data' : notificacao.data_notificacao
+                            })
                         }
-                        else{
-                            if(keyBusca != 'estados2' && keyBusca != 'cidades2'  && keyBusca != 'brasil'){
+                    }
+                    else{
+                        if(keyBusca != 'estados2' && keyBusca != 'cidades2'  && keyBusca != 'brasil'){
+                            chart2.rows.push({
+                                [label] : notificacao.quantidade_casos,
+                                'data' : notificacao.data_notificacao
+                            })
+                        }
+                        else if(index > 0){
+                            for(i = index - 1; i >= 0; i--){
                                 chart2.rows.push({
-                                    [label] : notificacao.quantidade_casos,
+                                    [label] : notificacao.quantidade_casos - buscaResponse[i]['quantidade_casos'],
                                     'data' : notificacao.data_notificacao
                                 })
-                            }
-                            else if(index > 0){
-                                for(i = index - 1; i >= 0; i--){
-                                    if( keyBusca=='brasil' ||
-                                        ((keyBusca=='estados' || keyBusca=='estados2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase()) ||
-                                        ((keyBusca=='cidades' || keyBusca=='cidades2') && estado.toLowerCase() == buscaResponse[i]['estado_residencia'].toLowerCase() && cidade.toLowerCase() == buscaResponse[i]['municipio'].toLowerCase())){
-                                        chart2.rows.push({
-                                            [label] : notificacao.quantidade_casos - buscaResponse[i]['quantidade_casos'],
-                                            'data' : notificacao.data_notificacao
-                                        })
-                                        break
-                                    }
-                                }
+                                break
                             }
                         }
                     }

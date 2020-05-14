@@ -97,76 +97,82 @@ def get_data(request):
     if request.is_ajax and request.method == "GET":
         informacao = request.GET['informacao']
         keyBusca = request.GET['keyBusca']
+        estado = request.GET['estado']
+        cidade = request.GET['cidade']
+        bairro = request.GET['bairro']
         response = []
 
         if informacao == 'PieChartData':
             response = list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados'))
         elif informacao == 'Casos Estado':
-            response = list(CasosEstado.objects.all().values('estado','data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
+            if estado == '':
+                response = list(CasosEstado.objects.all().values('data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
+            else:
+                response = list(CasosEstado.objects.filter(estado=estado).values('data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
         elif informacao == 'Projeção média esperada':
-            response = list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
+            response = list(Projecao.objects.filter(estado_residencia=estado).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
         elif informacao == 'lo80':
-            response = list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'lo80').annotate(quantidade_casos=F('lo80')).order_by('data_notificacao'))
+            response = list(Projecao.objects.filter(estado_residencia=estado).values('data_notificacao', 'lo80').annotate(quantidade_casos=F('lo80')).order_by('data_notificacao'))
         elif informacao == 'hi80':
-            response = list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi80').annotate(quantidade_casos=F('hi80')).order_by('data_notificacao'))
+            response = list(Projecao.objects.filter(estado_residencia=estado).values('data_notificacao', 'hi80').annotate(quantidade_casos=F('hi80')).order_by('data_notificacao'))
         elif informacao == 'Melhor cenário':
-            response = list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'lo95').annotate(quantidade_casos=F('lo95')).order_by('data_notificacao'))
+            response = list(Projecao.objects.filter(estado_residencia=estado).values('data_notificacao', 'lo95').annotate(quantidade_casos=F('lo95')).order_by('data_notificacao'))
         elif informacao == 'Pior cenário':
-            response = list(Projecao.objects.all().values('estado_residencia', 'data_notificacao', 'hi95').annotate(quantidade_casos=F('hi95')).order_by('data_notificacao'))
+            response = list(Projecao.objects.filter(estado_residencia=estado).values('data_notificacao', 'hi95').annotate(quantidade_casos=F('hi95')).order_by('data_notificacao'))
         elif informacao == 'Casos Confirmados':
             if keyBusca == 'brasil':
                 response = list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('quantidade_casos')).order_by('data_notificacao'))
             elif keyBusca == 'estados':
-                response = list(Notification.objects.filter(classificacao='Confirmado').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(estado_residencia=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'estados2':
-                response = list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
+                response = list(CasosEstadoHistorico.objects.filter(estado_residencia=estado).values('data_notificacao', 'quantidade_casos').filter(estado_residencia=estado).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(classificacao='Confirmado').values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.all().values('municipio', 'data_notificacao', 'quantidade_casos', 'estado_residencia').order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(classificacao='Confirmado').values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
-                response = list(Notification.objects.filter(classificacao='Em Investigação').values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(classificacao='Em Investigação').values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(classificacao='Em Investigação').values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Óbitos':
             if keyBusca == 'brasil':
                 response = list(CasosEstadoHistorico.objects.values('data_notificacao').annotate(quantidade_casos=Sum('obitos')).order_by('data_notificacao'))
             elif keyBusca == 'estados':
-                response = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(estado_residencia=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'estados2':
-                response = list(CasosEstadoHistorico.objects.all().values('estado_residencia', 'data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
+                response = list(CasosEstadoHistorico.objects.filter(estado_residencia=estado).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.all().values('municipio', 'data_notificacao', 'obitos', 'estado_residencia').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(Q(evolucao='Óbito') & Q(classificacao='Confirmado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Recuperados':
             if keyBusca == 'estados':
-                response = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Recuperado')&Q(classificacao='Confirmado')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Recuperado')&Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(Q(evolucao='Recuperado') & Q(classificacao='Confirmado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(evolucao='Recuperado')&Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Isolamento Domiciliar':
             if keyBusca == 'estados':
-                response = list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(~Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(~Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(~Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio'    ).annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Internado':
             if keyBusca == 'estados':
-                response = list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('estado_residencia','data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades':
-                response = list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('municipio','data_notificacao', 'estado_residencia').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
-                response = list(Notification.objects.filter(Q(internado='Sim') & Q(classificacao='Confirmado') & ~Q(evolucao='Óbito') & ~Q(evolucao='Recuperado')).values('bairro','data_notificacao', 'estado_residencia', 'municipio'    ).annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+                response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
 
         response = json.dumps(response, indent=4, sort_keys=True, default=str)
         
