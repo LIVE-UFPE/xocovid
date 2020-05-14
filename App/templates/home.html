@@ -243,8 +243,8 @@
                 <v-btn v-on='on'>
                   <span style="color:#1E9CF8">Alterar Intensidade Máxima</span>
                   <div class="text-center">
-                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Diária</v-list-item-title>
-                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Banco de Dados</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Local</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Global</v-list-item-title>
                   </div>
                 </v-btn>
               </template>
@@ -278,7 +278,7 @@
                               <span>??</span>
                             </v-tooltip>
                           </v-list-item>
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Diária</v-list-item-title>   
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Local</v-list-item-title>   
                           <v-list-item-subtitle class="mb-2">A intensidade máxima será a maior do dia exibido</v-list-item-subtitle>
                       
                           <div class="justify-center">
@@ -303,6 +303,7 @@
                       <v-list-item three-line>
                         <v-list-item-content>
                           <!-- <div class="overline mb-2">OVERLINE</div> -->
+                          <!-- TODO ajeitar essas datas do lado dos botoes de avançar e voltar -->
                           <v-list-item>
                             <v-tooltip right color="#1E9CF8">
                               <template v-slot:activator="{ on }">
@@ -311,9 +312,9 @@
                               <span>!!</span>
                             </v-tooltip>
                           </v-list-item>
-  
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Banco de Dados</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">A intensidade máxima será a maior de todo o nosso Banco de Dados</v-list-item-subtitle>
+
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Global</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">A intensidade máxima será a maior de todos os dias</v-list-item-subtitle>
                       
                           <div class="justify-center">
                               <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1" outlined color="#1E9CF8">
