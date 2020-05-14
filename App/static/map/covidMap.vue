@@ -20,8 +20,7 @@ module.exports = {
             txtsnack: 'Oi',
             snackbar: false,
             pins: [],
-            request: null,
-            maxintlocal: 0,
+            request: null
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -30,8 +29,6 @@ module.exports = {
         predicts: Array,
         lastinterpol: Date,
         maiorint: Number,
-        //? 0 é diário, 1 é global
-        maxint: Number,
     },
     methods: {
         getpins(){
@@ -82,10 +79,9 @@ module.exports = {
                         "useLocalExtrema": false,
                         'maxOpacity': .7,
                     })
-                    this.maxintlocal = maior_int
                     this.heatmap.setData({
                         // max: maior_int,
-                        max: this.maxint == 0 ? maior_int : this.maiorint,
+                        max: this.maiorint,
                         min: 0,
                         data: pins_heat,
                     });
@@ -242,23 +238,9 @@ module.exports = {
             let zum = this.mymap.getZoom();
             if ( zum >= 14 ) return 25;
             else return Math.floor( 25 / ( Math.pow(2,14 - zum) ) );
-        },
-        maxintwatcher() {
-            return this.maxint
         }
     },
     watch: {
-        maxintwatcher() {
-            //diário
-            
-            if (this.maxint == 0) {
-                this.heatmap.getinstante().setDataMax(this.maxintlocal)
-                console.log('intensidade maxima mudou para '+ this.maxintlocal.toString())
-            }else{
-               this.heatmap.getinstante().setDataMax(this.maiorint)
-               console.log('intensidade maxima mudou para '+ this.maiorint.toString())
-            } 
-        },
         // * abreviado de datewatch: function (){}
         datewatch() {
             let pins_heat = [];
@@ -323,8 +305,8 @@ module.exports = {
                     'maxOpacity': .7,
                 })
                 this.heatmap.setData({
-                    max: maior_int,
-                    // max: this.maiorint,
+                    // max: maior_int,
+                    max: this.maiorint,
                     min: 0,
                     data: pins_heat
                 });

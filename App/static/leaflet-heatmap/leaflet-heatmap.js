@@ -225,10 +225,7 @@
       this.cfg = cfg;
       this._heatmap.configure(cfg);
       this._reset();
-    },
-    getinstante: function() {
-      return this._heatmap;
-    }
+    }, 
   });
 
   HeatmapOverlay.CSS_TRANSFORM = (function() {
