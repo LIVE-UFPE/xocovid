@@ -112,12 +112,12 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
-    #print("Extraindo informações de outras bases")
+    print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
     #print("Executando predicoes do Arima")
     #pipelineArima.main()
-    saveImages()
+    #saveImages()
     storeProjections()
     getCasosPernambuco()
     
@@ -172,10 +172,10 @@ def storeProjections():
             a = pandas.read_csv(pasta+fileName, sep=',')
             a = a.replace({np.nan: None})
 
-            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-14')[0]
             
             if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
-                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]]
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-14')[0]]
             elif fileEstadoNome == 'BrasilConfirmados':
                 nomeEstado = 'Projecao de Confirmados no Brasil'
             else:
