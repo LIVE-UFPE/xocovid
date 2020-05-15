@@ -43,14 +43,27 @@ class Notification(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
 
-class Prediction(models.Model):
+class PredictionBR(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
     prediction1 = models.FloatField(null=True)
     prediction2 = models.FloatField(null=True)
     prediction3 = models.FloatField(null=True)
 
-class Interpolation(models.Model):
+class InterpolationBR(models.Model):
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    prediction = models.FloatField(null=True)
+    date = models.DateField(null=True)
+
+class PredictionPE(models.Model):
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    prediction1 = models.FloatField(null=True)
+    prediction2 = models.FloatField(null=True)
+    prediction3 = models.FloatField(null=True)
+
+class InterpolationPE(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
     prediction = models.FloatField(null=True)

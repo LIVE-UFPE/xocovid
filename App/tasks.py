@@ -1,4 +1,4 @@
-from .models import Notification, Prediction, Interpolation, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
+from .models import Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
 import json
 import requests
 import pandas
@@ -8,7 +8,7 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-# import App.IA.pipeline as pipe
+import App.IA.pipeline as pipe
 from django.utils import timezone
 import App.predicao_arima.stateCityData as bot
 import App.predicao_arima.pipelineArima as pipelineArima
@@ -106,20 +106,21 @@ def listener():
 
         build_IAbase()
 
-        prediction()
-
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
+    #prediction()
+    store_base()
+    send_prediction_to_db()
     #print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
     #print("Executando predicoes do Arima")
     #pipelineArima.main()
-    saveImages()
-    storeProjections()
-    getCasosPernambuco()
+    #saveImages()
+    #storeProjections()
+    #getCasosPernambuco()
     
     print("Listener parado")
 
@@ -160,7 +161,6 @@ def getCasosPernambuco():
         isolamento = casos_data.iloc[-1]['isolamento'],
         internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
     casoPernambuco.save()
-
 
 def storeProjections():
     print("Armazenando projecoes")
@@ -297,13 +297,13 @@ def storeBot():
     CasosCidade.objects.bulk_create(objs=objs)
 
 def send_prediction_to_db():
-    Prediction.objects.all().delete()
+    PredictionBR.objects.all().delete()
 
     df = pandas.read_csv(
-        PATH_FILES+'saidaFinal.csv',
+        PATH_FILES+'saidaFinalBR.csv',
         header = 0
     )
-    print("Armazenando predicoes")
+    print("Armazenando predicoes do BR")
 
     #maxPredction = df['prediction'].max()
 
@@ -312,7 +312,7 @@ def send_prediction_to_db():
         predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
 
     objs = [
-        Prediction(
+        PredictionBR(
             id=m[0],
             latitude=m[1],
             longitude=m[2],
@@ -322,7 +322,35 @@ def send_prediction_to_db():
         )
         for m in predictions
     ]
-    Prediction.objects.bulk_create(objs=objs)
+    PredictionBR.objects.bulk_create(objs=objs)
+
+
+    PredictionPE.objects.all().delete()
+
+    df = pandas.read_csv(
+        PATH_FILES+'saidaFinalPE.csv',
+        header = 0
+    )
+    print("Armazenando predicoes do BR")
+
+    #maxPredction = df['prediction'].max()
+
+    predictions = []
+    for index, row in df.iterrows():
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
+
+    objs = [
+        PredictionPE(
+            id=m[0],
+            latitude=m[1],
+            longitude=m[2],
+            prediction1=m[3],
+            prediction2=m[4],
+            prediction3=m[5],
+        )
+        for m in predictions
+    ]
+    PredictionPE.objects.bulk_create(objs=objs)
 
 def prediction():
     print('Chamando IA')
@@ -427,22 +455,22 @@ def build_IAbase():
     df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
-def store_base(df):
-    pasta = PATH_FILES+'bases predicao/'
+def store_base():
+    pasta = PATH_FILES+'bases predicao BR/'
 
-    Interpolation.objects.all().delete()
+    InterpolationBR.objects.all().delete()
 
     for fileName in os.listdir(pasta):
         a = pandas.read_csv(pasta+fileName, sep=',')
 
         interporlations = []
-        date = datetime.strptime(fileName.split('predicao_covid19_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
-        print('Armazenando Interpolacoes do dia ' + str(date))
+        date = datetime.strptime(fileName.split('predicao_covid19BR_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes do BR do dia ' + str(date))
         for index, row in a.iterrows():
             interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
         
         objs = [
-            Interpolation(
+            InterpolationBR(
                 latitude=m[0],
                 longitude=m[1],
                 prediction=m[2],
@@ -450,9 +478,34 @@ def store_base(df):
             )
             for m in interporlations
         ]
-        Interpolation.objects.bulk_create(objs=objs)
+        InterpolationBR.objects.bulk_create(objs=objs)
 
-    df = df.replace({np.nan: None})
+
+    pasta = PATH_FILES+'bases predicao PE/'
+
+    InterpolationPE.objects.all().delete()
+
+    for fileName in os.listdir(pasta):
+        a = pandas.read_csv(pasta+fileName, sep=',')
+
+        interporlations = []
+        date = datetime.strptime(fileName.split('predicao_covid19PE_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes de PE do dia ' + str(date))
+        for index, row in a.iterrows():
+            interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
+        
+        objs = [
+            InterpolationPE(
+                latitude=m[0],
+                longitude=m[1],
+                prediction=m[2],
+                date=m[3],
+            )
+            for m in interporlations
+        ]
+        InterpolationPE.objects.bulk_create(objs=objs)
+
+    """df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
@@ -509,7 +562,7 @@ def store_base(df):
             notification.municipio = 'Recife'
             notification.bairro = 'Boa Viagem'
 
-        notification.save()
+        notification.save()"""
 
 def pre_processing(df):
     df["Bairro"] = None

@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfileInfo, Notification, Prediction, Interpolation, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
+from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
@@ -44,7 +44,7 @@ def home(request):
         context = {}
         predicts = []
         notifications = []
-        predictions = list(Prediction.objects.all())
+        predictions = list(PredictionBR.objects.all())
         debug = 0
         for prediction in predictions:
             predicts.append({
@@ -56,14 +56,14 @@ def home(request):
             })
             debug += 1
         print('enviando',debug, 'pontos de predição')
-        for note in Interpolation.objects.order_by('-date').values_list('date', flat=True).distinct():
+        for note in InterpolationBR.objects.order_by('-date').values_list('date', flat=True).distinct():
             notifications.append(
                 note.isoformat()
             )
         # DEBUG datas com interpolacao
         # print('temos',len(notifications),'datas com interpolação:')
         # print(notifications)
-        maior_int = Interpolation.objects.order_by('-prediction').first().prediction
+        maior_int = InterpolationBR.objects.order_by('-prediction').first().prediction
         print('maior int é',maior_int)
         context['template'] = "'home'"
         context["maior_int"] = json.dumps(maior_int)
@@ -78,7 +78,7 @@ def get_pins(request):
         notifications = []
         print('day é', day)
                     
-        for notification in Interpolation.objects.filter(date__exact= day):
+        for notification in InterpolationBR.objects.filter(date__exact= day):
             notifications.append({
                 "latitude": notification.latitude,
                 "longitude": notification.longitude,
