@@ -386,6 +386,20 @@
         </v-card>
       </template>
 
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</v-list-item-title>
+          </div>
+          <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
+        </v-card>
+      </template>
 
       <template>
         <v-card
