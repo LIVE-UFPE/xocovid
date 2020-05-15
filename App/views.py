@@ -18,6 +18,36 @@ from App import views
 from django.contrib.auth.models import User
 import os
 
+stateName = {
+    'AC': 'Acre',
+    'AL': 'Alagoas',
+    'AP': 'Amapá',
+    'AM': 'Amazonas',
+    'BA': 'Bahia',
+    'CE': 'Ceará',
+    'DF': 'Distrito Federal',
+    'ES': 'Espírito Santo',
+    'GO': 'Goiás',
+    'MA': 'Maranhão',
+    'MT': 'Mato Grosso',
+    'MS': 'Mato Grosso do Sul',
+    'MG': 'Minas Gerais',
+    'PA': 'Pará',
+    'PB': 'Paraíba',
+    'PR': 'Paraná',
+    'PE': 'Pernambuco',
+    'PI': 'Piauí',
+    'RJ': 'Rio de Janeiro',
+    'RN': 'Rio Grande do Norte',
+    'RS': 'Rio Grande do Sul',
+    'RO': 'Rondônia',
+    'RR': 'Roraima',
+    'SC': 'Santa Catarina',
+    'SP': 'São Paulo',
+    'SE': 'Sergipe',
+    'TO': 'Tocantins'
+}
+
 LIBERAR_ACESSO = True
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
@@ -106,7 +136,7 @@ def get_data(request):
             response = list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados'))
         elif informacao == 'Casos Estado':
             if estado == '':
-                response = list(CasosEstado.objects.all().values('data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
+                response = list(CasosEstado.objects.all().values('estado', 'data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
             else:
                 response = list(CasosEstado.objects.filter(estado=estado).values('data_atualizacao', 'obitos', 'confirmados', 'confirmados_100k', 'populacao_estimada_2019'))
         elif informacao == 'Projeção média esperada':

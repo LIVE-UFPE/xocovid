@@ -252,6 +252,7 @@
             chartData: {},
             chartProjecao: {},
             chartDataO: {},
+            chartDistribuicaoBrasil: {},
             icons: [
                 'mdi-download',
                 'fab fa-twitter',
@@ -286,6 +287,8 @@
             this.$nextTick(function () {
                 //console.log()
                 if(template == 'graphs'){
+                    this.setChartDistribuicaoBrasil()
+
                     this.setDashboardBrasil()
                     
                     this.jobDash('Pernambuco - PE')
@@ -305,6 +308,35 @@
         },
         methods: {
             //? metodos da graph
+            setChartDistribuicaoBrasil: function(){
+                chart = {
+                    'columns': ['Estado', 'Confirmados', 'Óbitos'],
+                    'rows': []
+                }
+
+                buscaResponse = []
+
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "get_data",
+                    data: {"informacao": 'Casos Estado', "keyBusca": '', "estado": '', "cidade": '', "bairro": ''},
+                    async: false,
+                    success: function (response) {
+                        buscaResponse = JSON.parse(response)
+                    }
+                })
+
+                buscaResponse.forEach(estado =>{
+                    chart.rows.push({
+                        'Estado': estado.estado,
+                        'Confirmados': estado.confirmados,
+                        'Óbitos': estado.obitos
+                    })
+                })
+
+                Vue.set(app, 'chartDistribuicaoBrasil', chart)
+            },
             setPieChart: function (){
                 /*var pieData = {
                     'columns': ['eixo', 'valor'],
