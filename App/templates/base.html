@@ -215,6 +215,7 @@
             personalizadoPaises: ['Brasil'],
             value: null,
             sheet: false,
+            maxInt: 0,
             base: 0,
             activeBtn: 1,
             item: 5,
@@ -405,7 +406,7 @@
                 Vue.set(app, 'nLetalidadeBrasil', Math.round(letalidade * 100) / 100)
                 //console.log('Dash value: ',letalidade,conf_100k,obitos, confirmados)
             },
-            setCity: function (value, chips){
+            setCity: function (value, chips, cidades){
                 var objC = [];
                 value.forEach(selecao => {
                     data.estados.forEach(estado => {
@@ -415,6 +416,7 @@
                     });
                 });
                 Vue.set(app, chips, objC)
+                Vue.set(app, cidades, [])
             },
             setDistrict: function (value, chips){
                 var objD = [];
@@ -443,6 +445,7 @@
                             if(cidades == null || cidades.length == 0) cidades = ['']
 
                             cidades.forEach(cidade =>{
+                                console.log(cidade)
                                 if(bairros == null || bairros.length == 0) bairros = ['']
 
                                 bairros.forEach(bairro =>{

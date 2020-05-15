@@ -425,7 +425,7 @@
                 label="Selecione o estado"
                 width="400"
                 @click="printName(values)"
-                @change="setCity(values, 'itemsChipsC')"
+                @change="setCity(values, 'itemsChipsC', 'valuesCS')"
                 multiple
               ></v-autocomplete>
             </div>
@@ -480,7 +480,7 @@
                 label="Selecione o estado"
                 width="400"
                 @click="printName(valuesS)"
-                @change="setCity(valuesS, 'itemsChipsCS')"
+                @change="setCity(valuesS, 'itemsChipsCS', 'valuesCS')"
                 multiple
                 disabled
               ></v-autocomplete>
@@ -567,7 +567,7 @@
                 label="Selecione o estado"
                 width="400"
                 @click="printName(values)"
-                @change="setCity(valuesCE, 'itemsChipsC')"
+                @change="setCity(valuesCE, 'itemsChipsC', valuesC)"
                 multiple
               ></v-autocomplete>
             </div> 
@@ -716,7 +716,7 @@
                 small-chips
                 label="Selecione o estado"
                 width="400"
-                @change="setCity(valuesA, 'itemsChipsCA')"
+                @change="setCity(valuesA, 'itemsChipsCA', 'valuesCA')"
                 multiple
               ></v-autocomplete>
             </div> 
