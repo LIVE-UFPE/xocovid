@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
+from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
@@ -74,6 +74,7 @@ def home(request):
         context = {}
         predicts = []
         notifications = []
+        # ! inicialmente é BR
         predictions = list(PredictionBR.objects.all())
         debug = 0
         for prediction in predictions:
@@ -102,7 +103,7 @@ def home(request):
         return render(request, 'home.html', context)
 
 def get_pins(request):
-    # ? starting trial to use AJAX
+    # ! inicialmente é BR
     if request.is_ajax and request.method == "GET":
         day = request.GET.get("day")
         notifications = []

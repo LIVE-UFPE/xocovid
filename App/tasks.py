@@ -8,7 +8,7 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-import App.IA.pipeline as pipe
+# import App.IA.pipeline as pipe
 from django.utils import timezone
 import App.predicao_arima.stateCityData as bot
 import App.predicao_arima.pipelineArima as pipelineArima

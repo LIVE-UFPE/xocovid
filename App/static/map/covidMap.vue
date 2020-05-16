@@ -8,6 +8,34 @@
 </template>
 
 <script>
+
+const globalRadius = 30
+
+// ! VARIÁVEIS DE OVERRIDE, ALTERE COM CUIDADO
+
+// ignora reajuste do raio e mantem apenas o existente em globalRadius
+var overrideRadius = false
+
+// ignora limite do zoom de acordo com a interpolação escolhida e permite zoom máximo/mínimo da API
+// TODO tirar esse overrideZoom e limitar o zoom de acordo com a interpolação sendo usada
+var overrideZoom = true
+
+// ! FIM DAS VARIÁVEIS DE OVERRIDE
+
+
+// ? VARIÁVEIS DE CONTROLE DA API
+
+// número que a computed property "radius" eleva, de acordo com o nível do zoom
+var powerPE = 2 // zoom - 14
+var powerBR = 1.7 // 5 - zoom
+// TODO implementar notas das linhas 29-30
+
+// zoom inicial
+var iniZoom = 5 //TODO lembrar que padrão de recife é 14 de zoom
+
+// ? FIM DAS VARIÁVEIS DE CONTROLE DA API
+
+
 module.exports = {
     name: 'covid-map',
     data: function (){
@@ -22,6 +50,7 @@ module.exports = {
             pins: [],
             request: null,
             maxintlocal: 0,
+            brasilheat: true,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -128,13 +157,13 @@ module.exports = {
         }
         
 
-        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, 14);
+        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, iniZoom);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            // DEBUG 12 de zoom minimo p mostrar so a regiao metropolitana de Recife
+            // TODO alterar maxzoom prum valor onde n se pode ver os pontos
             maxZoom: 18,
-            minZoom: 9,
+            minZoom: overrideZoom ? 1 : 9,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
@@ -166,45 +195,79 @@ module.exports = {
         this.heatmap.addTo(this.mymap);
 
         this.mymap.on('zoomend', function(ev) {
-            if ( ev.target._zoom >= 14 ) {
-                let config = {
-                    gradient: {
-                        '.3': 'green',
-                        '.65': 'yellow',
-                        '1': 'red',
-                    },
-                    'radius': 25,
-                    'scaleRadius': false,
-                    latField: 'lat',
-                    lngField: 'lng',
-                    valueField: 'intensidade',
-                    "useLocalExtrema": false,
-                    'minOpacity': 0,
-                    'maxOpacity': .7,
-                    'blur': 0.85,
-                };
-                console.log('mudando raio para '+ config.radius.toString()+'\n');
-                // console.log(ev.target);
-                let id = 0
-                while(true){
-                    try {
-                        ev.target._layers[id].reconfigure(config);
-                        break;
-                    } catch (error) {
-                        id++
+            console.log('zum é '+ this.mymap.getZoom().toString())
+            if(!this.brasilheat){
+                // TODO remover toda essa bagunça pois dá p passar _this_ nos argumentos
+                if ( ev.target._zoom >= 14 ) {
+                    let config = {
+                        gradient: {
+                            '.3': 'green',
+                            '.65': 'yellow',
+                            '1': 'red',
+                        },
+                        'radius': globalRadius,
+                        'scaleRadius': false,
+                        latField: 'lat',
+                        lngField: 'lng',
+                        valueField: 'intensidade',
+                        "useLocalExtrema": false,
+                        'minOpacity': 0,
+                        'maxOpacity': .7,
+                        'blur': 0.85,
+                    };
+                    console.log('mudando raio para '+ config.radius.toString()+'\n');
+                    // console.log(ev.target);
+                    let id = 0
+                    while(true){
+                        try {
+                            ev.target._layers[id].reconfigure(config);
+                            break;
+                        } catch (error) {
+                            id++
+                        }
                     }
-                }
-                // ev.target._layers[48].reconfigure(config);
-                // this.heatmap.reconfigure(config);
-                return;
-            }else{ 
+                    return;
+                }else{ 
+                    let config = {
+                        gradient: {
+                            '.3': 'green',
+                            '.65': 'yellow',
+                            '1': 'red',
+                        },
+                        'radius': overrideRadius ? globalRadius : Math.floor( globalRadius / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                        'scaleRadius': false,
+                        latField: 'lat',
+                        lngField: 'lng',
+                        valueField: 'intensidade',
+                        "useLocalExtrema": false,
+                        'minOpacity': 0,
+                        'maxOpacity': .7,
+                        'blur': 0.85,
+
+                    };
+                    console.log('mudando raio para '+ config.radius.toString()+'\n');
+                    // console.log(ev.target);
+                    let id = 0
+                    while(true){
+                        try {
+                            ev.target._layers[id].reconfigure(config);
+                            break;
+                        } catch (error) {
+                            id++
+                        }
+                    }
+                    // ev.target._layers[48].reconfigure(config);
+                    // this.heatmap.reconfigure(config);
+                    return;
+                }    
+            }else{
                 let config = {
                     gradient: {
                         '.3': 'green',
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    'radius': Math.floor( 25 / ( Math.pow(2,14 - ev.target._zoom) ) ),
+                    'radius': this.radius,
                     'scaleRadius': false,
                     latField: 'lat',
                     lngField: 'lng',
@@ -216,21 +279,10 @@ module.exports = {
 
                 };
                 console.log('mudando raio para '+ config.radius.toString()+'\n');
-                // console.log(ev.target);
-                let id = 0
-                while(true){
-                    try {
-                        ev.target._layers[id].reconfigure(config);
-                        break;
-                    } catch (error) {
-                        id++
-                    }
-                }
-                // ev.target._layers[48].reconfigure(config);
-                // this.heatmap.reconfigure(config);
-                return;
+                this.heatmap.reconfigure(config);
             }
-        });
+            
+        }, this);
 
     },
     computed: {
@@ -240,8 +292,17 @@ module.exports = {
         },
         radius() {
             let zum = this.mymap.getZoom();
-            if ( zum >= 14 ) return 25;
-            else return Math.floor( 25 / ( Math.pow(2,14 - zum) ) );
+            // ? se não estou usando a interpol do brasil, preciso diminuir o raio conforme me distancio, pra manter a proporção no zoom ao nivel 14
+            if (!this.brasilheat){
+                if ( zum >= 14 ) return globalRadius;
+                else return overrideRadius ? globalRadius : Math.floor( globalRadius / ( Math.pow(powerPE,14 - zum) ) );
+
+            // ? se estou usando a interpol do brasil, preciso aumentar o raio conforme me aproximo pra manter a proporção no zoom ao nivel 5
+            }else{
+                if ( zum <= 5 ) return globalRadius;
+                else return overrideRadius ? globalRadius : Math.floor( globalRadius * ( Math.pow(powerBR,zum - 5) ) );
+            }
+            
         },
         maxintwatcher() {
             return this.maxint
