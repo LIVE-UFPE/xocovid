@@ -8,7 +8,7 @@
 </template>
 
 <script>
-
+// ! -------------------------  COMENTÁRIOS DO DEV DISPONÍVEIS NO FIM DO CÓDIGO!! -----------------------
 const globalRadius = 30
 
 // ! VARIÁVEIS DE OVERRIDE, ALTERE COM CUIDADO
@@ -20,20 +20,24 @@ var overrideRadius = false
 // TODO tirar esse overrideZoom e limitar o zoom de acordo com a interpolação sendo usada
 var overrideZoom = true
 
+// ignora a intensidade recebida e deixa todos os pontos com intensidade máxima, deve ser usado com radius override
+// ? não funciona com predições!
+var overrideIntensity = false
+
 // ! FIM DAS VARIÁVEIS DE OVERRIDE
 
 
-// ? VARIÁVEIS DE CONTROLE DA API
+// * VARIÁVEIS DE CONTROLE DA API
 
 // número que a computed property "radius" eleva, de acordo com o nível do zoom
-var powerPE = 2 // zoom - 14
-var powerBR = 1.7 // 5 - zoom
-// TODO implementar notas das linhas 29-30
+var powerPE = 2 // 14 - zoom
+var powerBR = 1.7 // zoom - 5
+
 
 // zoom inicial
-var iniZoom = 5 //TODO lembrar que padrão de recife é 14 de zoom
+var iniZoom = 14 //TODO lembrar que padrão de recife é 14 de zoom, brasil é 5
 
-// ? FIM DAS VARIÁVEIS DE CONTROLE DA API
+// * FIM DAS VARIÁVEIS DE CONTROLE DA API
 
 
 module.exports = {
@@ -79,8 +83,6 @@ module.exports = {
                     // seta pins
                     this.request = null
                     this.pins = response
-                    // console.log('acabei AGORA os pins')
-                    // console.log(this.pins)
                     let pinsLen = this.pins.length;
                     let pins_heat = [];
                     let maior_int = 0.0
@@ -101,8 +103,6 @@ module.exports = {
                             '.65': 'yellow',
                             '1': 'red',
                         },
-                        //? raio em pixels (na proporção 1/2 pixel/metro)
-                        // TODO ajustar raio e formula de raio em todo canto
                         'radius': this.radius,
                         'scaleRadius': false,
                         latField: 'lat',
@@ -113,14 +113,13 @@ module.exports = {
                     })
                     this.maxintlocal = maior_int
                     this.heatmap.setData({
-                        // max: maior_int,
-                        max: this.maxint == 0 ? maior_int : this.maiorint,
+                        max: overrideIntensity ? 0.1 : (this.maxint == 0 ? maior_int : this.maiorint),
                         min: 0,
                         data: pins_heat,
                     });
 
                     console.log(`adicionando um total de ${pinsLen} no mapa`)
-                    console.log(`maior intensidade do DB é ${this.maiorint}, a dessa interpolação é de ${maior_int}`)
+                    console.log(`maior intensidade global é ${this.maiorint}, a local é de ${maior_int}. menor intensidade local é ${menor_int}`)
                     
                     this.txtsnack = "Mapa de calor atualizado!"
                     this.snackbar = true
@@ -169,6 +168,9 @@ module.exports = {
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(this.mymap);
+
+        // DEBUG check zoom level
+        console.log(`zoom level: ${this.mymap.getZoom()}`)
 
         this.getpins()
         this.txtsnack = 'Carregando pontos...'
@@ -399,6 +401,21 @@ module.exports = {
         }
     }
 }
+
+// ! ---------------------------------- COMENTÁRIOS DO DEV!! --------------------------------------------
+
+// zoom de 5 com raio de 25 torna perceptível a "camada verde" no heatmap
+// raio crescendo na taxa globalRadius * 2^(zoom - 5 ) é perceptível até zoom de 13, a partir do momento em que o raio passa de 6000 ele não renderiza o ponto
+
+// dando override na intensidade dos pontos(todos com intensidade maxima) evidencia que eles são sempre visíveis, não importa o nível de zoom. o que faz eles desaparecerem não é o zoom
+// acrescentando mais uma cor no gradiente abaixo de ver podemos ver que o sumiço dos pontos se dá ao fato de que o ponto em si tem uma intensidade tão pequena que ele se torna "invisível", a cor que a API dá aos pontos perto de 0%, mas, quando eles começam a "se juntar" conforme aumentamos o raio/tiramos o zoom, a intensidade é combinada e acaba aumentando. por isso a camada verde é visível até um certo ponto, mas some logo após, considerando o limite máximo de 6000 de raio por ponto
+
+
+// testando usar limite mínimo diferente de zero a fim de ver se os pontos deixam de serem "transparentes", mas teoricamente isso só iria aumentar a quantidade de pontos transparentes
+// sem sucesso, a menor intensidade naturalmente é zero!
+
+
+// de resumo, a camada verde na verdade é um conjunto de pontos com intensidade mínima, que acabam se juntando devido ao nível de zoom, o que é inevitável, pois o raio mínimo é de 1. isso explica porque mesmo aumentando o raio, uma hora os pontos somem também, em conjunto com o raio máximo de 6000
 </script>
 
 <style scoped>
