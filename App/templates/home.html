@@ -334,7 +334,17 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <covid-map :datedb="datedb" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorint="maiorint" :maxint="maxInt" ></covid-map>
+        <v-card class="float-left text-center pa-3 pb-0" style="position: absolute;left: 2vmin;z-index: 2;top: 8vmin"> 
+            <p class="body-1 mb-0 pt-2"> Dados do: </p>
+            <v-card-actions class="d-block pt-0">
+              <v-radio-group v-model="radioheat" class="pa-0">
+                  <v-radio label="Brasil" value="brasil"></v-radio>
+                  <v-radio label="Recife" value="recife"></v-radio>
+              </v-radio-group>
+            </v-card-actions>
+            
+        </v-card> 
+      <covid-map :radioheat="radioheat" :datedb="datedb" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorint="maiorint" :maxint="maxInt" ></covid-map>
     </v-app>
   </div>
 </html>

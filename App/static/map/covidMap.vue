@@ -3,7 +3,14 @@
         <v-snackbar v-model="snackbar" top >
             {{ txtsnack }}
             <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
-        </v-snackbar>        
+        </v-snackbar>
+        <!-- <v-card-actions class="float-left" style="z-index: 1"> 
+            <p> Dados do: </p>
+            <v-radio-group v-model="radioheat">
+                <v-radio label="Brasil" value="brasil"></v-radio>
+                <v-radio label="Recife" value="recife"></v-radio>
+            </v-radio-group>
+        </v-card-actions>  -->
     </div>
 </template>
 
@@ -65,6 +72,7 @@ module.exports = {
         maiorint: Number,
         //? 0 é diário, 1 é global
         maxint: Number,
+        radioheat: String,
     },
     methods: {
         getpins(){
@@ -308,9 +316,18 @@ module.exports = {
         },
         maxintwatcher() {
             return this.maxint
+        },
+        radioheatwatcher() {
+            return this.radioheat;
         }
     },
     watch: {
+        radioheatwatcher() {
+            if (this.radioheat == 'brasil') this.brasilheat = true
+            else this.brasilheat = false
+            // DEBUG checando se o radial muda
+            console.log(`radioheat mudou para ${this.radioheat} e brasilheat agora é ${this.brasilheat}`)
+        },
         maxintwatcher() {
             //diário
             
