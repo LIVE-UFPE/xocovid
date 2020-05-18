@@ -73,9 +73,12 @@ def home(request):
     else:
         context = {}
         predicts = []
+        predictsPE = []
         notifications = []
+        notificationsPE = []
         # ! inicialmente é BR
         predictions = list(PredictionBR.objects.all())
+        predictionsPE = list(PredictionPE.objects.all())
         debug = 0
         for prediction in predictions:
             predicts.append({
@@ -86,40 +89,71 @@ def home(request):
                 "intensidade3": prediction.prediction3,
             })
             debug += 1
-        print('enviando',debug, 'pontos de predição')
+        print('enviando',debug, 'pontos de predição do BR')
+        debug = 0
+        for prediction in predictionsPE:
+            predictsPE.append({
+                "latitude": prediction.latitude,
+                "longitude": prediction.longitude,
+                "intensidade": prediction.prediction1,
+                "intensidade2": prediction.prediction2,
+                "intensidade3": prediction.prediction3,
+            })
+            debug += 1
+        print('enviando',debug, 'pontos de predição do PE')
         for note in InterpolationBR.objects.order_by('-date').values_list('date', flat=True).distinct():
             notifications.append(
+                note.isoformat()
+            )
+        for note in InterpolationPE.objects.order_by('-date').values_list('date', flat=True).distinct():
+            notificationsPE.append(
                 note.isoformat()
             )
         # DEBUG datas com interpolacao
         # print('temos',len(notifications),'datas com interpolação:')
         # print(notifications)
         maior_int = InterpolationBR.objects.order_by('-prediction').first().prediction
-        print('maior int é',maior_int)
+        maior_int_PE = InterpolationPE.objects.order_by('-prediction').first().prediction
+        print('maior int BR é',maior_int,'e maior int PE é',maior_int_PE)
         context['template'] = "'home'"
         context["maior_int"] = json.dumps(maior_int)
+        context["maior_int_pe"] = json.dumps(maior_int_PE)
         context["items_json"] = json.dumps(notifications)
+        context["items_json_pe"] = json.dumps(notificationsPE)
         context["predicts_json"] = json.dumps(predicts)
+        context["predicts_pe_json"] = json.dumps(predictsPE)
         return render(request, 'home.html', context)
 
 def get_pins(request):
     # ! inicialmente é BR
     if request.is_ajax and request.method == "GET":
         day = request.GET.get("day")
+        brasil_heat = request.GET.get("brasilheat")
+        if brasil_heat == 'true': brasil_heat = True
+        else: brasil_heat = False
         notifications = []
-        print('day é', day)
-                    
-        for notification in InterpolationBR.objects.filter(date__exact= day):
-            notifications.append({
-                "latitude": notification.latitude,
-                "longitude": notification.longitude,
-                "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
-                "intensidade": notification.prediction
-            })
+        print('day é', day, "e brasil_heat é", brasil_heat)
+
+        if brasil_heat:
+            for notification in InterpolationBR.objects.filter(date__exact= day):
+                notifications.append({
+                    "latitude": notification.latitude,
+                    "longitude": notification.longitude,
+                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                    "intensidade": notification.prediction
+                })
+        else:
+            for notification in InterpolationPE.objects.filter(date__exact= day):
+                notifications.append({
+                    "latitude": notification.latitude,
+                    "longitude": notification.longitude,
+                    "data_notificacao": notification.date.isoformat() if type(notification.date) is not type(None) else '2000-01-01',
+                    "intensidade": notification.prediction
+                })
+
         print('enviando',len(notifications), 'pontos')
         
         return JsonResponse(notifications, safe=False)
-        # TODO get predictions
     else: return JsonResponse({'error': "deu erro aí"})
     # # DEBUG type test
     # print("De",len(notifications),",",null_notes,"tem dados nulos")

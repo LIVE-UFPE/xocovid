@@ -68,8 +68,13 @@ module.exports = {
     props: {
         datedb: Date,
         predicts: Array,
+        predictspe: Array,
         lastinterpol: Date,
-        maiorint: Number,
+
+        //deve pegar a maior intensidade global do BR e PE
+        maiorintbr: Number,
+        maiorintpe: Number,
+
         //? 0 é diário, 1 é global
         maxint: Number,
         radioheat: String,
@@ -86,7 +91,7 @@ module.exports = {
                 type: 'GET',
                 url: "get/ajax/pins",
                 // TODO ajeitar async call
-                data: {"day": this.datedb.toISOString().substring(0,10)},
+                data: {"day": this.datedb.toISOString().substring(0,10), "brasilheat": this.brasilheat},
                 success: function (response) {
                     // seta pins
                     this.request = null
@@ -121,13 +126,13 @@ module.exports = {
                     })
                     this.maxintlocal = maior_int
                     this.heatmap.setData({
-                        max: overrideIntensity ? 0.1 : (this.maxint == 0 ? maior_int : this.maiorint),
+                        max: overrideIntensity ? 0.1 : (this.maxint == 0 ? maior_int : (this.brasilheat ? this.maiorintbr : this.maiorintpe) ),
                         min: 0,
                         data: pins_heat,
                     });
 
                     console.log(`adicionando um total de ${pinsLen} no mapa`)
-                    console.log(`maior intensidade global é ${this.maiorint}, a local é de ${maior_int}. menor intensidade local é ${menor_int}`)
+                    console.log(`maior intensidade global é ${this.brasilheat ? this.maiorintbr : this.maiorintpe}, a local é de ${maior_int}. menor intensidade local é ${menor_int}`)
                     
                     this.txtsnack = "Mapa de calor atualizado!"
                     this.snackbar = true
@@ -206,92 +211,25 @@ module.exports = {
 
         this.mymap.on('zoomend', function(ev) {
             console.log('zum é '+ this.mymap.getZoom().toString())
-            if(!this.brasilheat){
-                // TODO remover toda essa bagunça pois dá p passar _this_ nos argumentos
-                if ( ev.target._zoom >= 14 ) {
-                    let config = {
-                        gradient: {
-                            '.3': 'green',
-                            '.65': 'yellow',
-                            '1': 'red',
-                        },
-                        'radius': globalRadius,
-                        'scaleRadius': false,
-                        latField: 'lat',
-                        lngField: 'lng',
-                        valueField: 'intensidade',
-                        "useLocalExtrema": false,
-                        'minOpacity': 0,
-                        'maxOpacity': .7,
-                        'blur': 0.85,
-                    };
-                    console.log('mudando raio para '+ config.radius.toString()+'\n');
-                    // console.log(ev.target);
-                    let id = 0
-                    while(true){
-                        try {
-                            ev.target._layers[id].reconfigure(config);
-                            break;
-                        } catch (error) {
-                            id++
-                        }
-                    }
-                    return;
-                }else{ 
-                    let config = {
-                        gradient: {
-                            '.3': 'green',
-                            '.65': 'yellow',
-                            '1': 'red',
-                        },
-                        'radius': overrideRadius ? globalRadius : Math.floor( globalRadius / ( Math.pow(2,14 - ev.target._zoom) ) ),
-                        'scaleRadius': false,
-                        latField: 'lat',
-                        lngField: 'lng',
-                        valueField: 'intensidade',
-                        "useLocalExtrema": false,
-                        'minOpacity': 0,
-                        'maxOpacity': .7,
-                        'blur': 0.85,
+            let config = {
+                gradient: {
+                    '.3': 'green',
+                    '.65': 'yellow',
+                    '1': 'red',
+                },
+                'radius': this.radius,
+                'scaleRadius': false,
+                latField: 'lat',
+                lngField: 'lng',
+                valueField: 'intensidade',
+                "useLocalExtrema": false,
+                'minOpacity': 0,
+                'maxOpacity': .7,
+                'blur': 0.85,
 
-                    };
-                    console.log('mudando raio para '+ config.radius.toString()+'\n');
-                    // console.log(ev.target);
-                    let id = 0
-                    while(true){
-                        try {
-                            ev.target._layers[id].reconfigure(config);
-                            break;
-                        } catch (error) {
-                            id++
-                        }
-                    }
-                    // ev.target._layers[48].reconfigure(config);
-                    // this.heatmap.reconfigure(config);
-                    return;
-                }    
-            }else{
-                let config = {
-                    gradient: {
-                        '.3': 'green',
-                        '.65': 'yellow',
-                        '1': 'red',
-                    },
-                    'radius': this.radius,
-                    'scaleRadius': false,
-                    latField: 'lat',
-                    lngField: 'lng',
-                    valueField: 'intensidade',
-                    "useLocalExtrema": false,
-                    'minOpacity': 0,
-                    'maxOpacity': .7,
-                    'blur': 0.85,
-
-                };
-                console.log('mudando raio para '+ config.radius.toString()+'\n');
-                this.heatmap.reconfigure(config);
-            }
-            
+            };
+            console.log('mudando raio para '+ config.radius.toString()+'\n');
+            this.heatmap.reconfigure(config);    
         }, this);
 
     },
@@ -325,19 +263,20 @@ module.exports = {
         radioheatwatcher() {
             if (this.radioheat == 'brasil') this.brasilheat = true
             else this.brasilheat = false
+            this.getpins()
             // DEBUG checando se o radial muda
             console.log(`radioheat mudou para ${this.radioheat} e brasilheat agora é ${this.brasilheat}`)
         },
         maxintwatcher() {
+
             //diário
-            
             if (this.maxint == 0) {
                 this.heatmap.getinstante().setDataMax(this.maxintlocal)
-                console.log('intensidade maxima mudou para '+ this.maxintlocal.toString())
+                console.log(`intensidade maxima mudou para ${this.maxintlocal}`)
             }else{
-               this.heatmap.getinstante().setDataMax(this.maiorint)
-               console.log('intensidade maxima mudou para '+ this.maiorint.toString())
-            } 
+               this.heatmap.getinstante().setDataMax(this.brasilheat ? this.maiorintbr : this.maiorintpe)
+               console.log(`intensidade maxima mudou para ${this.brasilheat ? this.maiorintbr : this.maiorintpe}`)
+            }
         },
         // * abreviado de datewatch: function (){}
         datewatch() {
@@ -346,7 +285,7 @@ module.exports = {
             let cons_log = 'A seguinte lista de pontos não serão inseridos pois estão fora da data desejada:\nData desejada: ' + this.datedb.toISOString() + '\n';
             let qtd_pins_excluidos = 0
             let qtd_pins_inseridos = 0
-            let predLen = this.predicts.length;
+            let predLen = this.brasilheat ? this.predicts.length : this.predictspe.length;
             // DEBUG se em algum momento eu pego o array de prediçoes
             cons_log += 'predLen: ' + predLen.toString() + '\n';
             let maior_int = 0.0
@@ -374,17 +313,30 @@ module.exports = {
                     else data_intensidade = '3';
                 }
 
-
-                for( var i = 0; i < predLen; i++){
-                    pins_heat.push({
-                        'lat': this.predicts[i].latitude, 
-                        'lng': this.predicts[i].longitude, 
-                        'intensidade': (data_intensidade == '1' ? this.predicts[i].intensidade : (data_intensidade == '2' ? this.predicts[i].intensidade2 : this.predicts[i].intensidade3 )),
-                    });
-                    if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
-                    if(menor_int > this.predicts[i].intensidade) menor_int = this.predicts[i].intensidade;
-                    media += this.predicts[i].intensidade
+                if (this.brasilheat) {
+                    for( var i = 0; i < predLen; i++){
+                        pins_heat.push({
+                            'lat': this.predicts[i].latitude, 
+                            'lng': this.predicts[i].longitude, 
+                            'intensidade': (data_intensidade == '1' ? this.predicts[i].intensidade : (data_intensidade == '2' ? this.predicts[i].intensidade2 : this.predicts[i].intensidade3 )),
+                        });
+                        if(maior_int < this.predicts[i].intensidade) maior_int = this.predicts[i].intensidade;
+                        if(menor_int > this.predicts[i].intensidade) menor_int = this.predicts[i].intensidade;
+                        media += this.predicts[i].intensidade
+                    }    
+                } else {
+                    for( var i = 0; i < predLen; i++){
+                        pins_heat.push({
+                            'lat': this.predictspe[i].latitude, 
+                            'lng': this.predictspe[i].longitude, 
+                            'intensidade': (data_intensidade == '1' ? this.predictspe[i].intensidade : (data_intensidade == '2' ? this.predictspe[i].intensidade2 : this.predictspe[i].intensidade3 )),
+                        });
+                        if(maior_int < this.predictspe[i].intensidade) maior_int = this.predictspe[i].intensidade;
+                        if(menor_int > this.predictspe[i].intensidade) menor_int = this.predictspe[i].intensidade;
+                        media += this.predictspe[i].intensidade
+                    } 
                 }
+                
                 cons_log += '\nInserindo pins da IA!\nMaior intensidade: '+ maior_int.toString()+'\nMédia: ' + (media/predLen).toString() +'\nIntensidade: '+data_intensidade+'\nRaio: '+ this.radius.toString()+'\n';
                 this.heatmap.reconfigure({
                     gradient: {
@@ -392,8 +344,6 @@ module.exports = {
                         '.65': 'yellow',
                         '1': 'red',
                     },
-                    //? raio em pixels (na proporção 1/2 pixel/metro)
-                    // TODO ajustar raio e formula de raio em todo canto
                     'radius': this.radius,
                     'scaleRadius': false,
                     latField: 'lat',
@@ -404,11 +354,9 @@ module.exports = {
                 })
                 this.heatmap.setData({
                     max: maior_int,
-                    // max: this.maiorint,
                     min: 0,
                     data: pins_heat
                 });
-                cons_log += 'maior intensidade do DB é de ' + this.maiorint.toString() +'\n'
                 console.log(cons_log)
             }else{
                 this.getpins()
