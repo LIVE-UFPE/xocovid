@@ -25,7 +25,7 @@ var overrideRadius = false
 
 // ignora limite do zoom de acordo com a interpolação escolhida e permite zoom máximo/mínimo da API
 // TODO tirar esse overrideZoom e limitar o zoom de acordo com a interpolação sendo usada
-var overrideZoom = true
+var overrideZoom = false
 
 // ignora a intensidade recebida e deixa todos os pontos com intensidade máxima, deve ser usado com radius override
 // ? não funciona com predições!
@@ -37,12 +37,15 @@ var overrideIntensity = false
 // * VARIÁVEIS DE CONTROLE DA API
 
 // número que a computed property "radius" eleva, de acordo com o nível do zoom
-var powerPE = 2 // 14 - zoom
-var powerBR = 1.7 // zoom - 5
+var powerPE = 1.5 //aumenta conforme passa de 10
+var powerPE2 = 1.5 //diminui conforme fica menor que 10
+
+var powerBR = 1.7 //zoom - 5
 
 
 // zoom inicial
-var iniZoom = 14 //TODO lembrar que padrão de recife é 14 de zoom, brasil é 5
+var iniZoomPE = 7
+var iniZoomBR = 5 
 
 // * FIM DAS VARIÁVEIS DE CONTROLE DA API
 
@@ -169,13 +172,13 @@ module.exports = {
         }
         
 
-        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, iniZoom);
+        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, this.brasilheat ? iniZoomBR : iniZoomPE);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            // TODO alterar maxzoom prum valor onde n se pode ver os pontos
-            maxZoom: 18,
-            minZoom: overrideZoom ? 1 : 9,
+            // ? zoom de 11 no formato atual impede que se possa ver os pontos na interpolação de recife
+            maxZoom: overrideZoom ? 18 : 11,
+            minZoom: overrideZoom ? 1 : 4,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
@@ -242,8 +245,8 @@ module.exports = {
             let zum = this.mymap.getZoom();
             // ? se não estou usando a interpol do brasil, preciso diminuir o raio conforme me distancio, pra manter a proporção no zoom ao nivel 14
             if (!this.brasilheat){
-                if ( zum >= 14 ) return globalRadius;
-                else return overrideRadius ? globalRadius : Math.floor( globalRadius / ( Math.pow(powerPE,14 - zum) ) );
+                if ( zum <= 10 ) return overrideRadius ? globalRadius : Math.floor( globalRadius / ( Math.pow(powerPE2,10 - zum) ) );
+                else return overrideRadius ? globalRadius : Math.floor( globalRadius * ( Math.pow(powerPE,zum - 10) ) );
 
             // ? se estou usando a interpol do brasil, preciso aumentar o raio conforme me aproximo pra manter a proporção no zoom ao nivel 5
             }else{
@@ -381,6 +384,9 @@ module.exports = {
 
 
 // de resumo, a camada verde na verdade é um conjunto de pontos com intensidade mínima, que acabam se juntando devido ao nível de zoom, o que é inevitável, pois o raio mínimo é de 1. isso explica porque mesmo aumentando o raio, uma hora os pontos somem também, em conjunto com o raio máximo de 6000
+
+
+// NOTA a partir de 10 de zoom dá p notar os pontos na malha de pernambuco
 </script>
 
 <style scoped>
