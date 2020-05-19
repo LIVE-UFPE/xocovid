@@ -38,7 +38,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost',
-    'xocovid.herokuapp.com'
+    'xocovid.herokuapp.com',
+    'covidsgis.herokuapp.com'
 ]
 
 # Application definition
@@ -95,8 +96,8 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DB_NAME', 'd1ibhu3tsi7ghj'),
         'USER': os.environ.get('DB_USER', 'tslryogoucxpjv'),
-        'PASSWORD': os.environ.get('DB_PASS', '53d3caaf2ac40618ad2b45d061db6aef1d4ca1ce63610281270c1816eb61c29b'),
-        'HOST': 'ec2-52-202-146-43.compute-1.amazonaws.com',
+        'PASSWORD': os.environ.get('DB_PASS', '32432025'),
+        'HOST': '172.20.36.172',
         'PORT': '5432'
     }
 }"""
@@ -149,7 +150,7 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/map'),
-    os.path.join(BASE_DIR, 'App/static/filter'),
+    #os.path.join(BASE_DIR, 'App/static/filter'),
     os.path.join(BASE_DIR, 'App/static/leaflet-heatmap'),
     os.path.join(BASE_DIR, 'App/static/heatmap'),
     os.path.join(BASE_DIR, 'App/static/login'),

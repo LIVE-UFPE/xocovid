@@ -241,10 +241,10 @@
             <v-bottom-sheet v-model="sheet">
               <template v-slot:activator="{ on }">
                 <v-btn v-on='on'>
-                  <span style="color:#1E9CF8">Alterar base de dados</span>
+                  <span style="color:#1E9CF8">Alterar Intensidade Máxima</span>
                   <div class="text-center">
-                    <v-list-item-title v-if="base === 0" style="color:#1E9CF8">Ministério da Saúde</v-list-item-title>
-                    <v-list-item-title v-if="base === 1" style="color:#1E9CF8">Base Colaborativa</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Local</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Global</v-list-item-title>
                   </div>
                 </v-btn>
               </template>
@@ -275,14 +275,14 @@
                               <template v-slot:activator="{ on }">
                                 <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
                               </template>
-                              <span>A base de dados é de responsabilidade do Ministério da Saúde.</span>
+                              <span>??</span>
                             </v-tooltip>
                           </v-list-item>
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Ministério da Saúde</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">Base de dados oficial disponibilizada pelo Ministério da Saúde</v-list-item-subtitle>
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Local</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">A intensidade máxima será a maior do dia exibido</v-list-item-subtitle>
                       
                           <div class="justify-center">
-                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;base=0" outlined color="#1E9CF8">
+                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=0" outlined color="#1E9CF8">
                                 Selecionar
                               </v-btn>
                           </div>
@@ -303,20 +303,21 @@
                       <v-list-item three-line>
                         <v-list-item-content>
                           <!-- <div class="overline mb-2">OVERLINE</div> -->
+                          <!-- TODO ajeitar essas datas do lado dos botoes de avançar e voltar -->
                           <v-list-item>
                             <v-tooltip right color="#1E9CF8">
                               <template v-slot:activator="{ on }">
                                 <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
                               </template>
-                              <span>A base de dados  não é oficial e corresponde a uma estimativa gerada pelos usuários.</span>
+                              <span>!!</span>
                             </v-tooltip>
                           </v-list-item>
-  
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Base Colaborativa</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">Base de dados não oficial disponibilizada por usuários da plataforma</v-list-item-subtitle>
+
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Global</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">A intensidade máxima será a maior de todos os dias</v-list-item-subtitle>
                       
                           <div class="justify-center">
-                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;base=1" outlined color="#1E9CF8">
+                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1" outlined color="#1E9CF8">
                                 Selecionar
                               </v-btn>
                           </div>
@@ -333,7 +334,27 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <covid-map :datedb="datedb" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" ></covid-map>
+    <div style="position: absolute;bottom: 380px;left: 10vmin;z-index: 1">
+        <v-card
+        class="mx-auto pb-2"
+        max-width="220"
+        max-height="500"
+        width="220"
+        outlined
+        style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
+      >
+            <p class="body-1 mb-0 pt-2 text-center"> Dados do: </p>
+            <v-card-actions class="d-block pt-0 text-center">
+              <v-radio-group v-model="radioheat" class="pa-0">
+                  <v-radio class="text-center" label="Brasil" value="brasil"></v-radio>
+                  <v-radio label="Pernambuco" value="pernambuco"></v-radio>
+              </v-radio-group>
+            </v-card-actions>
+            
+        </v-card> 
+      </div>
+        <state-map></state-map>
+        <!-- <covid-map :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe" :maxint="maxInt" ></covid-map> -->
     </v-app>
   </div>
 </html>
