@@ -10,7 +10,8 @@ from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
 # import App.IA.pipeline as pipe
 from django.utils import timezone
-import App.predicao_arima.stateCityData as bot
+import App.bot.stateCityData as bot
+import App.predicao_arima.stateCityData as stateCityData
 import App.predicao_arima.pipelineArima as pipelineArima
 from distutils.dir_util import copy_tree
 from urllib.request import urlopen
@@ -113,11 +114,12 @@ def listener():
         print("Nenhuma base de dados para ser pre_processada")"""
     
     print("Extraindo informações de outras bases")
-    #bot.processingData()
-    #storeBot()
-    #print("Executando predicoes do Arima")
-    #pipelineArima.main()
-    #saveImages()
+    bot.processingData()
+    storeBot()
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
     storeProjections()
     getCasosPernambuco()
     
@@ -165,17 +167,25 @@ def getCasosPernambuco():
 def storeProjections():
     print("Armazenando projecoes")
 
-    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+
+    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'+str(last_date).split(' ')[0]+'/'
     Projecao.objects.all().delete()
     for fileName in os.listdir(pasta):
         if fileName.find('.png') == -1:
             a = pandas.read_csv(pasta+fileName, sep=',')
             a = a.replace({np.nan: None})
 
-            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-14')[0]
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]
             
             if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
-                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-14')[0]]
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]]
             elif fileEstadoNome == 'BrasilConfirmados':
                 nomeEstado = 'Projecao de Confirmados no Brasil'
             else:
@@ -219,25 +229,33 @@ def storeProjections():
 def saveImages():
     print("Salvando Imagens no database")
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo"
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico modelo"
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelos"
     copy_tree(original, target)
     
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao"
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico predicao"
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicoes"
     copy_tree(original, target)
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima"
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+    
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima/"+str(last_date).split(' ')[0]
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecoes"
     copy_tree(original, target)
 
 def storeBot():
     print("Armazenando extrações")
 
-    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
-    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Casos por Estado.csv', sep=',')
-    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por cidade.csv', sep=',')
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por Estado.csv', sep=',')
+    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por cidade.csv', sep=',')
 
     estados = []
     for index, row in dfEstados.iterrows():
