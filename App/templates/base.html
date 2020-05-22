@@ -305,7 +305,7 @@
             lastinterpol: new Date(pins[0] + 'T00:00:00Z'),
             lastinterpolpe: new Date(pinsPE[0] + 'T00:00:00Z'),
 
-            // se a intensidade máxima é diária(0) ou global(1)
+            // se o mapa é de densidade(0) ou de casos confirmados(1)
             maxInt: 0,
             maiorint: maior_int,
             radioheat: 'brasil',
@@ -825,78 +825,88 @@
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
+                // TODO métodos diferentes dependendo do mapa, mexer ou aqui ou no @click do botão
+                if(this.maxInt == 0){
+                    if(this.radioheat == 'brasil'){
+                        if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
+                            test.setDate( test.getDate() + 1 );
 
-                if(this.radioheat == 'brasil'){
-                    if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
-                        test.setDate( test.getDate() + 1 );
-
-                        while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
-                            if(test.toISOString().substring(0,10) == pins[0]){
-                                console.log('chegamos no ultimo dia!')
-                                break
-                            }else{
-                                test.setDate( test.getDate() + 1 )
+                            while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                                if(test.toISOString().substring(0,10) == pins[0]){
+                                    console.log('chegamos no ultimo dia!')
+                                    break
+                                }else{
+                                    test.setDate( test.getDate() + 1 )
+                                }
                             }
-                        }
 
-                        this.datedb = test
+                            this.datedb = test
 
-                    }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
-                        let pred = new Date(this.datedb)
-                        pred.setDate( pred.getDate() + 1 );
-                        let afterAfterTomorrow = new Date(this.lastinterpol);
-                        afterAfterTomorrow.setHours(23,59,59);
-                        afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+                        }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
+                            let pred = new Date(this.datedb)
+                            pred.setDate( pred.getDate() + 1 );
+                            let afterAfterTomorrow = new Date(this.lastinterpol);
+                            afterAfterTomorrow.setHours(23,59,59);
+                            afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
 
-                        // se estou antes de meia noite de amanha
-                        if(pred < afterAfterTomorrow ) {
-                            console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
-                            this.useIa = true;
-                            this.datedb = pred;
-                        }else {
-                            console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
-                            return
-                        }
-                        
-                        this.datedb = pred
-                    }    
-                }else{
-                    if(test.toISOString().substring(0,10) != pinsPE[0] && !this.useIa){
-                        test.setDate( test.getDate() + 1 );
-
-                        while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
-                            if(test.toISOString().substring(0,10) == pinsPE[0]){
-                                console.log('chegamos no ultimo dia!')
-                                break
-                            }else{
-                                test.setDate( test.getDate() + 1 )
+                            // se estou antes de meia noite de amanha
+                            if(pred < afterAfterTomorrow ) {
+                                console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                                this.useIa = true;
+                                this.datedb = pred;
+                            }else {
+                                console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                                return
                             }
+                            
+                            this.datedb = pred
+                        }    
+                    }else{
+                        if(test.toISOString().substring(0,10) != pinsPE[0] && !this.useIa){
+                            test.setDate( test.getDate() + 1 );
+
+                            while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
+                                if(test.toISOString().substring(0,10) == pinsPE[0]){
+                                    console.log('chegamos no ultimo dia!')
+                                    break
+                                }else{
+                                    test.setDate( test.getDate() + 1 )
+                                }
+                            }
+
+                            this.datedb = test
+
+                        }else if(test.toISOString().substring(0,10) == pinsPE[0] || this.useIa){
+                            let pred = new Date(this.datedb)
+                            pred.setDate( pred.getDate() + 1 );
+                            let afterAfterTomorrow = new Date(this.lastinterpol);
+                            afterAfterTomorrow.setHours(23,59,59);
+                            afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+
+                            // se estou antes de meia noite de amanha
+                            if(pred < afterAfterTomorrow ) {
+                                console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                                this.useIa = true;
+                                this.datedb = pred;
+                            }else {
+                                console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                                return
+                            }
+                            
+                            this.datedb = pred
                         }
-
-                        this.datedb = test
-
-                    }else if(test.toISOString().substring(0,10) == pinsPE[0] || this.useIa){
-                        let pred = new Date(this.datedb)
-                        pred.setDate( pred.getDate() + 1 );
-                        let afterAfterTomorrow = new Date(this.lastinterpol);
-                        afterAfterTomorrow.setHours(23,59,59);
-                        afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
-
-                        // se estou antes de meia noite de amanha
-                        if(pred < afterAfterTomorrow ) {
-                            console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
-                            this.useIa = true;
-                            this.datedb = pred;
-                        }else {
-                            console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
-                            return
-                        }
-                        
-                        this.datedb = pred
                     }
+                }else{
+                    // TODO implementar simples sistema de avançar até, no maximo, o dia atual
                 }
-                // ? se test nao for o ultimo dia:
                 
+                
+            }
+        },
+        watch: {
+            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação, para evitar possíveis bugs
+            maxInt() {
+                this.datedb = new Date(pins[0] + 'T00:00:00Z')
             }
         }
     });
