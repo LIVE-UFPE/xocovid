@@ -8,7 +8,7 @@ module.exports ={
     name: 'state-map',
     data: function (){
         return{
-            test: null,
+            maiscasos: null,
             request: null,
             casos: [],
             map: null,
@@ -21,20 +21,30 @@ module.exports ={
         datedb: Date,
     },
     methods: {
+        // TODO saber ultimo dia que se tem dados, pois não tem a partir de um certo dia
+        // TODO snackbar informando
+        // TODO informar na legenda que existe cor para ausencia de dados
         getCasos(){
-            console.log(`datedb é ${this.datedb}`)
+            console.log(`datedb é ${this.datedb.toISOString()}`)
             if (this.request != null) {
                 this.request.abort();
             }
-            //pede a quantidade de óbitos acumulados de cada estado do dia
+            //pede a quantidade de casos confirmados de cada estado do dia
             this.request = $.ajax({
                 context: this,
                 type: 'GET',
                 url: "graphs/get_data",
                 data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
                 success: function (response) {
-                    this.casos = JSON.parse(response)
-                    this.geojson.setStyle(this.style)
+                    let resposta = JSON.parse(response)
+                    if(resposta.length != 0){
+                        this.casos = resposta
+                        // console.log(this.casos)
+                        this.maiscasos = this.casos[0]['quantidade_casos']
+                        console.log(`this.maiscasos = ${this.maiscasos}`)
+                        this.geojson.setStyle(this.style)    
+                    }else console.log('não tem dado presse dia lul')
+                    
                 }
             })
         }
@@ -72,24 +82,29 @@ module.exports ={
                 click: zoomToFeature.bind(this)
             });
         }
-        // TODO automatizar intensidade das cores com base na maior quantidade de óbitos??
+        
         function getColor(estado,that) {
             if(that.casos.length == 0) return '#800026'
             // DEBUG lista os casos
-            console.log(that.casos)
-            let d = that.casos.find( elem => elem['estado_residencia'] === estado)['quantidade_casos']
-            return d > 1000 ? '#800026' :
-                d > 15  ? '#BD0026' :
-                d > 12  ? '#E31A1C' :
-                d > 10  ? '#FC4E2A' :
-                d > 3   ? '#FD8D3C' :
-                d > 2   ? '#FEB24C' :
-                d > 1   ? '#FED976' :
-                          '#FFEDA0'
+            // console.log(that.casos)
+            let d = that.casos.find( elem => elem['estado_residencia'] === estado)
+            try {
+                d = d['quantidade_casos']
+            } catch (error) {
+                console.log(`não temos informações sobre ${estado} nesse dia,inserindo cor fora do padrão`)
+                return '#0011ff'
+            }
+            return d >= Math.floor(that.maiscasos * 0.875) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(that.maiscasos * 0.75)  ? '#ff5e5e' :
+                d >= Math.floor(that.maiscasos * 0.625)  ? '#ffcd05' : // * tons de amarelo
+                d >= Math.floor(that.maiscasos * 0.5)  ? '#ffd83b' :
+                d >= Math.floor(that.maiscasos * 0.375)   ? '#ffe061' :
+                d >= Math.floor(that.maiscasos * 0.25)   ? '#ffeb99' :
+                d >= Math.floor(that.maiscasos * 0.125)   ? '#33ff33' : // * tons de verde
+                          '#91ff91'
         }
         function style(feature) {
             return {
-                // TODO mudar esse parametro p um pego pelo ajax
                 fillColor: getColor(feature.properties.name,this),
                 weight: 2,
                 opacity: 1,
@@ -107,11 +122,18 @@ module.exports ={
             return this._div;
         };
 
-        // TODO mudar props.id pra um método que realmente pegue o numero de casos acumulados
-        //this.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
         info.update = function (props, that) {
+            let casos = 0
+            if (props) {
+                try {
+                    casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
+                } catch (error) {
+                    console.log('sem dados')
+                    casos = 'S/ Info'
+                }    
+            }
             this._div.innerHTML = '<h4>Número de casos confirmados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos'] + '</h1> <br /> <h4  class="text-center" style="color: white">casos confirmados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
+                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos confirmados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
@@ -137,7 +159,7 @@ module.exports ={
     },
     watch: {
         datewatch() {
-
+            this.getCasos()
         }
     },
     

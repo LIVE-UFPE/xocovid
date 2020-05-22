@@ -24,7 +24,6 @@ const globalRadius = 30
 var overrideRadius = false
 
 // ignora limite do zoom de acordo com a interpolação escolhida e permite zoom máximo/mínimo da API
-// TODO tirar esse overrideZoom e limitar o zoom de acordo com a interpolação sendo usada
 var overrideZoom = false
 
 // ignora a intensidade recebida e deixa todos os pontos com intensidade máxima, deve ser usado com radius override
@@ -89,7 +88,6 @@ module.exports = {
                 context: this,
                 type: 'GET',
                 url: "get/ajax/pins",
-                // TODO ajeitar async call
                 data: {"day": this.datedb.toISOString().substring(0,10), "brasilheat": this.brasilheat},
                 success: function (response) {
                     // seta pins
@@ -171,8 +169,7 @@ module.exports = {
                 '.65': 'yellow',
                 '1': 'red',
             },
-            //? raio em pixels (na proporção 1/2 pixel/metro)
-            // TODO ajustar raio e formula de raio em todo canto
+            
             'radius': this.radius,
             'scaleRadius': false,
             latField: 'lat',

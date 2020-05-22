@@ -200,7 +200,7 @@ def get_data(request):
             # ? pega dados de todos os estados, dado o dia!
             elif keyBusca == 'estadosdia':
                 dia = request.GET['dia']
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.fromisoformat(dia)).values('estado_residencia','quantidade_casos','obitos'))
+                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.fromisoformat(dia)).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
         
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':

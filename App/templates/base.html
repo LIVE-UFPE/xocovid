@@ -764,68 +764,85 @@
 
 
             //? metodos da home
+            //TODO trocar tudo de setDate ou setHours, etc, p setUTCDate, por exemplo, em dateBack e dateForward
             dateBack: function (event) {
                 let test = new Date(this.datedb);
-                if(this.radioheat == 'brasil'){
-                    if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
-                        test.setDate( test.getDate() - 1 );
-                        test.setHours(23,59,58);
 
-                        let today = new Date(this.lastinterpol);
-                        today.setHours(23,59,59);
-                        if( test < today ){
-                            if(this.useIa) console.log("não usando mais predições!")
-                            this.useIa = false;
-                            while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
-                                if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
-                                    console.log('chegamos no primeiro dia!')
-                                    break
-                                }else{
-                                    test.setDate( test.getDate() - 1 )
+                if(this.maxInt == 0){
+                    if(this.radioheat == 'brasil'){
+                        if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
+                            test.setDate( test.getDate() - 1 );
+                            test.setHours(23,59,58);
+
+                            let today = new Date(this.lastinterpol);
+                            today.setHours(23,59,59);
+                            if( test < today ){
+                                if(this.useIa) console.log("não usando mais predições!")
+                                this.useIa = false;
+                                while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                                    if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
+                                        console.log('chegamos no primeiro dia!')
+                                        break
+                                    }else{
+                                        test.setDate( test.getDate() - 1 )
+                                    }
                                 }
                             }
-                        }
-                        
+                            
 
-                        this.datedb = test;
-                        console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                            this.datedb = test;
+                            console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                        }else{
+                            console.log('não há dados antes desse dia!')
+                            return
+                        }
                     }else{
-                        console.log('não há dados antes desse dia!')
-                        return
-                    }
+                        if(test.toISOString().substring(0,10) != pinsPE[pinsPE.length - 1]){
+                            test.setDate( test.getDate() - 1 );
+                            test.setHours(23,59,58);
+
+                            let today = new Date(this.lastinterpol);
+                            today.setHours(23,59,59);
+                            if( test < today ){
+                                if(this.useIa) console.log("não usando mais predições!")
+                                this.useIa = false;
+                                while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
+                                    if(test.toISOString().substring(0,10) == pinsPE[pinsPE.length - 1]){
+                                        console.log('chegamos no primeiro dia!')
+                                        break
+                                    }else{
+                                        test.setDate( test.getDate() - 1 )
+                                    }
+                                }
+                            }
+                            
+
+                            this.datedb = test;
+                            console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                        }else{
+                            console.log('não há dados antes desse dia!')
+                            return
+                        }
+                    }    
                 }else{
-                    if(test.toISOString().substring(0,10) != pinsPE[pinsPE.length - 1]){
-                        test.setDate( test.getDate() - 1 );
-                        test.setHours(23,59,58);
-
-                        let today = new Date(this.lastinterpol);
-                        today.setHours(23,59,59);
-                        if( test < today ){
-                            if(this.useIa) console.log("não usando mais predições!")
-                            this.useIa = false;
-                            while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
-                                if(test.toISOString().substring(0,10) == pinsPE[pinsPE.length - 1]){
-                                    console.log('chegamos no primeiro dia!')
-                                    break
-                                }else{
-                                    test.setDate( test.getDate() - 1 )
-                                }
-                            }
-                        }
-                        
-
-                        this.datedb = test;
-                        console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                    test.setUTCDate( test.getUTCDate() - 1 );
+                    test.setUTCHours(23,59,58);
+                    let ultimo = new Date(pins[pins.length - 1] + 'T00:00:00Z')
+                    if(test > ultimo){
+                        console.log('voltando um dia!')
+                        this.datedb = test
+                        return
                     }else{
-                        console.log('não há dados antes desse dia!')
+                        console.log('nao temos dados antes desse dia!')
                         return
                     }
                 }
+                
                     
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
-                // TODO métodos diferentes dependendo do mapa, mexer ou aqui ou no @click do botão
+
                 if(this.maxInt == 0){
                     if(this.radioheat == 'brasil'){
                         if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
@@ -897,7 +914,20 @@
                         }
                     }
                 }else{
-                    // TODO implementar simples sistema de avançar até, no maximo, o dia atual
+                    test.setUTCDate( test.getUTCDate() + 1 );
+                    let agora = new Date(Date.now())
+                    test.setUTCHours(23,59,58);
+                    agora.setUTCHours(23,59,59);
+                    console.log(`test é ${test.toISOString()}\nagora é ${agora.toISOString()}`)
+                    // * se ainda estou no máximo, no dia atual
+                    if( agora > test ){
+                        console.log('avançando um dia!')
+                        this.datedb = test
+                        return
+                    }else{
+                        console.log('nao temos dados além de hoje!')
+                        return
+                    }
                 }
                 
                 
