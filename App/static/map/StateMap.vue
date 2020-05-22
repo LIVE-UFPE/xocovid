@@ -20,6 +20,7 @@ module.exports ={
         
     },
     mounted() {
+        
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('map').setView([-15.776250, -47.796619], 4);
         var geojson;
@@ -134,11 +135,13 @@ module.exports ={
 .info .leaflet-control {
     background-color: #777;
 }
+
 .leaflet-control-zoom{
     margin-left: 80px;
+    position:absolute;
     margin-top: 80px
 }
-.leaflet-control-container{
+/* .leaflet-control-container{
      margin-left: 200px;
-}
+} */
 </style>
