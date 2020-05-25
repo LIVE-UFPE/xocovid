@@ -6,11 +6,21 @@ from datetime import datetime, timedelta
 import App.predicao_arima.cumulativeSum as cumulativeSum
 import os
 
-def getYesterday(): 
-	today=datetime.today() 
-	oneday=timedelta(days=1) 
-	yesterday=today-oneday  
-	return yesterday
+def getYesterday():
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/dados'):
+        try:
+            fileName = fileName.split("Casos por Estado ")[1].split(".csv")[0]
+        
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+    return last_date
+"""today=datetime.today() 
+oneday=timedelta(days=1) 
+yesterday=today-oneday  
+return yesterday"""
 
 
 
@@ -50,7 +60,7 @@ diasAnalizados  = [
 
 # cumulativeSum.main(ontem)
 def main():
-    for ontem in diasAnalizados:
+    for ontem in [str(getYesterday()).split(" ")[0]]:
         cumulativeSum.main(ontem)
         estado_casos = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/dados/Casos por Estado '+ontem +'.csv', sep=',',index_col = 0)
 

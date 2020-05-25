@@ -163,7 +163,6 @@ def getCasosPernambuco():
         internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
     casoPernambuco.save()
 
-
 def storeProjections():
     print("Armazenando projecoes")
 

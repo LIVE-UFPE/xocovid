@@ -77,7 +77,7 @@ write.csv(df,paste0(paste(getwd(), "/App/predicao_arima/coeficientes modelo/", s
 img <- paste0(paste(getwd(), "/App/predicao_arima/grafico modelo/", sep = ""),"modelo","_",estado,".png")
 png(file = img, width=650, height = 500, units = 'px')
 write.csv(y_train,paste0(paste(getwd(), "/App/predicao_arima/y_train.csv", sep = "")))
-plot(y_train,lwd=2, col='blue',type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0(paste(getwd(), "/Casos confirmados da covid-19 em ", sep = ""),estado,dateFormat(data$dt_notificacao[1])," a ",dateFormat(data$dt_notificacao[length(tsdata) - 6])))
+plot(y_train,lwd=2, col='blue',type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Casos confirmados da covid-19 em ",estado," ",dateFormat(data$dt_notificacao[1])," a ",dateFormat(data$dt_notificacao[length(tsdata) - 6])))
 grid(lwd = 2, col = 'blue') 
 lines(fit$fitted, col='red')
 legend("topleft",legend = c("Modelo", "Casos confirmados"), col=c("red","blue"),pch = c("-","-"),text.col = "black",inset = c(0.1, 0.1))
@@ -95,7 +95,7 @@ write.csv(df.pred,paste0(paste(getwd(), "/App/predicao_arima/coeficientes predic
 img <- paste0(paste(getwd(), "/App/predicao_arima/grafico predicao/", sep = ""),"pred","_",estado,".png")
 png(file = img, width=650, height = 500, units = 'px')
 write.csv(forecast1,paste0(paste(getwd(), "/App/predicao_arima/pred_.csv", sep = "")))
-plot(forecast1, lwd =2, type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0(paste(getwd(), "/App/predicao_arima/Predição dos casos confirmados da covid-19 em ", sep = ""), estado, dateFormat(data$dt_notificacao[length(tsdata) - 5])," a ",dateFormat(data$dt_notificacao[length(tsdata)])))
+plot(forecast1, lwd =2, type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Predição dos casos confirmados da covid-19 em ", estado, " ", dateFormat(data$dt_notificacao[length(tsdata) - 5])," a ",dateFormat(data$dt_notificacao[length(tsdata)])))
 grid(lwd = 2, col = 'blue') 
 dev.off()
 
@@ -118,7 +118,7 @@ png(file = img, width=650, height = 500, units = 'px')
 
 write.csv(f.proj,paste0(paste(getwd(), "/App/predicao_arima/proj_.csv", sep = ""), sep = ""))
 plot(f.proj,lwd=2, type='l',ylab="Casos confirmados", xlab="Tempo",
-main=paste0(paste(getwd(), "/App/predicao_arima/Projeção dos casos confirmados da covid-19 em ", sep = ""),estado,begin," a ",end),
+main=paste0("Projeção dos casos confirmados da covid-19 em ", estado, " ", begin," a ",end),
 )
 grid(lwd = 2, col = 'blue') 
 dev.off()
