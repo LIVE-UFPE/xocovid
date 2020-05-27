@@ -361,11 +361,11 @@
       </div>
       
       {% comment %} DEBUG pq n pega c os 2 juntos {% endcomment %}
-      <state-map :datedb="datedb" ></state-map>
+      {% comment %} <state-map :datedb="datedb" ></state-map> {% endcomment %}
 
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
-      {% comment %} <state-map v-if="maxInt === 1" :datedb="datedb" ></state-map> {% endcomment %}
-      {% comment %} <covid-map v-else :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map> {% endcomment %}
+      <state-map v-if="maxInt === 1" :datedb="datedb" ></state-map>
+      <covid-map v-else :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
   </div>
 </html>
