@@ -203,8 +203,22 @@
           </v-list-item>
         </v-card>
       </div> {% endcomment %}
+      
+      
       <!-- --------CARD MENU------- -->
       <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
+        <!-- Map Name -->
+        <v-card
+          class="mx-auto mb-4"
+          max-width="344"
+          outlined
+          height='50'
+          style="border-radius: 5px;"
+        >
+            <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
+            <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
+        </v-card>
+        
         <template>
           <v-bottom-navigation
             grow

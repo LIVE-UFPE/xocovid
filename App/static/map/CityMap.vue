@@ -1,6 +1,6 @@
 <template>
     <div :key="componentKey" style="border-radius: 25px" id="mapcity">
-        
+
     </div>
 </template>
 <script>
@@ -20,7 +20,7 @@ module.exports ={
     methods: {
         forceRerender() {
           this.componentKey += 1
-        }
+        },  
     },
     mounted() {
         console.log(this.estado.split(' ').join('_'))
@@ -34,9 +34,46 @@ module.exports ={
         
         geojson = L.geoJson(eval(this.estado), {style: style});
         
+        function samDash(estado, cidade){
+            buscaResponse = []
+            var request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estado, "cidade": cidade, "bairro": ''},
+                async: false,
+                success: function (response) {
+                    buscaResponse = JSON.parse(response)
+                }
+            })
+            if(buscaResponse.length == 0){
+                 return 0
+            }else{
+                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
+            }
+        }
+
+        function samDashObitos(estado, cidade){
+            buscaResponse = []
+            var request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                data: {"informacao": 'Óbitos', "keyBusca": 'cidades2', "estado": estado, "cidade": cidade, "bairro": ''},
+                async: false,
+                success: function (response) {
+                    buscaResponse = JSON.parse(response)
+                }
+            })
+            if(buscaResponse.length == 0){
+                 return 0
+            }else{
+                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
+            }
+        }
+
         function highlightFeature(e) {
             var layer = e.target;
-
             layer.setStyle({
                 weight: 5,
                 color: '#1E9CF8',
@@ -65,17 +102,17 @@ module.exports ={
         }
         function getColor(d) {
             return d > 1000 ? '#800026' :
-                d > 15  ? '#BD0026' :
-                d > 12  ? '#E31A1C' :
-                d > 10  ? '#FC4E2A' :
-                d > 3   ? '#FD8D3C' :
-                d > 2   ? '#FEB24C' :
-                d > 1   ? '#FED976' :
-                            '#FFEDA0';
+                d > 15  ? '#800026' :
+                d > 12  ? '#800026' :
+                d > 10  ? '#800026' :
+                d > 3   ? '#800026' :
+                d > 2   ? '#800026' :
+                d > 1   ? '#800026' :
+                            '#800026';
         }
         function style(feature) {
             return {
-                fillColor: getColor(feature.properties.codigo_ibg),
+                fillColor: getColor(feature.properties.NOME),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -90,12 +127,38 @@ module.exports ={
             this.update();
             return this._div;
         };
-
+        console.log('ESTADO: ', this.estado)
         // method that we will use to update the control based on feature properties passed
         info.update = function (props) {
-            this._div.innerHTML = '<h4>Número de casos confirmados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + props.id + '</h1> <br /> <h4  class="text-center" style="color: white">casos confirmados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
-                : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
+            this._div.innerHTML = (props ?
+                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                    <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
+                        + props.NOME + 
+                    `</h2>
+                    <br /> 
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + samDash(toString(this.estado), props.NOME) + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos confirmados
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + samDashObitos(toString(this.estado), props.NOME) + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos confirmados
+                            </h4>
+                        </div> 
+                    </div>
+                    </div>`
+                : 
+                `<h5 style="color: white" class="text-center">
+                    Passe o mouse por uma cidade
+                </h5>`);
         };
         info.addTo(map);
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
