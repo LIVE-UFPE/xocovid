@@ -166,7 +166,6 @@ def get_data(request):
         cidade = request.GET['cidade']
         bairro = request.GET['bairro']
         response = []
-
         if informacao == 'PieChartData':
             response = list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados'))
         elif informacao == 'Casos Estado':
@@ -197,6 +196,12 @@ def get_data(request):
                 response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+            
+            # ? pega dados de todos os estados, dado o dia!
+            elif keyBusca == 'estadosdia':
+                dia = request.GET['dia']
+                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia, '%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+        
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
                 response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))

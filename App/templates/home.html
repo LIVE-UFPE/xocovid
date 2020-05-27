@@ -82,7 +82,9 @@
 
                   >
                     <div class="mr-4" left style="width: 20px;height: 20px;border-radius: 4px;background-color: #34eb8f;"></div>
-                    <div>Baixa densidade</div>
+                    <div v-if="maxInt === 0" >Baixa densidade</div>
+                    <div v-else >Baixa quantidade</div>
+
                   </v-chip>
 
                   <v-chip
@@ -95,7 +97,9 @@
 
                   >
                     <div class="mr-4" left style="width: 20px;height: 20px;border-radius: 4px;background-color: #f0c61f;"></div>
-                    <div>Média densidade</div>
+                    <div v-if="maxInt === 0" >Média densidade</div>
+                    <div v-else >Média quantidade</div>
+
                   </v-chip>
 
                   <v-chip
@@ -108,7 +112,9 @@
 
                   >
                     <div class="mr-4" left style="width: 20px;height: 20px;border-radius: 4px;background-color: #f0371f;"></div>
-                    <div>Alta densidade</div>
+                    <div v-if="maxInt === 0" >Alta densidade</div>
+                    <div v-else >Alta quantidade</div>
+
                   </v-chip>
                 </div>
               </div>
@@ -262,10 +268,10 @@
             <v-bottom-sheet v-model="sheet">
               <template v-slot:activator="{ on }">
                 <v-btn v-on='on'>
-                  <span style="color:#1E9CF8">Alterar Visualização</span>
+                  <span style="color:#1E9CF8">Alterar Mapa</span>
                   <div class="text-center">
-                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Mapa de Calor</v-list-item-title>
-                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Número de Casos</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Projeção de Casos</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Casos Acumulados</v-list-item-title>
                   </div>
                 </v-btn>
               </template>
@@ -299,8 +305,8 @@
                               <span>Visualização do mapa de projeção do crescimento de casos</span>
                             </v-tooltip>
                           </v-list-item>
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Mapa de Calor</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">Acompanhe a projeção e histórico de casos </v-list-item-subtitle>
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Projeção de Casos</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">Mapa de calor que exibe a projeção de casos no Brasil ou Pernambuco.</v-list-item-subtitle>
                       
                           <div class="justify-center">
                               <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=0" outlined color="#1E9CF8">
@@ -334,8 +340,8 @@
                             </v-tooltip>
                           </v-list-item>
 
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Número de Casos</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">Visualize os casos confirmados por estado da unidade federativa</v-list-item-subtitle>
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Casos Acumulados</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">Mapa que exibe a quantidade de casos acumulados por estado, denotados por um padrão de cores.</v-list-item-subtitle>
                       
                           <div class="justify-center">
                               <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1" outlined color="#1E9CF8">
@@ -355,7 +361,7 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-    <div style="position: absolute;bottom: 380px;left: 10vmin;z-index: 1">
+      <div style="position: absolute;bottom: 380px;left: 10vmin;z-index: 1" v-if="maxInt === 0">
         <v-card
         class="mx-auto pb-2"
         max-width="220"
@@ -363,20 +369,24 @@
         width="220"
         outlined
         style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
-      >
-            <p class="body-1 mb-0 pt-2 text-center"> Dados do: </p>
-            <v-card-actions class="d-block pt-0 text-center">
+        >
+            <p class="body-1 mb-0 pt-2 text-center d-block"> Dados do: </p>
+            <v-card-actions class="pt-0 text-center">
               <v-radio-group v-model="radioheat" class="pa-0">
-                  <v-radio class="text-center" label="Brasil" value="brasil"></v-radio>
+                  <v-radio label="Brasil" value="brasil"></v-radio>
                   <v-radio label="Pernambuco" value="pernambuco"></v-radio>
               </v-radio-group>
             </v-card-actions>
             
         </v-card> 
       </div>
-      <!-- 1 -->
-        <state-map v-if="maxInt === 0"></state-map> 
-        <covid-map v-if="maxInt === 1" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe" :maxint="maxInt" ></covid-map>
+      
+      {% comment %} DEBUG pq n pega c os 2 juntos {% endcomment %}
+      {% comment %} <state-map :datedb="datedb" ></state-map> {% endcomment %}
+
+      <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
+      <state-map v-if="maxInt === 1" :datedb="datedb" ></state-map>
+      <covid-map v-else :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
   </div>
 </html>
