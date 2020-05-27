@@ -202,16 +202,13 @@ var Store = (function StoreClosure() {
     getData: function() {
       return this._unOrganizeData();
     }/*,
-
       TODO: rethink.
-
     getValueAt: function(point) {
       var value;
       var radius = 100;
       var x = point.x;
       var y = point.y;
       var data = this._data;
-
       if (data[x] && data[x][y]) {
         return data[x][y];
       } else {
@@ -221,7 +218,6 @@ var Store = (function StoreClosure() {
           var neighbors = distance * 2 +1;
           var startX = x - distance;
           var startY = y - distance;
-
           for(var i = 0; i < neighbors; i++) {
             for (var o = 0; o < neighbors; o++) {
               if ((i == 0 || i == neighbors-1) || (o == 0 || o == neighbors-1)) {

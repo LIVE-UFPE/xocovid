@@ -36,7 +36,7 @@
         <script src="{% static 'heatmap/heatmap.js' %}"></script>
         <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
-
+        <script type="text/javascript" src='../static/states/states.js'></script>
         <!-- * jQuery -->
         <script
             src="https://code.jquery.com/jquery-3.5.0.min.js"
@@ -98,11 +98,24 @@
     {% else %}
         var pins = ['']
     {% endif %}
+    {% if items_json_pe %}
+        var pinsPE = {{ items_json_pe|safe }};
+    {% else %}
+        var pinsPE = ['']
+    {% endif %}
     {% if predicts_json %}
         var predicts = {{ predicts_json|safe }};
     {% else %}
         var predicts = ['']
     {% endif %}
+    {% if predicts_pe_json %}
+        var predictspe = {{ predicts_pe_json|safe }}
+    {% else %}
+        var predictspe = ['']
+    {% endif %}
+
+
+
     {% if data %}
         var data= {{ data|safe }}
     {% else %}
@@ -110,11 +123,18 @@
     {% endif %}
 
     {% if maior_int %}
-        //maior intensidade, global!!
+        //maior intensidade BR, global!!
         var maior_int = {{ maior_int|safe }}
     {% else %}
         var maior_int = 0.0
     {% endif %}
+    {% if maior_int_pe %}
+        //maior intensidade PE, global!!
+        var maior_int_pe = {{ maior_int_pe|safe }}
+    {% else %}
+        var maior_int_pe = 0.0
+    {% endif %}
+
 
     var template = {{ template|safe }}
 
@@ -140,6 +160,7 @@
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'login/login.vue' %}"),
             'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
+            'state-map': httpVueLoader("{% static 'stateMap/StateMap.vue' %}"),
             VeLine,
             VeHistogram,
             VePie
@@ -215,7 +236,6 @@
             personalizadoPaises: ['Brasil'],
             value: null,
             sheet: false,
-            maxInt: 0,
             base: 0,
             activeBtn: 1,
             item: 5,
@@ -277,11 +297,19 @@
 
             //? props da home
             pins: null,
+            pinspe: null,
             datedb: new Date(pins[0] + 'T00:00:00Z'),
             predicts: predicts,
+            predictspe: predictspe,
             useIa: false,
             lastinterpol: new Date(pins[0] + 'T00:00:00Z'),
+            lastinterpolpe: new Date(pinsPE[0] + 'T00:00:00Z'),
+
+            // se o mapa é de densidade(0) ou de casos confirmados(1)
+            maxInt: 0,
             maiorint: maior_int,
+            radioheat: 'brasil',
+            maiorintpe: maior_int_pe,
         }),
         mounted: function (){
             this.$nextTick(function () {
@@ -315,7 +343,6 @@
                 }
 
                 buscaResponse = []
-
                 var request = $.ajax({
                     context: this,
                     type: 'GET',
@@ -736,72 +763,180 @@
 
 
             //? metodos da home
+            //TODO trocar tudo de setDate ou setHours, etc, p setUTCDate, por exemplo, em dateBack e dateForward
             dateBack: function (event) {
                 let test = new Date(this.datedb);
-                if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
-                    test.setDate( test.getDate() - 1 );
-                    test.setHours(23,59,58);
 
-                    let today = new Date(this.lastinterpol);
-                    today.setHours(23,59,59);
-                    if( test < today ){
-                        if(this.useIa) console.log("não usando mais predições!")
-                        this.useIa = false;
-                        while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
-                            if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
-                                console.log('chegamos no primeiro dia!')
-                                break
-                            }else{
-                                test.setDate( test.getDate() - 1 )
+                if(this.maxInt == 0){
+                    if(this.radioheat == 'brasil'){
+                        if(test.toISOString().substring(0,10) != pins[pins.length - 1]){
+                            test.setDate( test.getDate() - 1 );
+                            test.setHours(23,59,58);
+
+                            let today = new Date(this.lastinterpol);
+                            today.setHours(23,59,59);
+                            if( test < today ){
+                                if(this.useIa) console.log("não usando mais predições!")
+                                this.useIa = false;
+                                while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                                    if(test.toISOString().substring(0,10) == pins[pins.length - 1]){
+                                        console.log('chegamos no primeiro dia!')
+                                        break
+                                    }else{
+                                        test.setDate( test.getDate() - 1 )
+                                    }
+                                }
                             }
-                        }
-                    }
-                    
+                            
 
-                    this.datedb = test;
-                    console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                            this.datedb = test;
+                            console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                        }else{
+                            console.log('não há dados antes desse dia!')
+                            return
+                        }
+                    }else{
+                        if(test.toISOString().substring(0,10) != pinsPE[pinsPE.length - 1]){
+                            test.setDate( test.getDate() - 1 );
+                            test.setHours(23,59,58);
+
+                            let today = new Date(this.lastinterpol);
+                            today.setHours(23,59,59);
+                            if( test < today ){
+                                if(this.useIa) console.log("não usando mais predições!")
+                                this.useIa = false;
+                                while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
+                                    if(test.toISOString().substring(0,10) == pinsPE[pinsPE.length - 1]){
+                                        console.log('chegamos no primeiro dia!')
+                                        break
+                                    }else{
+                                        test.setDate( test.getDate() - 1 )
+                                    }
+                                }
+                            }
+                            
+
+                            this.datedb = test;
+                            console.log("voltando um dia!("+this.datedb.toISOString()+")");
+                        }else{
+                            console.log('não há dados antes desse dia!')
+                            return
+                        }
+                    }    
                 }else{
-                    console.log('não há dados antes desse dia!')
-                    return
+                    test.setUTCDate( test.getUTCDate() - 1 );
+                    test.setUTCHours(23,59,58);
+                    let ultimo = new Date(pins[pins.length - 1] + 'T00:00:00Z')
+                    if(test > ultimo){
+                        console.log('voltando um dia!')
+                        this.datedb = test
+                        return
+                    }else{
+                        console.log('nao temos dados antes desse dia!')
+                        return
+                    }
                 }
+                
+                    
             },
             dateForward: function (event) {
                 let test = new Date(this.datedb);
 
-                // ? se test nao for o ultimo dia:
-                if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
-                    test.setDate( test.getDate() + 1 );
+                if(this.maxInt == 0){
+                    if(this.radioheat == 'brasil'){
+                        if(test.toISOString().substring(0,10) != pins[0] && !this.useIa){
+                            test.setDate( test.getDate() + 1 );
 
-                    while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
-                        if(test.toISOString().substring(0,10) == pins[0]){
-                            console.log('chegamos no ultimo dia!')
-                            break
-                        }else{
-                            test.setDate( test.getDate() + 1 )
+                            while(pins.indexOf(test.toISOString().substring(0,10)) == -1){
+                                if(test.toISOString().substring(0,10) == pins[0]){
+                                    console.log('chegamos no ultimo dia!')
+                                    break
+                                }else{
+                                    test.setDate( test.getDate() + 1 )
+                                }
+                            }
+
+                            this.datedb = test
+
+                        }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
+                            let pred = new Date(this.datedb)
+                            pred.setDate( pred.getDate() + 1 );
+                            let afterAfterTomorrow = new Date(this.lastinterpol);
+                            afterAfterTomorrow.setHours(23,59,59);
+                            afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+
+                            // se estou antes de meia noite de amanha
+                            if(pred < afterAfterTomorrow ) {
+                                console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                                this.useIa = true;
+                                this.datedb = pred;
+                            }else {
+                                console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                                return
+                            }
+                            
+                            this.datedb = pred
+                        }    
+                    }else{
+                        if(test.toISOString().substring(0,10) != pinsPE[0] && !this.useIa){
+                            test.setDate( test.getDate() + 1 );
+
+                            while(pinsPE.indexOf(test.toISOString().substring(0,10)) == -1){
+                                if(test.toISOString().substring(0,10) == pinsPE[0]){
+                                    console.log('chegamos no ultimo dia!')
+                                    break
+                                }else{
+                                    test.setDate( test.getDate() + 1 )
+                                }
+                            }
+
+                            this.datedb = test
+
+                        }else if(test.toISOString().substring(0,10) == pinsPE[0] || this.useIa){
+                            let pred = new Date(this.datedb)
+                            pred.setDate( pred.getDate() + 1 );
+                            let afterAfterTomorrow = new Date(this.lastinterpol);
+                            afterAfterTomorrow.setHours(23,59,59);
+                            afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
+
+                            // se estou antes de meia noite de amanha
+                            if(pred < afterAfterTomorrow ) {
+                                console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
+                                this.useIa = true;
+                                this.datedb = pred;
+                            }else {
+                                console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                                return
+                            }
+                            
+                            this.datedb = pred
                         }
                     }
-
-                    this.datedb = test
-
-                }else if(test.toISOString().substring(0,10) == pins[0] || this.useIa){
-                    let pred = new Date(this.datedb)
-                    pred.setDate( pred.getDate() + 1 );
-                    let afterAfterTomorrow = new Date(this.lastinterpol);
-                    afterAfterTomorrow.setHours(23,59,59);
-                    afterAfterTomorrow.setDate( afterAfterTomorrow.getDate() + 3 );
-
-                    // se estou antes de meia noite de amanha
-                    if(pred < afterAfterTomorrow ) {
-                        console.log("entrando nas predições do dia "+pred.toISOString()+'\n');
-                        this.useIa = true;
-                        this.datedb = pred;
-                    }else {
-                        console.log("pred é " + pred.toISOString() + " e afterAfterTomorrow " + afterAfterTomorrow.toISOString() + '\n');
+                }else{
+                    test.setUTCDate( test.getUTCDate() + 1 );
+                    let agora = new Date()
+                    agora.setUTCHours(agora.getUTCHours() - 3)
+                    test.setUTCHours(23,59,58)
+                    agora.setUTCHours(23,59,59)
+                    console.log(`test é ${test.toISOString()}\nagora é ${agora.toISOString()}`)
+                    // * se ainda estou no máximo, no dia atual
+                    if( agora > test ){
+                        console.log('avançando um dia!')
+                        this.datedb = test
+                        return
+                    }else{
+                        console.log('nao temos dados além de hoje!')
                         return
                     }
-                    
-                    this.datedb = pred
                 }
+                
+                
+            }
+        },
+        watch: {
+            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação, para evitar possíveis bugs
+            maxInt() {
+                this.datedb = new Date(pins[0] + 'T00:00:00Z')
             }
         }
     });
