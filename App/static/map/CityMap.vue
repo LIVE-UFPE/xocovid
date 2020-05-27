@@ -46,10 +46,14 @@ module.exports ={
                     buscaResponse = JSON.parse(response)
                 }
             })
+            var acumulado = 0
+            buscaResponse.forEach(element => {
+                acumulado += element.quantidade_casos
+            });
             if(buscaResponse.length == 0){
                  return 0
             }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
+                 return acumulado
             }
         }
 
@@ -65,10 +69,14 @@ module.exports ={
                     buscaResponse = JSON.parse(response)
                 }
             })
+            var acumulado = 0
+            buscaResponse.forEach(element => {
+                acumulado += element.quantidade_casos
+            });
             if(buscaResponse.length == 0){
                  return 0
             }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
+                 return acumulado
             }
         }
 

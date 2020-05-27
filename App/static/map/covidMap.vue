@@ -24,7 +24,6 @@ const globalRadius = 30
 var overrideRadius = false
 
 // ignora limite do zoom de acordo com a interpolação escolhida e permite zoom máximo/mínimo da API
-// TODO tirar esse overrideZoom e limitar o zoom de acordo com a interpolação sendo usada
 var overrideZoom = false
 
 // ignora a intensidade recebida e deixa todos os pontos com intensidade máxima, deve ser usado com radius override
@@ -57,13 +56,11 @@ module.exports = {
             mymap: null,
             circle: null,
             polygon: null,
-            position: L.latLng(-8.046, -34.927),
             heatmap: null,
             txtsnack: 'Oi',
             snackbar: false,
             pins: [],
             request: null,
-            maxintlocal: 0,
             brasilheat: true,
         } 
     },
@@ -78,8 +75,6 @@ module.exports = {
         maiorintbr: Number,
         maiorintpe: Number,
 
-        //? 0 é diário, 1 é global
-        maxint: Number,
         radioheat: String,
     },
     methods: {
@@ -93,7 +88,6 @@ module.exports = {
                 context: this,
                 type: 'GET',
                 url: "get/ajax/pins",
-                // TODO ajeitar async call
                 data: {"day": this.datedb.toISOString().substring(0,10), "brasilheat": this.brasilheat},
                 success: function (response) {
                     // seta pins
@@ -127,9 +121,9 @@ module.exports = {
                         "useLocalExtrema": false,
                         'maxOpacity': .7,
                     })
-                    this.maxintlocal = maior_int
+                    
                     this.heatmap.setData({
-                        max: overrideIntensity ? 0.1 : (this.maxint == 0 ? maior_int : (this.brasilheat ? this.maiorintbr : this.maiorintpe) ),
+                        max: overrideIntensity ? 0.1 : maior_int,
                         min: 0,
                         data: pins_heat,
                     });
@@ -147,32 +141,9 @@ module.exports = {
         }
     },
     mounted() {
-
-        // TODO resolve location
-        if(!("geolocation" in navigator)){
-            // console.log('fazer oq qd n tem localizaçao??');
-            //TODO fazer isso aq, agr é o centro de recife
-            this.position = L.latLng(-8.046, -34.927);
-        }else{
-            // get position, runs asyncly
-            navigator.geolocation.getCurrentPosition(pos => {
-                //console.log(`lat é ${pos.coords.latitude} e long ${pos.coords.longitude}`)
-                this.position = L.latLng(pos.coords.latitude,pos.coords.longitude);
-                try{
-                    this.mymap = L.map('mapid').setView(this.position, 13);
-                } catch(e){
-                    this.mymap.setView(this.position,13);
-                }
-                
-
-            }, err => {
-                console.log(`erro pegando localização: ${err}
-                considerando o centro de recife`);
-            })
-        }
         
 
-        this.mymap = L.map('mapid',{zoomControl: false}).setView(this.position, this.brasilheat ? iniZoomBR : iniZoomPE);
+        this.mymap = L.map('mapid',{zoomControl: false}).setView([-15.776250, -47.796619], 5);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -198,8 +169,7 @@ module.exports = {
                 '.65': 'yellow',
                 '1': 'red',
             },
-            //? raio em pixels (na proporção 1/2 pixel/metro)
-            // TODO ajustar raio e formula de raio em todo canto
+            
             'radius': this.radius,
             'scaleRadius': false,
             latField: 'lat',
@@ -255,9 +225,6 @@ module.exports = {
             }
             
         },
-        maxintwatcher() {
-            return this.maxint
-        },
         radioheatwatcher() {
             return this.radioheat;
         }
@@ -270,17 +237,7 @@ module.exports = {
             // DEBUG checando se o radial muda
             console.log(`radioheat mudou para ${this.radioheat} e brasilheat agora é ${this.brasilheat}`)
         },
-        maxintwatcher() {
-
-            //diário
-            if (this.maxint == 0) {
-                this.heatmap.getinstante().setDataMax(this.maxintlocal)
-                console.log(`intensidade maxima mudou para ${this.maxintlocal}`)
-            }else{
-               this.heatmap.getinstante().setDataMax(this.brasilheat ? this.maiorintbr : this.maiorintpe)
-               console.log(`intensidade maxima mudou para ${this.brasilheat ? this.maiorintbr : this.maiorintpe}`)
-            }
-        },
+        
         // * abreviado de datewatch: function (){}
         datewatch() {
             let pins_heat = [];
