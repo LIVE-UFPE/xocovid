@@ -1,5 +1,9 @@
 <template>
     <div id="map">
+        <v-snackbar v-model="snackbar" top >
+            {{ txtsnack }}
+            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+        </v-snackbar>
     </div>
 </template>
 <script>
@@ -8,12 +12,16 @@ module.exports ={
     name: 'state-map',
     data: function (){
         return{
+            menoscasos: null,
             maiscasos: null,
             request: null,
             casos: [],
             map: null,
             geojson: null,
             style: null,
+            ultimoscasos: [],
+            txtsnack: 'Oi',
+            snackbar: false,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -41,9 +49,18 @@ module.exports ={
                         this.casos = resposta
                         // console.log(this.casos)
                         this.maiscasos = this.casos[0]['quantidade_casos']
-                        console.log(`this.maiscasos = ${this.maiscasos}`)
+                        this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
+                        console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
+                        this.casos.forEach(element => {
+                            this.ultimoscasos[element['estado_residencia']] = element['quantidade_casos']
+                        });
+                        // console.log(this.ultimoscasos)
                         this.geojson.setStyle(this.style)    
-                    }else console.log('não tem dado presse dia lul')
+                    }else {
+                        this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
+                        this.snackbar = true
+                        // console.log(this.ultimoscasos)
+                    }
                     
                 }
             })
@@ -88,20 +105,26 @@ module.exports ={
             // DEBUG lista os casos
             // console.log(that.casos)
             let d = that.casos.find( elem => elem['estado_residencia'] === estado)
+
+            //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
+            let media = (that.maiscasos + that.menoscasos) / 2
+            // console.log(media)
             try {
                 d = d['quantidade_casos']
             } catch (error) {
-                console.log(`não temos informações sobre ${estado} nesse dia,inserindo cor fora do padrão`)
-                return '#0011ff'
+                this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
+                this.snackbar = true
+                d = that.ultimoscasos[estado]
             }
-            return d >= Math.floor(that.maiscasos * 0.875) ? '#ff0000' : // * tons de vermelho
-                d >= Math.floor(that.maiscasos * 0.75)  ? '#ff5e5e' :
-                d >= Math.floor(that.maiscasos * 0.625)  ? '#ffcd05' : // * tons de amarelo
-                d >= Math.floor(that.maiscasos * 0.5)  ? '#ffd83b' :
-                d >= Math.floor(that.maiscasos * 0.375)   ? '#ffe061' :
-                d >= Math.floor(that.maiscasos * 0.25)   ? '#ffeb99' :
-                d >= Math.floor(that.maiscasos * 0.125)   ? '#33ff33' : // * tons de verde
-                          '#91ff91'
+            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(media * 0.75)  ? '#ff4242' :
+                d >= Math.floor(media * 0.625)  ? '#ff6e6e' :
+                d >= Math.floor(media * 0.5)  ? '#ff8a8a' :
+                d >= Math.floor(media * 0.375)   ? '#ffabab' :
+                d >= Math.floor(media * 0.25)   ? '#ffbaba' :
+                d >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
+                d >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
+                    '#38ff26'
         }
         function style(feature) {
             return {
@@ -129,11 +152,11 @@ module.exports ={
                     casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
                 } catch (error) {
                     console.log('sem dados')
-                    casos = 'S/ Info'
+                    casos = that.ultimoscasos[props.name]
                 }    
             }
-            this._div.innerHTML = '<h4>Número de casos confirmados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos confirmados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
+            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
+                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos acumulados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);

@@ -915,9 +915,10 @@
                     }
                 }else{
                     test.setUTCDate( test.getUTCDate() + 1 );
-                    let agora = new Date(Date.now())
-                    test.setUTCHours(23,59,58);
-                    agora.setUTCHours(23,59,59);
+                    let agora = new Date()
+                    agora.setUTCHours(agora.getUTCHours() - 3)
+                    test.setUTCHours(23,59,58)
+                    agora.setUTCHours(23,59,59)
                     console.log(`test é ${test.toISOString()}\nagora é ${agora.toISOString()}`)
                     // * se ainda estou no máximo, no dia atual
                     if( agora > test ){
