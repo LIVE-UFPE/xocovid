@@ -8,6 +8,7 @@ module.exports ={
     name: 'state-map',
     data: function (){
         return{
+            menoscasos: null,
             maiscasos: null,
             request: null,
             casos: [],
@@ -41,7 +42,8 @@ module.exports ={
                         this.casos = resposta
                         // console.log(this.casos)
                         this.maiscasos = this.casos[0]['quantidade_casos']
-                        console.log(`this.maiscasos = ${this.maiscasos}`)
+                        this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
+                        console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
                         this.geojson.setStyle(this.style)    
                     }else console.log('não tem dado presse dia lul')
                     
@@ -88,20 +90,24 @@ module.exports ={
             // DEBUG lista os casos
             // console.log(that.casos)
             let d = that.casos.find( elem => elem['estado_residencia'] === estado)
+
+            //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
+            let media = (that.maiscasos + that.menoscasos) / 2
+            console.log(media)
             try {
                 d = d['quantidade_casos']
             } catch (error) {
                 console.log(`não temos informações sobre ${estado} nesse dia,inserindo cor fora do padrão`)
                 return '#0011ff'
             }
-            return d >= Math.floor(that.maiscasos * 0.875) ? '#ff0000' : // * tons de vermelho
-                d >= Math.floor(that.maiscasos * 0.75)  ? '#ff5e5e' :
-                d >= Math.floor(that.maiscasos * 0.625)  ? '#ffcd05' : // * tons de amarelo
-                d >= Math.floor(that.maiscasos * 0.5)  ? '#ffd83b' :
-                d >= Math.floor(that.maiscasos * 0.375)   ? '#ffe061' :
-                d >= Math.floor(that.maiscasos * 0.25)   ? '#ffeb99' :
-                d >= Math.floor(that.maiscasos * 0.125)   ? '#33ff33' : // * tons de verde
-                          '#91ff91'
+            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(media * 0.75)  ? '#ff4242' :
+                d >= Math.floor(media * 0.625)  ? '#ff6e6e' :
+                d >= Math.floor(media * 0.5)  ? '#ff8a8a' :
+                d >= Math.floor(media * 0.375)   ? '#ffabab' :
+                d >= Math.floor(media * 0.25)   ? '#ffbaba' :
+                d >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
+                          '#ffe054' // * AMARELO MEMSO TUDO AMARELO NISSO AQ
         }
         function style(feature) {
             return {
@@ -132,8 +138,8 @@ module.exports ={
                     casos = 'S/ Info'
                 }    
             }
-            this._div.innerHTML = '<h4>Número de casos confirmados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos confirmados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
+            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
+                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos acumulados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
