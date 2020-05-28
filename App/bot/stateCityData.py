@@ -18,7 +18,7 @@ def processingData():
     most_recent = brasil_cases.date.unique()
     most_recent = sorted(most_recent)[-1]
 
-    pernambuco_cases.to_csv(os.path.join(os.path.dirname(__file__))+'/casos_pernambuco' + most_recent +'.csv')
+    #pernambuco_cases.to_csv(os.path.join(os.path.dirname(__file__))+'/casos_pernambuco' + most_recent +'.csv')
 
     # Casos acumulados no país por cidade e por estado 
     acumulado_pais = brasil_cases

@@ -1,1 +1,7 @@
 App/IA/shapefiles/
+App/__pycache__/
+.vscode/
+App/__init__.py
+App/bot/__pycache__/
+App/migrations/__pycache__/
+App/predicao_arima/__pycache__/
