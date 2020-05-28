@@ -1,4 +1,20 @@
 App/IA/shapefiles/
+App/IA/bases predicao BR/
+App/IA/bases predicao PE/
+App/IA/casos confirmados BR/
+App/IA/casos confirmados PE/
+App/IA/lista_municipios/
+App/IA/temp/
+App/predicao_arima/SaidaArima/
+App/predicao_arima/backup/
+App/predicao_arima/chart/
+App/predicao_arima/coeficientes modelo/
+App/predicao_arima/coeficientes predicao/
+App/predicao_arima/coeficientes projecao/
+App/predicao_arima/dados/
+App/predicao_arima/grafico modelo/
+App/predicao_arima/grafico predicao/
+App/predicao_arima/grafico projecao/
 App/__pycache__/
 .vscode/
 App/__init__.py
