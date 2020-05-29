@@ -147,16 +147,43 @@ module.exports ={
 
         info.update = function (props, that) {
             let casos = 0
+            let obitos = 0
             if (props) {
                 try {
-                    casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
+                    let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
+                    casos = test['quantidade_casos']
+                    obitos = test['obitos']
                 } catch (error) {
                     console.log('sem dados')
                     casos = that.ultimoscasos[props.name]
+                    obitos = 0
                 }    
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos acumulados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
+                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                    <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
+                        + props.name + 
+                    `</h2>
+                    <br /> 
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + casos + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos confirmados
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + obitos + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos confirmados
+                            </h4>
+                        </div> 
+                    </div>
+                    </div>`
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
