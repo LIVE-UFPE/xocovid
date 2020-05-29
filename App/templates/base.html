@@ -38,7 +38,7 @@
         <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
         <script type="text/javascript" src='../static/states/states.js'></script>
-        <script type="text/javascript" src='../static/pernambuco/pernambuco.js'></script>
+        <script type="text/javascript" src='../static/statesData/statesData.js'></script>
         <!-- * jQuery -->
 
 
@@ -166,6 +166,7 @@
             'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
             'state-map': httpVueLoader("{% static 'stateMap/StateMap.vue' %}"),
             'city-map': httpVueLoader("{% static 'cityMap/CityMap.vue' %}"),
+            'home-city-map': httpVueLoader("{% static 'homeCItyMap/HomeCityMap.vue' %}"),
             VeLine,
             VeHistogram,
             VePie
@@ -173,6 +174,7 @@
         },
         data: () => ({
             //? props da graphs
+            homeSelecao: "Pernambuco - PE",
             keychange: 0,
             jobObitosTotais: 200,
             jobObitosDiarios: 0,
@@ -312,12 +314,13 @@
             lastinterpolpe: new Date(pinsPE[0] + 'T00:00:00Z'),
 
             // se o mapa é de densidade(0) ou de casos confirmados(1)
-            maxInt: 0,
+            maxInt: 1,
             maiorint: maior_int,
             radioheat: 'brasil',
             maiorintpe: maior_int_pe,
         }),
         mounted: function (){
+            console.log(template)
             this.$nextTick(function () {
                 //console.log()
                 if(template == 'graphs'){
@@ -337,6 +340,14 @@
 
                     Vue.set(app, 'selecaoGraficoR', 'Pernambuco - PE')
                     Vue.set(app, 'selecaoDashboard','Pernambuco - PE' )
+                }
+                if(template == 'home'){
+                    console.log("Data: ", data)
+                    var estadoS = []
+                    data.estados.forEach(estado => {
+                        estadoS.push(estado.nome + ' - ' + estado.sigla)
+                    })
+                    Vue.set(app, 'estadosSiglaDashboard', estadoS)
                 }
             })
         },
@@ -954,7 +965,7 @@
         obj.push(estado.nome);
         
     });
-    // console.log("Data: ", obj)
+    console.log("Data: ", obj)
     Vue.set(app, 'itemsChips', obj)
     Vue.set(app, 'itemsChipsS', obj)
     Vue.set(app, 'itemsChipsSA', obj)

@@ -62,7 +62,7 @@ def graphs(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as json_file:
             data = json.load(json_file)
         
         return render(request, 'graphs.html', {'template': "'graphs'", 'data': data})
@@ -71,6 +71,8 @@ def home(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json', encoding="utf8") as json_file:
+            data = json.load(json_file)
         context = {}
         predicts = []
         predictsPE = []
@@ -122,6 +124,7 @@ def home(request):
         context["items_json_pe"] = json.dumps(notificationsPE)
         context["predicts_json"] = json.dumps(predicts)
         context["predicts_pe_json"] = json.dumps(predictsPE)
+        context["data"] = data
         return render(request, 'home.html', context)
 
 def get_pins(request):
@@ -200,7 +203,7 @@ def get_data(request):
             # ? pega dados de todos os estados, dado o dia!
             elif keyBusca == 'estadosdia':
                 dia = request.GET['dia']
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia, '%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.fromisoformat(dia)).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
         
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':

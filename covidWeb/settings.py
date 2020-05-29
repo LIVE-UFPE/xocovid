@@ -159,4 +159,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/cityMap'),
     os.path.join(BASE_DIR, 'App/static/dataCidade'),
     os.path.join(BASE_DIR, 'App/static/pernambuco'),
+    os.path.join(BASE_DIR, 'App/static/homeCityMap'),
+    os.path.join(BASE_DIR, 'App/static/statesData'),
 ]

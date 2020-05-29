@@ -52,11 +52,11 @@ for (i in 1:4) {
   
   #Creating the shapefile for the data interpolation
   shp_covid19 <- st_as_sf(covid19, coords = c("longitude", "latitude"), crs = " +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-  new_shp <- st_write(shp_covid19, "shapefiles/shapefile_interpolacao.shp", append=FALSE)
+  new_shp <- st_write(shp_covid19, paste(getwd(), "/App/IA/shapefiles/shapefile_interpolacao.shp", sep=""), append=FALSE)
   
   
   #loading the shapefile of confirmed cases of covid19
-  cases.Points <- shapefile("shapefiles/shapefile_interpolacao.shp")
+  cases.Points <- shapefile(paste(getwd(), "/App/IA/shapefiles/shapefile_interpolacao.shp", sep=""))
   
   
   # runs the idw for the confirmed cases of covid-19
@@ -85,7 +85,7 @@ df <- data.frame("longitude" = day1_int[[1]]$x1,
 split_string <- unlist(strsplit(list_days[4],"_")) 
 fileName <- paste0("predicao_covid19",state,"_",split_string[2])
 names(df)[1:6] <- c("longitude","latitude","day1","day2","day3","prediction")
-write.csv(df, paste0("bases predicao ",state,"/",fileName),row.names = FALSE)
+write.csv(df, paste0(paste(getwd(), "/App/IA/bases predicao ", sep=""),state,"/",fileName),row.names = FALSE)
 
 
 

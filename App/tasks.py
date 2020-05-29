@@ -8,7 +8,7 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-# import App.IA.pipeline as pipe
+import App.IA.pipeline as pipe
 from django.utils import timezone
 import App.bot.stateCityData as bot
 import App.predicao_arima.stateCityData as stateCityData
@@ -113,18 +113,21 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
-    #prediction()
-    #store_base()
-    #send_prediction_to_db()
-    print("Extraindo informações de outras bases")
-    bot.processingData()
-    storeBot()
-    print("Executando predicoes do Arima")
-    stateCityData.main()
-    pipelineArima.main()
-    saveImages()
-    storeProjections()
-    getCasosPernambuco()
+    #print("Extraindo informações de outras bases")
+    #bot.processingData()
+    #storeBot()
+
+    prediction()
+    store_base()
+    send_prediction_to_db()
+    
+    #print("Executando predicoes do Arima")
+    #stateCityData.main()
+    #pipelineArima.main()
+    #saveImages()
+    #storeProjections()
+
+    #getCasosPernambuco()
     
     print("Listener parado")
 

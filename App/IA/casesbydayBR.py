@@ -6,8 +6,8 @@ import os
 def main():
 
     # read dataframes
-    casosCovidBR = pd.read_csv('Casos por cidade 2020-05-06.csv', sep=',')
-    cidades = pd.read_csv('lista_municipios/latitude-longitude-cidades.csv', sep=';')
+    casosCovidBR = pd.read_csv('App/bot/Ultimos Casos por cidade.csv', sep=',')
+    cidades = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/lista_municipios/latitude-longitude-cidades.csv', sep=';')
 
     # putting string data in the same case
     cidades.municipio = cidades.municipio.str.lower()
@@ -32,6 +32,6 @@ def main():
                 casos[i] = casosAnt[i]
         cidades['casos'] = casos
         casosAnt = casos
-        cidades.to_csv('casos confirmados BR/covid19BR_'+dia[5:10] + '.csv')
+        cidades.to_csv(os.path.join(os.path.dirname(__file__))+'/casos confirmados BR/covid19BR_'+dia[5:10] + '.csv')
         cidadesPE = cidades[cidades['uf'] == 'PE']
-        cidadesPE.to_csv('casos confirmados PE/covid19PE_'+dia[5:10] + '.csv')
+        cidadesPE.to_csv(os.path.join(os.path.dirname(__file__))+'/casos confirmados PE/covid19PE_'+dia[5:10] + '.csv')
