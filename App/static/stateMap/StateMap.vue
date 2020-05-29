@@ -144,17 +144,17 @@ module.exports ={
             let casos = 0
             let obitos = 0
             if (props) {
-                try {
+                //try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
-                } catch (error) {
+                /*} catch (error) {
                     console.log('sem dados')
                     console.log(that.ultimoscasos)
                     console.log(props.name)
                     casos = that.ultimoscasos[props.name]['quantidade_casos']
                     obitos = that.ultimoscasos[props.name]['obitos']
-                }    
+                }*/   
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
                  `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
