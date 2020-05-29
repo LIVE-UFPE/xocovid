@@ -62,7 +62,7 @@ def graphs(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as json_file:
             data = json.load(json_file)
         
         return render(request, 'graphs.html', {'template': "'graphs'", 'data': data})
@@ -71,7 +71,7 @@ def home(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json', encoding="utf8") as json_file:
             data = json.load(json_file)
         context = {}
         predicts = []
