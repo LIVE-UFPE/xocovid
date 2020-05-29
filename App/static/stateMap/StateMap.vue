@@ -33,9 +33,9 @@ module.exports ={
         // TODO informar na legenda que existe cor para ausencia de dados
         getCasos(){
             console.log(`datedb é ${this.datedb.toISOString()}`)
-            if (this.request != null) {
+            /*if (this.request != null) {
                 this.request.abort();
-            }
+            }*/
             //pede a quantidade de casos confirmados de cada estado do dia
             this.request = $.ajax({
                 context: this,
@@ -44,11 +44,12 @@ module.exports ={
                 data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
                 success: function (response) {
                     let resposta = JSON.parse(response)
-                    console.log("AQUIIIIII")
+                    
+                    console.log("AQUIIIII")
                     console.log(resposta)
+
                     if(resposta.length != 0){
                         this.casos = resposta
-                        // console.log(this.casos)
                         this.maiscasos = this.casos[0]['quantidade_casos']
                         this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
@@ -148,7 +149,6 @@ module.exports ={
             if (props) {
                 try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
-                    console.log
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
                 } catch (error) {
@@ -202,7 +202,7 @@ module.exports ={
     computed: {
         datewatch() {
             return this.datedb;
-        },
+        }
     },
     watch: {
         datewatch() {
