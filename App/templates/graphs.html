@@ -270,12 +270,11 @@
         <!-- Dashboard -->
       <template>
         <v-card
-              class="mx-auto mt-6 pa-4"
+              class="mx-auto mt-6 pa-4 pb-8"
               max-width="1044"
               width="1044"
-              height='100%'
-              outlined
-              
+              height='auto'
+              outlined  
         >
 
           {% comment %} nObitos nCasos nRecuperados nConf {% endcomment %}
@@ -293,7 +292,10 @@
               label="Selecione o estado"
               width="400"
             ></v-autocomplete>
-            <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard)' dark>Confirmar Estado</v-btn>
+            <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
+          </div>
+          <div class="pl-6 pr-6">
+            <city-map :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
           </div>
           <div style="display: flex;flex-direction: row;">
             <v-card
@@ -324,7 +326,7 @@
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobConf ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
+              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado Acumulado</div>
             </v-card>
             <v-card
                   class="mx-auto mt-6 pa-4"

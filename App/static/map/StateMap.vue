@@ -64,9 +64,11 @@ module.exports ={
                     
                 }
             })
+            
         }
     },
     mounted() {
+        
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('map',{zoomControl: false}).setView([-15.776250, -47.796619], 5);
 
@@ -145,19 +147,48 @@ module.exports ={
             return this._div;
         };
 
+        // method that we will use to update the control based on feature properties passed
         info.update = function (props, that) {
-            let casos = 0
+             let casos = 0
             if (props) {
                 try {
-                    casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
-                } catch (error) {
-                    console.log('sem dados')
-                    casos = that.ultimoscasos[props.name]
-                }    
-            }
-            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
-                 '<br /> <h1 class="text-center" style="color: white; font-weight: bold;font-size: x-large !important">' + casos + '</h1> <br /> <h4  class="text-center" style="color: white">casos acumulados</h4> <h5 class="text-center" style="color: white">'+ props.name + '</h5>'
-                : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
+                     casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
+                 } catch (error) {
+                     console.log('sem dados')
+                     casos = 'S/ Info'
+                     casos = that.ultimoscasos[props.name]
+                 }    
+             }
+
+            this._div.innerHTML = (props ? 
+            `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                    <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
+                        + props.name + 
+                    `</h2>
+                    <br /> 
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + casos + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos confirmados
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + 0 + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos confirmados
+                            </h4>
+                        </div> 
+                    </div>
+                    </div>`
+                : 
+                `<h5 style="color: white" class="text-center">
+                    Passe o mouse por uma cidade
+                </h5>`);
         };
         info.addTo(map);
 
@@ -218,11 +249,13 @@ module.exports ={
 .info .leaflet-control {
     background-color: #777;
 }
+
 .leaflet-control-zoom{
     margin-left: 80px;
+    position:absolute;
     margin-top: 80px
 }
-.leaflet-control-container{
+/* .leaflet-control-container{
      margin-left: 200px;
-}
+} */
 </style>
