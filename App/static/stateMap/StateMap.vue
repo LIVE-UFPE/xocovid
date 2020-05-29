@@ -150,6 +150,8 @@ module.exports ={
                     obitos = test['obitos']
                 } catch (error) {
                     console.log('sem dados')
+                    console.log(that.ultimoscasos)
+                    console.log(props.name)
                     casos = that.ultimoscasos[props.name]['quantidade_casos']
                     obitos = that.ultimoscasos[props.name]['obitos']
                 }    
