@@ -44,6 +44,8 @@ module.exports ={
                 data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
                 success: function (response) {
                     let resposta = JSON.parse(response)
+                    console.log("AQUIIIIII")
+                    console.log(resposta)
                     if(resposta.length != 0){
                         this.casos = resposta
                         // console.log(this.casos)
@@ -144,7 +146,6 @@ module.exports ={
             let casos = 0
             let obitos = 0
             if (props) {
-                console.log(that.casos)
                 try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
                     console.log
