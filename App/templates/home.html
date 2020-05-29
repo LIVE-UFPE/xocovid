@@ -62,15 +62,8 @@
           <v-list-item three-line>
             <v-list-item-content>
               <div style="display: flex;justify-content: center;flex-direction: column;align-items: center;">
-                <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
-                  <v-list-item-title style="font-weight: 800;color: #1E9CF8;" class="headline mt-4 mb-4">Legenda</v-list-item-title>
-                  <v-tooltip right color="#1E9CF8" class="mt-2 pr-4 mb-4">
-                    <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
-                    </template>
-                    <span>As cores indicam a densidade de casos</span>
-                  </v-tooltip>
-                </div>
+                <v-list-item-title style="font-weight: 800;color: #1E9CF8;" class="headline mt-2 mb-4">Legenda</v-list-item-title>
+                
                 <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;">
                   <v-chip
                     class="mt-2"
@@ -209,22 +202,8 @@
           </v-list-item>
         </v-card>
       </div> {% endcomment %}
-      
-      
       <!-- --------CARD MENU------- -->
       <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
-        <!-- Map Name -->
-        <v-card
-          class="mx-auto mb-4"
-          max-width="344"
-          outlined
-          height='50'
-          style="border-radius: 5px;"
-        >
-            <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
-            <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
-        </v-card>
-        
         <template>
           <v-bottom-navigation
             grow
@@ -336,7 +315,7 @@
                               <template v-slot:activator="{ on }">
                                 <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
                               </template>
-                              <span>Visualização do mapa de casos confirmados</span>
+                              <span>!!</span>
                             </v-tooltip>
                           </v-list-item>
 

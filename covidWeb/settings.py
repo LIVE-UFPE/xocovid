@@ -149,9 +149,9 @@ STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, 'App/static/map'),
-    os.path.join(BASE_DIR, 'App/static/filter'),
-    # os.path.join(BASE_DIR, 'App/static/leaflet-heatmap'),
-    # os.path.join(BASE_DIR, 'App/static/heatmap'),
+    os.path.join(BASE_DIR, 'App/static/map'),
+    #os.path.join(BASE_DIR, 'App/static/filter'),
+    os.path.join(BASE_DIR, 'App/static/leaflet-heatmap'),
+    os.path.join(BASE_DIR, 'App/static/heatmap'),
     os.path.join(BASE_DIR, 'App/static/login'),
 ]
