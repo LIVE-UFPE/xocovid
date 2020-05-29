@@ -52,7 +52,8 @@ module.exports ={
                         this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
                         this.casos.forEach(element => {
-                            this.ultimoscasos[element['estado_residencia']] = element['quantidade_casos']
+                            this.ultimoscasos[element['estado_residencia']] = element
+
                         });
                         // console.log(this.ultimoscasos)
                         this.geojson.setStyle(this.style)    
@@ -114,7 +115,7 @@ module.exports ={
             } catch (error) {
                 this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
                 this.snackbar = true
-                d = that.ultimoscasos[estado]
+                d = that.ultimoscasos[estado]['quantidade_casos']
             }
             return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff4242' :
@@ -155,8 +156,8 @@ module.exports ={
                     obitos = test['obitos']
                 } catch (error) {
                     console.log('sem dados')
-                    casos = that.ultimoscasos[props.name]
-                    obitos = 0
+                    casos = that.ultimoscasos[props.name]['quantidade_casos']
+                    obitos = that.ultimoscasos[props.name]['obitos']
                 }    
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
