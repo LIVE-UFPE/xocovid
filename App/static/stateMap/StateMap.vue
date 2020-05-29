@@ -67,7 +67,6 @@ module.exports ={
         }
     },
     mounted() {
-        
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('map',{zoomControl: false}).setView([-15.776250, -47.796619], 5);
         function highlightFeature(e) {
@@ -139,22 +138,19 @@ module.exports ={
             this.update();
             return this._div;
         };
-        // method that we will use to update the control based on feature properties passed
         info.update = function (props, that) {
             let casos = 0
             let obitos = 0
             if (props) {
-                //try {
+                try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
-                /*} catch (error) {
+                } catch (error) {
                     console.log('sem dados')
-                    console.log(that.ultimoscasos)
-                    console.log(props.name)
                     casos = that.ultimoscasos[props.name]['quantidade_casos']
                     obitos = that.ultimoscasos[props.name]['obitos']
-                }*/   
+                }    
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
                  `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
@@ -241,10 +237,9 @@ module.exports ={
 }
 .leaflet-control-zoom{
     margin-left: 80px;
-    position:absolute;
     margin-top: 80px
 }
-/* .leaflet-control-container{
+.leaflet-control-container{
      margin-left: 200px;
-} */
+}
 </style>
