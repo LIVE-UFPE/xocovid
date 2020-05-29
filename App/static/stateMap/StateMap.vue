@@ -33,9 +33,9 @@ module.exports ={
         // TODO informar na legenda que existe cor para ausencia de dados
         getCasos(){
             console.log(`datedb é ${this.datedb.toISOString()}`)
-            /*if (this.request != null) {
+            if (this.request != null) {
                 this.request.abort();
-            }*/
+            }
             //pede a quantidade de casos confirmados de cada estado do dia
             this.request = $.ajax({
                 context: this,
@@ -64,7 +64,11 @@ module.exports ={
                         // console.log(this.ultimoscasos)
                     }
                     
+                },
+                error: function (response) {
+                    console.log("AQUIIII erro na requisição atual, ou ela foi cancelada")
                 }
+
             })
             
         }
