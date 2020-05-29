@@ -46,7 +46,6 @@ module.exports ={
                     buscaResponse = JSON.parse(response)
                 }
             })
-            
             if(buscaResponse.length == 0){
                  return 0
             }else{
@@ -66,7 +65,6 @@ module.exports ={
                     buscaResponse = JSON.parse(response)
                 }
             })
-            
             if(buscaResponse.length == 0){
                  return 0
             }else{
