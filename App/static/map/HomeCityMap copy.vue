@@ -34,7 +34,7 @@ module.exports ={
         },  
     },
     mounted() {
-        
+        console.log(this.estado.split(' ').join('_'))
         this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
@@ -44,14 +44,12 @@ module.exports ={
         var geojson;
         var estadoLocal = this.estado
         var localDateDb = this.datedb
-        var maior_v = 0
-        var menor_v = 0
-
-        geojson = L.geoJson(eval(this.estado), {style: style});
         
+        geojson = L.geoJson(eval(this.estado), {style: style});
+        console.log('Samdash: ', samDash('PE', 'Recife'),this.datedb)
         
         function samDash(estado, cidade){
-            
+            console.log('DataDB: ', localDateDb)
             buscaResponse = []
             var request = $.ajax({
                 context: this,
@@ -125,7 +123,7 @@ module.exports ={
             var menor_valor = 0
             var maior_valor = 0
             var i = 0;
-           
+            console.log('Geojson: ', (geojson._layers))
             Object.keys(geojson._layers).forEach(function (key) {
                 var result = 0
                 if(i == 0){
@@ -141,23 +139,14 @@ module.exports ={
                 }
                 cityList.push({'cidade': geojson._layers[key].feature.properties.NOME, 'quantidade_casos': result})
             })
-            
+            console.log('List C', maior_valor, menor_valor,cityList)
             geojson.setStyle(this.style)
-            menor_v = menor_valor
-            maior_v = maior_valor
             return cityList
         }
         function getColor(valor, maior_valor, menor_valor) {
-            var media = (maior_valor+menor_valor)/2
-            return valor >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
-                valor >= Math.floor(media * 0.75)  ? '#ff4242' :
-                valor >= Math.floor(media * 0.625)  ? '#ff6e6e' :
-                valor >= Math.floor(media * 0.5)  ? '#ff8a8a' :
-                valor >= Math.floor(media * 0.375)   ? '#ffabab' :
-                valor >= Math.floor(media * 0.25)   ? '#ffbaba' :
-                valor >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
-                valor >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#38ff26'
+            return valor >= maior_valor ? '#800026' :
+                (valor > (menor_valor+maior_valor)/2)   ? '#ffabab' :
+                (valor < (menor_valor+maior_valor)/2)  ? '#ffe054' : '#800026';
         }
         function style(feature) {
             var quantidadeCasos = 0
@@ -168,9 +157,8 @@ module.exports ={
                     }
                 })
             }
-            
             return {
-                fillColor: getColor(quantidadeCasos, maior_v, menor_v),
+                fillColor: getColor(quantidadeCasos),
                 weight: 2,
                 opacity: 1,
                 color: 'white',

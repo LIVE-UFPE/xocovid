@@ -204,6 +204,10 @@ def get_data(request):
             elif keyBusca == 'estadosdia':
                 dia = request.GET['dia']
                 response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia, '%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+
+            elif keyBusca == 'cidadesdia':
+                dia = request.GET['dia']
+                response = list(CasosCidade.objects.filter(Q(municipio=cidade)&Q(data_notificacao=datetime.strptime(dia, '%Y-%m-%d'))).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
         
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
