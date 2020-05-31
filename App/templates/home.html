@@ -220,8 +220,8 @@
           height='50'
           style="border-radius: 5px;"
         >
-            <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
-            <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
+            <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
+            <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
         </v-card>
         
         <template>
@@ -269,8 +269,8 @@
                 <v-btn v-on='on'>
                   <span style="color:#1E9CF8">Alterar Mapa</span>
                   <div class="text-center">
-                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Projeção de Casos</v-list-item-title>
-                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Casos Acumulados</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Projeção de Casos</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Casos Acumulados</v-list-item-title>
                   </div>
                 </v-btn>
               </template>
@@ -308,7 +308,7 @@
                           <v-list-item-subtitle class="mb-2">Mapa de calor que exibe a projeção de casos no Brasil ou Pernambuco.</v-list-item-subtitle>
                       
                           <div class="justify-center">
-                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1; radioheat = 'brasil'" outlined color="#1E9CF8">
+                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=0; radioheat = 'brasil'" outlined color="#1E9CF8">
                                 Selecionar
                               </v-btn>
                           </div>
@@ -343,7 +343,7 @@
                           <v-list-item-subtitle class="mb-2">Exibe a quantidade de casos acumulados por estado.</v-list-item-subtitle>
                       
                           <div class="justify-center">
-                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=0" outlined color="#1E9CF8">
+                              <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1" outlined color="#1E9CF8">
                                 Selecionar
                               </v-btn>
                           </div>
@@ -360,7 +360,7 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <div style="position: absolute;bottom: 380px;left: 10vmin;z-index: 1" v-if="maxInt === 0">
+      <div style="position: absolute;bottom: 380px;left: 10vmin;z-index: 1" v-if="maxInt === 1">
         <v-card
         class="mx-auto pb-2"
         max-width="220"
@@ -398,8 +398,8 @@
 
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
       <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" style="height: 100%;"></home-city-map>
-      <state-map v-if="maxInt === 0 && radioheat === 'brasil'" :datedb="datedb" ></state-map>
-      <covid-map v-if="maxInt === 1 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
+      <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" ></state-map>
+      <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
   </div>
 
