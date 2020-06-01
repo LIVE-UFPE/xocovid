@@ -304,6 +304,7 @@
             linhaOuHist: 'linhas',
 
             //? props da home
+            mediacasos: 0,
             pins: null,
             pinspe: null,
             datedb: new Date(pins[0] + 'T00:00:00Z'),
@@ -781,6 +782,11 @@
 
 
             //? metodos da home
+            updatelegenda: function (dados) {
+                this.mediacasos = Math.floor((dados[0] + dados[1]) / 2)
+                console.log(`mediacasos é ${this.mediacasos}`)
+
+            },
             //TODO trocar tudo de setDate ou setHours, etc, p setUTCDate, por exemplo, em dateBack e dateForward
             dateBack: function (event) {
                 let test = new Date(this.datedb);
