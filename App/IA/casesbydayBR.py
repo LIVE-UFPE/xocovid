@@ -5,11 +5,8 @@ import os
 
 def main():
 
-    # getting the date 
-    now = datetime.now()
-
     # read dataframes
-    casosCovidBR = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/Casos por cidade 2020-05-06.csv', sep=',')
+    casosCovidBR = pd.read_csv('App/bot/Ultimos Casos por cidade.csv', sep=',')
     cidades = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/lista_municipios/latitude-longitude-cidades.csv', sep=';')
 
     # putting string data in the same case

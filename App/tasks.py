@@ -8,9 +8,10 @@ from background_task import background
 import os
 from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
-# import App.IA.pipeline as pipe
+import App.IA.pipeline as pipe
 from django.utils import timezone
-import App.predicao_arima.stateCityData as bot
+import App.bot.stateCityData as bot
+import App.predicao_arima.stateCityData as stateCityData
 import App.predicao_arima.pipelineArima as pipelineArima
 from distutils.dir_util import copy_tree
 from urllib.request import urlopen
@@ -106,21 +107,27 @@ def listener():
 
         build_IAbase()
 
+        prediction()
+
         send_prediction_to_db()
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
-    #prediction()
-    store_base()
-    send_prediction_to_db()
     #print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
-    #print("Executando predicoes do Arima")
-    #pipelineArima.main()
-    #saveImages()
-    #storeProjections()
+    
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
+    storeProjections()
+
     #getCasosPernambuco()
+
+    #prediction()
+    #store_base()
+    #send_prediction_to_db()
     
     print("Listener parado")
 
@@ -149,33 +156,40 @@ def getCasosPernambuco():
 
     for i, coluna in enumerate(data):
         casos_data[cols[i]] = coluna
-    print("passei daqui")
 
     print('Armazenando casos')
     
     CasosPernambuco.objects.all().delete()
     casoPernambuco = CasosPernambuco(
-        data_atualizacao = casos_data.iloc[-1]['dt_atualizacao'], 
-        obitos = casos_data.iloc[-1]['obitos'], 
-        recuperados = casos_data.iloc[-1]['recuperados'], 
-        isolamento = casos_data.iloc[-1]['isolamento'],
-        internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
+        data_atualizacao = casos_data.iloc[0]['dt_atualizacao'], 
+        obitos = casos_data.iloc[0]['obitos'], 
+        recuperados = casos_data.iloc[0]['recuperados'], 
+        isolamento = casos_data.iloc[0]['isolamento'],
+        internados = casos_data.iloc[0]['enfermaria']+casos_data.iloc[-1]['uti'])
     casoPernambuco.save()
 
 def storeProjections():
     print("Armazenando projecoes")
 
-    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+
+    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'+str(last_date).split(' ')[0]+'/'
     Projecao.objects.all().delete()
     for fileName in os.listdir(pasta):
         if fileName.find('.png') == -1:
             a = pandas.read_csv(pasta+fileName, sep=',')
             a = a.replace({np.nan: None})
 
-            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]
             
             if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
-                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split('2020-05-11')[0]]
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]]
             elif fileEstadoNome == 'BrasilConfirmados':
                 nomeEstado = 'Projecao de Confirmados no Brasil'
             else:
@@ -219,25 +233,33 @@ def storeProjections():
 def saveImages():
     print("Salvando Imagens no database")
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_modelo"
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico modelo"
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelos"
     copy_tree(original, target)
     
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico_predicao"
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico predicao"
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicoes"
     copy_tree(original, target)
 
-    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima"
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+    
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima/"+str(last_date).split(' ')[0]
     target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecoes"
     copy_tree(original, target)
 
 def storeBot():
     print("Armazenando extrações")
 
-    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por Estado.csv', sep=',')
-    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Casos por Estado.csv', sep=',')
-    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/predicao_arima/Ultimos Casos por cidade.csv', sep=',')
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por Estado.csv', sep=',')
+    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por cidade.csv', sep=',')
 
     estados = []
     for index, row in dfEstados.iterrows():
@@ -331,7 +353,7 @@ def send_prediction_to_db():
         PATH_FILES+'saidaFinalPE.csv',
         header = 0
     )
-    print("Armazenando predicoes do BR")
+    print("Armazenando predicoes do PE")
 
     #maxPredction = df['prediction'].max()
 
@@ -513,31 +535,31 @@ def store_base():
             notification = Notification(id = int(row['ID']))
         print("Armazenando notificacao de ID: "+str(row['ID']))
         
-        notification.data_atualizacao = buildDate(row['Data Atualização'])
-        notification.data_notificacao = buildDate(row['Data da notificação'])
+        notification.data_atualizacao = buildDate(row['Data AtualizaÃ§Ã£o'])
+        notification.data_notificacao = buildDate(row['Data da notificaÃ§Ã£o'])
         notification.sexo = str(row['Sexo']).title()
         if pandas.notnull(row['Idade']):
             try:
                 notification.idade = int(row['Idade'])
             except:
                 notification.idade = 0
-        notification.cep = str(row['CEP residência'])
-        #notification.pais_residencia = str(row['País de residência']).title()
-        notification.estado_residencia = str(row['Estado de residência']).title()
-        notification.municipio = str(row['Município']).title()
-        notification.endereco = str(row['Endereço completo']).title()
+        notification.cep = str(row['CEP residÃªncia'])
+        #notification.pais_residencia = str(row['PaÃ­s de residÃªncia']).title()
+        notification.estado_residencia = str(row['Estado de residÃªncia']).title()
+        notification.municipio = str(row['MunicÃ­pio']).title()
+        notification.endereco = str(row['EndereÃ§o completo']).title()
         notification.data_primeiros_sintomas = buildDate(row['Data dos primeiros sintomas'])
         notification.paciente_hospitalizado = str(row['Paciente foi hospitalizado?']).title()
-        #notification.data_internacao = row['Data da internação hospitalar']
+        #notification.data_internacao = row['Data da internaÃ§Ã£o hospitalar']
         #notification.data_alta = row['Data da alta hospitalar']
         #notification.data_isolamento = row['Data do isolamento']
-        #notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilação mecânica?']).title()
-        #notification.situacao_notificacao = str(row['Situação de saúde do paciente no momento da notificação']).title()
+        #notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilaÃ§Ã£o mecÃ¢nica?']).title()
+        #notification.situacao_notificacao = str(row['SituaÃ§Ã£o de saÃºde do paciente no momento da notificaÃ§Ã£o']).title()
         #notification.coleta_amostra = str(row['Foi realizada coleta de amostra do paciente?']).title()
-        #notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissão?']).title()
-        #notification.outro_local_transmissao = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
-        #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissão']
-        #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissão']
+        #notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissÃ£o?']).title()
+        #notification.outro_local_transmissao = str(row['Outro local de transmissÃ£o, descrever (cidade, regiÃ£o, paÃ­s)']).title()
+        #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissÃ£o']
+        #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissÃ£o']
         #if row['Data da chegada no Brasil']:
         #    try:
         #        notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
@@ -546,13 +568,13 @@ def store_base():
         #            notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
         #        except ValueError:
         #            notification.data_chegada_brasil = None
-        #notification.estado_notificacao = str(row['Estado de notificação (UF)']).title()
-        #notification.municipio_notificacao = str(row['Município de notificação']).title()
+        #notification.estado_notificacao = str(row['Estado de notificaÃ§Ã£o (UF)']).title()
+        #notification.municipio_notificacao = str(row['MunicÃ­pio de notificaÃ§Ã£o']).title()
         notification.coleta_exames = str(row['Coleta de exames']).title()
-        notification.classificacao = str(row['Classificação final']).title()
+        notification.classificacao = str(row['ClassificaÃ§Ã£o final']).title()
         notification.resultado = str(row['Resultado']).title()
         notification.internado = str(row['INTERNADO']).title()
-        notification.evolucao = str(row['EVOLUÇÃO']).title()
+        notification.evolucao = str(row['EVOLUÃ‡ÃƒO']).title()
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']

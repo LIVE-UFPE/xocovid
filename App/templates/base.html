@@ -37,8 +37,8 @@
         <script src="{% static 'heatmap/heatmap.js' %}"></script>
         <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
-        <script type="text/javascript" src='../static/map/states.js'></script>
-        <script type="text/javascript" src='../static/map/statesData.js'></script>
+        <script type="text/javascript" src='../static/states/states.js'></script>
+        <script type="text/javascript" src='../static/statesData/statesData.js'></script>
         <!-- * jQuery -->
 
 
@@ -164,9 +164,9 @@
             // ? esse é o metodo para importar componentes em Vue
             'login': httpVueLoader("{% static 'login/login.vue' %}"),
             'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
-            'state-map': httpVueLoader("{% static 'map/StateMap.vue' %}"),
-            'city-map': httpVueLoader("{% static 'map/CityMap.vue' %}"),
-            'home-city-map': httpVueLoader("{% static 'map/HomeCityMap.vue' %}"),
+            'state-map': httpVueLoader("{% static 'stateMap/StateMap.vue' %}"),
+            'city-map': httpVueLoader("{% static 'cityMap/CityMap.vue' %}"),
+            'home-city-map': httpVueLoader("{% static 'homeCityMap/HomeCityMap.vue' %}"),
             VeLine,
             VeHistogram,
             VePie

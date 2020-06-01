@@ -9,7 +9,7 @@ library("forecast")
 library("lubridate")
 
 # Fetch command line arguments
-print("aaaaaaaaaaaaaaa asdsad asfasf ")
+print("paaaaaaaaaaaaaaa asdsad asfasf ")
 args  <- commandArgs(trailingOnly = TRUE)
 cumulativeSum <- args[1]
 estado <- args[2]
@@ -55,8 +55,8 @@ class(data)
 start <- findyear(data$dt_notificacao[1])
 tsdata <- ts(data$acumulado_confirmados,  frequency = 365, start = decimal_date(as.Date(data$dt_notificacao[1])))
 print(tsdata)
-write.csv(data,paste0("ts.csv"))
-num_pred = 14
+write.csv(data,paste0(paste(getwd(), "/App/predicao_arima/ts.csv", sep = "")))
+num_pred = 7
 
 #Spliting the data into training and testing dataset
 y_train = head(tsdata, n = (length(tsdata) - num_pred))
@@ -71,13 +71,13 @@ fit <- auto.arima(y_train)
 model.stats <- modelStat(y_train,as.numeric(fit$fitted))
 df <- data.frame(model.stats[1],model.stats[2],model.stats[3])
 names(df) <- c("pearson", "spearman", "kendall")
-write.csv(df,paste0("coeficientes modelo/","coefs_m_",dateFormat(data$dt_notificacao[1]),"_",dateFormat(data$dt_notificacao[length(tsdata) - 6]),".csv"))
+write.csv(df,paste0(paste(getwd(), "/App/predicao_arima/coeficientes modelo/", sep = ""),"coefs_m_",dateFormat(data$dt_notificacao[1]),"_",dateFormat(data$dt_notificacao[length(tsdata) - 6]),".csv"))
 
 # Picture model graph
-img <- paste0("grafico modelo/","modelo","_",estado,".png")
+img <- paste0(paste(getwd(), "/App/predicao_arima/grafico modelo/", sep = ""),"modelo","_",estado,".png")
 png(file = img, width=650, height = 500, units = 'px')
-write.csv(y_train,paste0("y_train.csv"))
-plot(y_train,lwd=2, col='blue',type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Casos confirmados da covid-19 em ",estado,dateFormat(data$dt_notificacao[1])," a ",dateFormat(data$dt_notificacao[length(tsdata) - 6])))
+write.csv(y_train,paste0(paste(getwd(), "/App/predicao_arima/y_train.csv", sep = "")))
+plot(y_train,lwd=2, col='blue',type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Casos confirmados da covid-19 em ",estado," ",dateFormat(data$dt_notificacao[1])," a ",dateFormat(data$dt_notificacao[length(tsdata) - 6])))
 grid(lwd = 2, col = 'blue') 
 lines(fit$fitted, col='red')
 legend("topleft",legend = c("Modelo", "Casos confirmados"), col=c("red","blue"),pch = c("-","-"),text.col = "black",inset = c(0.1, 0.1))
@@ -89,13 +89,13 @@ forecast1 <- forecast(fit, h=num_pred)
 pred.stats <- modelStat(y_test,as.numeric(forecast1$mean))
 df.pred <- data.frame(pred.stats[1],pred.stats[2],pred.stats[3])
 names(df.pred) <- c("pearson", "spearman", "kendall")
-write.csv(df.pred,paste0("coeficientes predicao/","coefs_pred_",dateFormat(data$dt_notificacao[length(tsdata) - 5]),"_",dateFormat(data$dt_notificacao[length(tsdata)]),".csv"))
+write.csv(df.pred,paste0(paste(getwd(), "/App/predicao_arima/coeficientes predicao/", sep = ""),"coefs_pred_",dateFormat(data$dt_notificacao[length(tsdata) - 5]),"_",dateFormat(data$dt_notificacao[length(tsdata)]),".csv"))
 
 #Prediction graph
-img <- paste0("./grafico predicao/","pred","_",estado,".png")
+img <- paste0(paste(getwd(), "/App/predicao_arima/grafico predicao/", sep = ""),"pred","_",estado,".png")
 png(file = img, width=650, height = 500, units = 'px')
-write.csv(forecast1,paste0("pred_.csv"))
-plot(forecast1, lwd =2, type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Predição dos casos confirmados da covid-19 em ", estado, dateFormat(data$dt_notificacao[length(tsdata) - 5])," a ",dateFormat(data$dt_notificacao[length(tsdata)])))
+write.csv(forecast1,paste0(paste(getwd(), "/App/predicao_arima/pred_.csv", sep = "")))
+plot(forecast1, lwd =2, type='l',ylab="Casos confirmados", xlab="Tempo", main=paste0("Predição dos casos confirmados da covid-19 em ", estado, " ", dateFormat(data$dt_notificacao[length(tsdata) - 5])," a ",dateFormat(data$dt_notificacao[length(tsdata)])))
 grid(lwd = 2, col = 'blue') 
 dev.off()
 
@@ -109,16 +109,16 @@ f.proj <- forecast(fit.p, h = num_pred) # forecast for 6 days after the last day
 proj.stats <- modelStat(tsdata, fit.p$fitted)
 df.proj <- data.frame(proj.stats[1],proj.stats[2],proj.stats[3])
 names(df.proj) <- c("pearson", "spearman", "kendall")
-write.csv(df.proj,paste0("coeficientes projecao/","coefs_proj_",begin,"_",end,".csv"))
+write.csv(df.proj,paste0(paste(getwd(), "/App/predicao_arima/coeficientes projecao/", sep = ""),"coefs_proj_",begin,"_",end,".csv"))
 
 #proj graph
 
-img <- paste0("grafico projecao/","proj",estado,".png")
+img <- paste0(paste(getwd(), "/App/predicao_arima/grafico projecao/", sep = ""),"proj",estado,".png")
 png(file = img, width=650, height = 500, units = 'px')
 
-write.csv(f.proj,paste0("proj_.csv"))
+write.csv(f.proj,paste0(paste(getwd(), "/App/predicao_arima/proj_.csv", sep = ""), sep = ""))
 plot(f.proj,lwd=2, type='l',ylab="Casos confirmados", xlab="Tempo",
-main=paste0("Projeção dos casos confirmados da covid-19 em ",estado,begin," a ",end),
+main=paste0("Projeção dos casos confirmados da covid-19 em ", estado, " ", begin," a ",end),
 )
 grid(lwd = 2, col = 'blue') 
 dev.off()
