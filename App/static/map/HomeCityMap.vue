@@ -1,6 +1,9 @@
 <template>
     <div :key="componentKey" style="border-radius: 25px" id="mapcity">
-
+        <v-snackbar v-model="snackbar" top >
+            {{ txtsnack }}
+            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+        </v-snackbar>
     </div>
 </template>
 <script>
@@ -9,55 +12,78 @@ module.exports ={
     name: 'home-city-map',
     data: function (){
         return{
-            test: null,
-            componentKey: 0,
-            menoscasos: null,
-            maiscasos: null,
             request: null,
+            componentKey: 0,
             casos: [],
-            map: null,
+            ultimoscasos: [],
+            txtsnack: '',
+            snackbar: false,
             geojson: null,
             style: null,
-            ultimoscasos: [],
-            txtsnack: 'Oi',
-            snackbar: false,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
     props: {
         estado: String,
-        datedb: Date
+        datedb: Date,
     },
     methods: {
         forceRerender() {
           this.componentKey += 1
-        },  
+        },
+        getCasos(estado){
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "graphs/get_data",
+                // TODO rodar a busca no views.py
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": ''},
+                success: function (response) {
+                    let resposta = JSON.parse(response)
+                    if(resposta.length != 0){
+                        this.casos = resposta
+                        // console.log('Casos: ',this.casos)
+
+                        this.casos.forEach(element => {
+                            this.ultimoscasos[element['municipio']] = element
+
+                        });
+                        this.geojson.setStyle(this.style)
+                    }else {
+                        this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
+                        this.snackbar = true
+                        // console.log(this.ultimoscasos)
+                    }
+                }
+            })
+            
+        }
     },
     mounted() {
-        
+        // console.log(this.estado.split(' ').join('_'))
         this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        this.getCasos(this.estado)
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estado).features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
-        var geojson;
+        // var geojson;
         var estadoLocal = this.estado
-        var localDateDb = this.datedb
-        var maior_v = 0
-        var menor_v = 0
 
-        geojson = L.geoJson(eval(this.estado), {style: style});
-        
+        this.geojson = L.geoJson(eval(this.estado), {style: style});
         
         function samDash(estado, cidade){
-            
             buscaResponse = []
+            // console.log('Object: ',buscaResponse, estadoLocal, cidade)
             var request = $.ajax({
                 context: this,
                 type: 'GET',
                 url: "graphs/get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": localDateDb.toISOString().substring(0,10), "estado": '', "cidade": cidade, "bairro": ''},
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estadoLocal, "cidade": cidade, "bairro": ''},
                 async: false,
                 success: function (response) {
                     buscaResponse = JSON.parse(response)
@@ -104,10 +130,10 @@ module.exports ={
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 layer.bringToFront();
             }
-            info.update(layer.feature.properties, this.estado);
+            info.update(layer.feature.properties, this);
         }
         function resetHighlight(e) {
-            geojson.resetStyle(e.target);
+            this.geojson.resetStyle(e.target);
             info.update();
         }
         function zoomToFeature(e) {
@@ -115,62 +141,47 @@ module.exports ={
         }
         function onEachFeature(feature, layer) {
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight,
-                click: zoomToFeature
+                mouseover: highlightFeature.bind(this),
+                mouseout: resetHighlight.bind(this),
+                click: zoomToFeature.bind(this),
             });
         }
-        function getCasos() {
-            var cityList = []
-            var menor_valor = 0
-            var maior_valor = 0
-            var i = 0;
-           
-            Object.keys(geojson._layers).forEach(function (key) {
-                var result = 0
-                if(i == 0){
-                    menor_valor = samDash(estadoLocal, geojson._layers[key].feature.properties.NOME)
-                    maior_valor = samDash(estadoLocal, geojson._layers[key].feature.properties.NOME)
-                    i++
-                }else{
-                    result = samDash(estadoLocal, geojson._layers[key].feature.properties.NOME)
-                    if(result > maior_valor)
-                        maior_valor = result
-                    if(result < menor_valor)
-                        menor_valor = result
-                }
-                cityList.push({'cidade': geojson._layers[key].feature.properties.NOME, 'quantidade_casos': result})
-            })
-            
-            geojson.setStyle(this.style)
-            menor_v = menor_valor
-            maior_v = maior_valor
-            return cityList
-        }
-        function getColor(valor, maior_valor, menor_valor) {
-            var media = (maior_valor+menor_valor)/2
-            return valor >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
-                valor >= Math.floor(media * 0.75)  ? '#ff4242' :
-                valor >= Math.floor(media * 0.625)  ? '#ff6e6e' :
-                valor >= Math.floor(media * 0.5)  ? '#ff8a8a' :
-                valor >= Math.floor(media * 0.375)   ? '#ffabab' :
-                valor >= Math.floor(media * 0.25)   ? '#ffbaba' :
-                valor >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
-                valor >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
+        function getColor(d, media) {
+            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(media * 0.75)  ? '#ff4242' :
+                d >= Math.floor(media * 0.625)  ? '#ff6e6e' :
+                d >= Math.floor(media * 0.5)  ? '#ff8a8a' :
+                d >= Math.floor(media * 0.375)   ? '#ffabab' :
+                d >= Math.floor(media * 0.25)   ? '#ffbaba' :
+                d >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
+                d >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
                     '#38ff26'
         }
         function style(feature) {
-            var quantidadeCasos = 0
-            if(listaCidades){
-                listaCidades.forEach(cidade => {
-                    if(feature.properties.NOME == cidade.cidade){
-                        quantidadeCasos = cidade.quantidade_casos
+            var casoLocal = 0
+            var menor = 0
+            var maior = 0
+            var i = 0
+            // console.log("Feature: ",this.casos)
+            if(this.casos){
+                this.casos.forEach(caso => {
+                    if(!i){
+                        maior = caso.quantidade_casos
+                        menor = caso.quantidade_casos
+                        i++
+                    }
+                    if(caso.quantidade_casos > maior)
+                        maior = caso.quantidade_casos
+                    if(caso.quantidade_casos < menor)
+                        menor = caso.quantidade_casos
+                    if(caso.municipio == feature.properties.NOME){
+                        casoLocal = caso.quantidade_casos
                     }
                 })
+                // console.log('Casos Locais: ', casoLocal)
             }
-            
             return {
-                fillColor: getColor(quantidadeCasos, maior_v, menor_v),
+                fillColor: getColor(casoLocal, (menor+maior)/2),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -185,8 +196,32 @@ module.exports ={
             this.update();
             return this._div;
         };
+        // console.log('ESTADO: ', this.estado)
         // method that we will use to update the control based on feature properties passed
-        info.update = function (props, state) {
+        info.update = function (props, that) {
+            let casos = 0
+            let obitos = 0
+            
+            if (props) {
+                try {
+                    // console.log(props.NOME)
+                    let test = that.casos.find( elem => elem['municipio'] === props.NOME)
+                    casos = test['quantidade_casos']
+                    obitos = test['obitos']
+                } catch (error) {
+                    // console.log('sem dados')
+                    try {
+                        casos = that.ultimoscasos[props.NOME]['quantidade_casos']
+                        obitos = that.ultimoscasos[props.NOME]['obitos']
+                    } catch (err) {
+                        casos = 0
+                        obitos = 0
+                        // console.log('também não há dados anteriores para este municipio')
+                    }
+                        
+                }    
+            }
+
             this._div.innerHTML = (props ?
                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
@@ -196,7 +231,7 @@ module.exports ={
                     <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDash(estadoLocal, props.NOME) + 
+                                + casos + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
                                 Casos confirmados
@@ -204,7 +239,7 @@ module.exports ={
                         </div> 
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDashObitos(estadoLocal, props.NOME) + 
+                                + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
@@ -224,14 +259,26 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-        var listaCidades = getCasos()
-        this.style = style.bind(this)
-        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature}).addTo(map);
-        
+        this.style = style.bind(this)    
+        this.geojson = L.geoJson(eval(this.estado), {style: this.style, onEachFeature: onEachFeature.bind(this)}).addTo(map);
+        this.geojson.addTo(map)
+        this.map = map
+        this.getCasos(this.estado)
     },
     computed: {
-        
+        datewatch() {
+            return this.datedb;
+        },
+        estadoComp() {
+            return this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        }
     },
+    watch: {
+        datewatch() {
+            
+            this.getCasos(this.estadoComp)
+        }
+    }
     
 }
 </script>

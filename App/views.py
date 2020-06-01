@@ -62,7 +62,7 @@ def graphs(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json', encoding="utf8") as json_file:
             data = json.load(json_file)
         
         return render(request, 'graphs.html', {'template': "'graphs'", 'data': data})
@@ -71,7 +71,7 @@ def home(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json') as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json', encoding="utf8") as json_file:
             data = json.load(json_file)
         context = {}
         predicts = []
@@ -203,12 +203,14 @@ def get_data(request):
             # ? pega dados de todos os estados, dado o dia!
             elif keyBusca == 'estadosdia':
                 dia = request.GET['dia']
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia, '%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
-
+                # TODO devolver ultimos dados para cada estado sem dados, o mesmo para as cidades?
+                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia,'%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+            # ? pega dados de todas as cidades do estado de PE, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = request.GET['dia']
-                response = list(CasosCidade.objects.filter(Q(municipio=cidade)&Q(data_notificacao=datetime.strptime(dia, '%Y-%m-%d'))).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
-        
+                estado = request.GET['estado']
+                response = list(CasosCidade.objects.filter(data_notificacao=datetime.strptime(dia,'%Y-%m-%d')).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
+                
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
                 response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))

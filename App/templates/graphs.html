@@ -403,75 +403,7 @@
         </v-card>
       </template>
 
-      <template>
-        <v-card
-          class="mx-auto mt-6 mb-8"
-          max-width="1044"
-          width="1044"
-          height="auto"
-          outlined
-        >
-          <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</v-list-item-title>
-          </div>
-          <ve-line :data="chartDataO" ></ve-line>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
-              <v-autocomplete
-                v-model="personalizadoPaises"
-                :items="personalizadoPaises"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o país"
-                width="400"
-                multiple
-                disabled
-              ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pr-4" >
-              <v-autocomplete
-                v-model="values"
-                :items="itemsChips"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o estado"
-                width="400"
-                @click="printName(values)"
-                @change="setCity(values, 'itemsChipsC', 'valuesCS')"
-                multiple
-              ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pl-4 pr-4" >
-              <v-autocomplete
-                v-model="valuesCS"
-                :items="itemsChipsCS"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione a cidade"
-                width="400"
-                @change="setDistrict(valuesCS, 'itemsChipsDS')"
-                @click="printName(valuesCS)"
-                @mousedown="setCity(values, 'itemsChipsCS')"
-                multiple
-              ></v-autocomplete>
-            </div>
-            <div>
-              <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
-                  <v-icon class="pr-2">mdi-download-outline</v-icon>
-                   Filtrar
-                </v-btn>
-              </div>
-            </div>
-        </v-card>
-      </template>
-
+      
       <!--<template>
         <v-card
           class="mx-auto mt-6 mb-8"
@@ -623,6 +555,75 @@
                      Filtrar
                   </v-btn>
                 </div>
+              </div>
+            </div>
+        </v-card>
+      </template>
+      
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="1044"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</v-list-item-title>
+          </div>
+          <ve-line :data="chartDataO" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="personalizadoPaises"
+                :items="personalizadoPaises"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o país"
+                width="400"
+                multiple
+                disabled
+              ></v-autocomplete>
+            </div>
+            <div style="width: 100%;" class="pr-4" >
+              <v-autocomplete
+                v-model="values"
+                :items="itemsChips"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @click="printName(values)"
+                @change="setCity(values, 'itemsChipsC', 'valuesCS')"
+                multiple
+              ></v-autocomplete>
+            </div>
+            <div style="width: 100%;" class="pl-4 pr-4" >
+              <v-autocomplete
+                v-model="valuesCS"
+                :items="itemsChipsCS"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione a cidade"
+                width="400"
+                @change="setDistrict(valuesCS, 'itemsChipsDS')"
+                @click="printName(valuesCS)"
+                @mousedown="setCity(values, 'itemsChipsCS')"
+                multiple
+              ></v-autocomplete>
+            </div>
+            <div>
+              <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
+                  <v-icon class="pr-2">mdi-download-outline</v-icon>
+                   Filtrar
+                </v-btn>
               </div>
             </div>
         </v-card>

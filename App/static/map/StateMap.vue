@@ -52,7 +52,8 @@ module.exports ={
                         this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
                         this.casos.forEach(element => {
-                            this.ultimoscasos[element['estado_residencia']] = element['quantidade_casos']
+                            this.ultimoscasos[element['estado_residencia']] = element
+
                         });
                         // console.log(this.ultimoscasos)
                         this.geojson.setStyle(this.style)    
@@ -116,7 +117,7 @@ module.exports ={
             } catch (error) {
                 this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
                 this.snackbar = true
-                d = that.ultimoscasos[estado]
+                d = that.ultimoscasos[estado]['quantidade_casos']
             }
             return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff4242' :
@@ -149,19 +150,21 @@ module.exports ={
 
         // method that we will use to update the control based on feature properties passed
         info.update = function (props, that) {
-             let casos = 0
+            let casos = 0
+            let obitos = 0
             if (props) {
                 try {
-                     casos = that.casos.find( elem => elem['estado_residencia'] === props.name)['quantidade_casos']
-                 } catch (error) {
-                     console.log('sem dados')
-                     casos = 'S/ Info'
-                     casos = that.ultimoscasos[props.name]
-                 }    
-             }
-
-            this._div.innerHTML = (props ? 
-            `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                    let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
+                    casos = test['quantidade_casos']
+                    obitos = test['obitos']
+                } catch (error) {
+                    console.log('sem dados')
+                    casos = that.ultimoscasos[props.name]['quantidade_casos']
+                    obitos = that.ultimoscasos[props.name]['obitos']
+                }    
+            }
+            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
+                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.name + 
                     `</h2>
@@ -177,7 +180,7 @@ module.exports ={
                         </div> 
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + 0 + 
+                                + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
@@ -185,10 +188,7 @@ module.exports ={
                         </div> 
                     </div>
                     </div>`
-                : 
-                `<h5 style="color: white" class="text-center">
-                    Passe o mouse por uma cidade
-                </h5>`);
+                : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
 
