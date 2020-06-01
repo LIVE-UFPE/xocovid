@@ -116,18 +116,18 @@ def listener():
     #print("Extraindo informações de outras bases")
     #bot.processingData()
     #storeBot()
-
-    prediction()
-    store_base()
-    send_prediction_to_db()
     
-    #print("Executando predicoes do Arima")
-    #stateCityData.main()
-    #pipelineArima.main()
-    #saveImages()
-    #storeProjections()
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
+    storeProjections()
 
     #getCasosPernambuco()
+
+    #prediction()
+    #store_base()
+    #send_prediction_to_db()
     
     print("Listener parado")
 
@@ -156,17 +156,16 @@ def getCasosPernambuco():
 
     for i, coluna in enumerate(data):
         casos_data[cols[i]] = coluna
-    print("passei daqui")
 
     print('Armazenando casos')
     
     CasosPernambuco.objects.all().delete()
     casoPernambuco = CasosPernambuco(
-        data_atualizacao = casos_data.iloc[-1]['dt_atualizacao'], 
-        obitos = casos_data.iloc[-1]['obitos'], 
-        recuperados = casos_data.iloc[-1]['recuperados'], 
-        isolamento = casos_data.iloc[-1]['isolamento'],
-        internados = casos_data.iloc[-1]['enfermaria']+casos_data.iloc[-1]['uti'])
+        data_atualizacao = casos_data.iloc[0]['dt_atualizacao'], 
+        obitos = casos_data.iloc[0]['obitos'], 
+        recuperados = casos_data.iloc[0]['recuperados'], 
+        isolamento = casos_data.iloc[0]['isolamento'],
+        internados = casos_data.iloc[0]['enfermaria']+casos_data.iloc[-1]['uti'])
     casoPernambuco.save()
 
 def storeProjections():
