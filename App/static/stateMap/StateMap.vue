@@ -44,12 +44,9 @@ module.exports ={
                 data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
                 success: function (response) {
                     let resposta = JSON.parse(response)
-                    
-                    console.log("AQUIIIII")
-                    console.log(resposta)
-
                     if(resposta.length != 0){
                         this.casos = resposta
+                        // console.log(this.casos)
                         this.maiscasos = this.casos[0]['quantidade_casos']
                         this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
@@ -57,18 +54,16 @@ module.exports ={
                             this.ultimoscasos[element['estado_residencia']] = element
                         });
                         // console.log(this.ultimoscasos)
-                        this.geojson.setStyle(this.style)    
+                        this.geojson.setStyle(this.style)
+                        let legenda = [this.maiscasos,this.menoscasos]
+                        this.$emit('dados-legenda',legenda)   
                     }else {
                         this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
                         this.snackbar = true
                         // console.log(this.ultimoscasos)
                     }
                     
-                },
-                error: function (response) {
-                    console.log("AQUIIII erro na requisição atual, ou ela foi cancelada")
                 }
-
             })
             
         }
@@ -156,12 +151,10 @@ module.exports ={
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
                 } catch (error) {
-                    console.log('sem dados')
-                    console.log(that.ultimoscasos)
-                    console.log(props.name)
+                    console.log(`sem dados para ${props.name}`)
                     casos = that.ultimoscasos[props.name]['quantidade_casos']
                     obitos = that.ultimoscasos[props.name]['obitos']
-                }
+                }    
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
                  `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
@@ -206,7 +199,7 @@ module.exports ={
     computed: {
         datewatch() {
             return this.datedb;
-        }
+        },
     },
     watch: {
         datewatch() {
