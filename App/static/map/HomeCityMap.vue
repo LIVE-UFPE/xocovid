@@ -1,6 +1,9 @@
 <template>
     <div :key="componentKey" style="border-radius: 25px" id="mapcity">
-
+        <v-snackbar v-model="snackbar" top >
+            {{ txtsnack }}
+            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+        </v-snackbar>
     </div>
 </template>
 <script>
@@ -9,20 +12,57 @@ module.exports ={
     name: 'home-city-map',
     data: function (){
         return{
-            test: null,
-            componentKey: 0
+            request: null,
+            componentKey: 0,
+            casos: [],
+            ultimoscasos: [],
+            txtsnack: '',
+            snackbar: false,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
     props: {
-        estado: String
+        estado: String,
+        datedb: Date,
     },
     methods: {
         forceRerender() {
           this.componentKey += 1
-        },  
+        },
+        getCasos(estado){
+            console.log(`datedb ehh ${this.datedb.toISOString()} e estado ${estado}`)
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "graphs/get_data",
+                // TODO rodar a busca no views.py
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": ''},
+                success: function (response) {
+                    let resposta = JSON.parse(response)
+                    if(resposta.length != 0){
+                        this.casos = resposta
+                        console.log(this.casos)
+                        this.casos.forEach(element => {
+                            this.ultimoscasos[element['municipio']] = element
+
+                        });
+                           
+                    }else {
+                        this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
+                        this.snackbar = true
+                        // console.log(this.ultimoscasos)
+                    }
+                }
+            })
+            
+        }
     },
     mounted() {
+        this.getCasos('Pernambuco')
+
         console.log(this.estado.split(' ').join('_'))
         this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
         var objectCoord = {lat: [], lon: []}
@@ -89,7 +129,7 @@ module.exports ={
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 layer.bringToFront();
             }
-            info.update(layer.feature.properties, this.estado);
+            info.update(layer.feature.properties, this);
         }
         function resetHighlight(e) {
             geojson.resetStyle(e.target);
@@ -100,9 +140,9 @@ module.exports ={
         }
         function onEachFeature(feature, layer) {
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight,
-                click: zoomToFeature
+                mouseover: highlightFeature.bind(this),
+                mouseout: resetHighlight.bind(this),
+                click: zoomToFeature.bind(this),
             });
         }
         function getColor(d) {
@@ -134,8 +174,30 @@ module.exports ={
         };
         console.log('ESTADO: ', this.estado)
         // method that we will use to update the control based on feature properties passed
-        info.update = function (props, state) {
-            console.log('ESTADO2: ', estadoLocal)
+        info.update = function (props, that) {
+            let casos = 0
+            let obitos = 0
+            
+            if (props) {
+                try {
+                    console.log(props.NOME)
+                    let test = that.casos.find( elem => elem['municipio'] === props.NOME)
+                    casos = test['quantidade_casos']
+                    obitos = test['obitos']
+                } catch (error) {
+                    console.log('sem dados')
+                    try {
+                        casos = that.ultimoscasos[props.NOME]['quantidade_casos']
+                        obitos = that.ultimoscasos[props.NOME]['obitos']
+                    } catch (err) {
+                        casos = 0
+                        obitos = 0
+                        console.log('também não há dados anteriores para este municipio')
+                    }
+                        
+                }    
+            }
+
             this._div.innerHTML = (props ?
                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
@@ -145,7 +207,7 @@ module.exports ={
                     <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDash(estadoLocal, props.NOME) + 
+                                + casos + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
                                 Casos confirmados
@@ -153,7 +215,7 @@ module.exports ={
                         </div> 
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDashObitos(estadoLocal, props.NOME) + 
+                                + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
@@ -174,11 +236,22 @@ module.exports ={
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
 
-        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature}).addTo(map);
+        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature.bind(this)}).addTo(map);
     },
     computed: {
-        
+        datewatch() {
+            return this.datedb;
+        },
+        estadoComp() {
+            return this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        }
     },
+    watch: {
+        datewatch() {
+            console.log(`estado é ${this.estado}`)
+            this.getCasos(this.estadoComp)
+        }
+    }
     
 }
 </script>

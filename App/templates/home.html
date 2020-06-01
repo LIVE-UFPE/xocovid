@@ -397,7 +397,7 @@
       {% comment %} <state-map :datedb="datedb" ></state-map> {% endcomment %}
 
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
-      <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" style="height: 100%;"></home-city-map>
+      <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map>
       <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" ></state-map>
       <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
