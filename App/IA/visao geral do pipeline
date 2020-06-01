@@ -1,5 +1,0 @@
-pipeline.py
-    pre_processing.py (entradaPreProcessada.csv => saidaPreProcessada)
-    casesbyDay.py (saidaPreProcessada,listaBairros  = > casos confirmados/saidaCasosPorDia--varios csv--)
-    interpolacao.py(saidaCasosPorDia => bases predicao/saidaInterpolacao--varios csv--)
-    predicao.py(saidaInterpolacao--varios csv ---  => saidaFinal.csv)

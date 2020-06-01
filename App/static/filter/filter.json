@@ -1,4 +1,4 @@
-var data =[{
+{
   "estados": [
     {
       "sigla": "AC",
@@ -5734,7 +5734,7 @@ var data =[{
     }
   ],
   "bairros":[
-    {"Recife": ["Cajueiro", "Várzea"]},
+    {"Recife": ["Aflitos","Afogados","Água Fria","Alto José Bonifácio","Alto José do Pinho","Alto do Mandu","Alto do Pascoal","Alto Santa Teresinha","Apipucos","Areias","Arruda","Barro","Beberibe","Benfica","Boa Viagem","Boa Vista","Bomba do Hemetério","Bongi","Brasília Teimosa","Brejo do Beberibe","Brejo da Guabiraba","Cabanga","Caçote","Cajueiro","Campina do Barreto","Campo Grande","Casa Amarela","Casa Forte","Caxangá","Cidade Universitária","Coelhos","Cohab","Comunidade do Pilar","Coque","Coqueiral","Cordeiro","Córrego do Jenipapo","Curado","Derby","Dois Irmãos","Dois Unidos","Encruzilhada","Engenho do Meio","Entra Apulso","Espinheiro","Estância","Fundão","Graças","Guabiraba","Hipódromo","Ibura","Ilha Joana Bezerra","Ilha do Leite","Ilha do Retiro","Imbiribeira","Ipsep","Iputinga","Jaqueira","Jardim São Paulo","Jiquiá","Jordão","Linha do Tiro","Macaxeira","Madalena","Mangabeira","Mangueira","Monteiro","Morro da Conceição","Mustardinha","Nova Descoberta","Paissandu","Parnamirim","Passarinho","Pau Ferro","Peixinhos","Pina","Poço da Panela","Ponte d’Uchoa","Ponto de Parada","Porto da Madeira","Prado","Recife (bairro)","Rosarinho","San Martin","Sancho","Santana","Santo Amaro","Santo Antônio","São José","Setúbal","Sítio dos Pintos","Soledade","Tamarineira","Tejipió","Torre","Torreão","Torrões","Totó","Várzea","Vasco da Gama","Vila Tamandaré","Zumbi"]},
     {"Gravatá": ["Cohab 1", "Cohab 2"]}
   ]
-}]
+}

@@ -1,4 +1,4 @@
-from .models import Notification, Prediction
+from .models import Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
 import json
 import requests
 import pandas
@@ -10,6 +10,12 @@ from datetime import datetime, timedelta
 # DEBUG comente para pegar no windows
 import App.IA.pipeline as pipe
 from django.utils import timezone
+import App.bot.stateCityData as bot
+import App.predicao_arima.stateCityData as stateCityData
+import App.predicao_arima.pipelineArima as pipelineArima
+from distutils.dir_util import copy_tree
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 collum_names = [
   'ID',      
@@ -43,14 +49,44 @@ collum_names = [
   'INTERNADO',
   'EVOLUÇÃO',
   #MODIFICACAO
-  'Bairro',
-  'Latitude',
-  'Longitude'
+  #'Bairro',
+  #'Latitude',
+  #'Longitude'
 ]
 
+stateName = {
+    'AC': 'Acre',
+    'AL': 'Alagoas',
+    'AP': 'Amapá',
+    'AM': 'Amazonas',
+    'BA': 'Bahia',
+    'CE': 'Ceará',
+    'DF': 'Distrito Federal',
+    'ES': 'Espírito Santo',
+    'GO': 'Goiás',
+    'MA': 'Maranhão',
+    'MT': 'Mato Grosso',
+    'MS': 'Mato Grosso do Sul',
+    'MG': 'Minas Gerais',
+    'PA': 'Pará',
+    'PB': 'Paraíba',
+    'PR': 'Paraná',
+    'PE': 'Pernambuco',
+    'PI': 'Piauí',
+    'RJ': 'Rio de Janeiro',
+    'RN': 'Rio Grande do Norte',
+    'RS': 'Rio Grande do Sul',
+    'RO': 'Rondônia',
+    'RR': 'Roraima',
+    'SC': 'Santa Catarina',
+    'SP': 'São Paulo',
+    'SE': 'Sergipe',
+    'TO': 'Tocantins'
+}
+
 PATH_FILES = os.path.join(os.path.dirname(__file__))+'/IA/'
-#BASE_NAME = 'base_original.csv'
-BASE_NAME = 'entradaPreProcessada.csv'
+BASE_NAME = 'base_original.csv'
+#BASE_NAME = 'base_preprocessada.csv'
 
 APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 
@@ -58,45 +94,247 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    try:
+    """try:
         df = pandas.read_csv(
             PATH_FILES+BASE_NAME,
             header = 0,
             names=collum_names,
         )
-        
-        #df = pre_processing(df)
-        df = df.replace({np.nan: None})
-        df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
+    
+        df = pre_processing(df)
+    
         store_base(df)
 
-        #build_IAbase()
+        build_IAbase()
 
-        #prediction()
+        prediction()
 
-        #send_prediction_to_db()
+        send_prediction_to_db()
     except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")
+        print("Nenhuma base de dados para ser pre_processada")"""
+    
+    #print("Extraindo informações de outras bases")
+    #bot.processingData()
+    #storeBot()
+    
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
+    storeProjections()
+
+    #getCasosPernambuco()
+
+    #prediction()
+    #store_base()
+    #send_prediction_to_db()
     
     print("Listener parado")
 
+def getCasosPernambuco():
+    print("Extraindo casos de Pernambuco")
+    content = urlopen("https://dados.seplag.pe.gov.br/apps/corona_dados.html")
+    res = BeautifulSoup(content.read(), "html.parser")
+    tags = res.findAll("script")
+
+    casos = str(tags[21])
+    inicio = casos.index('{')
+    casos = casos[inicio:]
+    casos = casos.replace("</script>", "")
+
+    casos_dict = json.loads(casos)
+
+    casos_data = pandas.DataFrame()
+
+    cols = ['dt_referencia', 'dt_atualizacao','confirmados','obitos','tx_obitos','recuperados', 
+    'tx_recuperados','isolamento','tx_isolamento','enfermaria','tx_enfermaria','uti','tx_uti',
+    'testes_novos','testes_acumulados','tx_testes','leitos_uti','tx_oc_uti','leitos_enf','tc_oc_enf']
+
+
+    data = casos_dict["x"]["data"]
+
+
+    for i, coluna in enumerate(data):
+        casos_data[cols[i]] = coluna
+
+    print('Armazenando casos')
+    
+    CasosPernambuco.objects.all().delete()
+    casoPernambuco = CasosPernambuco(
+        data_atualizacao = casos_data.iloc[0]['dt_atualizacao'], 
+        obitos = casos_data.iloc[0]['obitos'], 
+        recuperados = casos_data.iloc[0]['recuperados'], 
+        isolamento = casos_data.iloc[0]['isolamento'],
+        internados = casos_data.iloc[0]['enfermaria']+casos_data.iloc[-1]['uti'])
+    casoPernambuco.save()
+
+def storeProjections():
+    print("Armazenando projecoes")
+
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+
+    pasta = os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima/'+str(last_date).split(' ')[0]+'/'
+    Projecao.objects.all().delete()
+    for fileName in os.listdir(pasta):
+        if fileName.find('.png') == -1:
+            a = pandas.read_csv(pasta+fileName, sep=',')
+            a = a.replace({np.nan: None})
+
+            fileEstadoNome = fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]
+            
+            if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
+                nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]]
+            elif fileEstadoNome == 'BrasilConfirmados':
+                nomeEstado = 'Projecao de Confirmados no Brasil'
+            else:
+                nomeEstado = 'Projecao de Óbitos no Brasil'
+
+            print('Armazenando projecoes de ' + nomeEstado)
+                
+            projections = []
+            for index, row in a.iterrows():
+                data_notificacao = buildDate(row['dt_notificacao'])
+
+                if pandas.notnull(row['acumulado_confirmados']):
+                    quantidade_casos = round(row['acumulado_confirmados'])
+                else:
+                    quantidade_casos = None
+
+                if pandas.notnull(row['Lo.80']):
+                    lo80 = round(row['Lo.80'])
+                else:
+                    lo80 = None
+                
+                if pandas.notnull(row['Hi.80']):
+                    hi80 = round(row['Hi.80'])
+                else:
+                    hi80 = None
+
+                if pandas.notnull(row['Lo.95']):
+                    lo95 = round(row['Lo.95'])
+                else:
+                    lo95 = None
+                
+                if pandas.notnull(row['Hi.95']):
+                    hi95 = round(row['Hi.95'])
+                else:
+                    hi95 = None
+                
+                projecao = Projecao(data_notificacao=data_notificacao, quantidade_casos=quantidade_casos, lo80=lo80, hi80=hi80, lo95=lo95, hi95=hi95, estado_residencia=nomeEstado)
+
+                projecao.save()
+
+def saveImages():
+    print("Salvando Imagens no database")
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico modelo"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/modelos"
+    copy_tree(original, target)
+    
+
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/grafico predicao"
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/predicoes"
+    copy_tree(original, target)
+
+    last_date = datetime(1990, 1, 1)
+    for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/predicao_arima/SaidaArima'):
+        try:
+            if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
+                last_date = datetime.strptime(fileName, '%Y-%m-%d')
+        except:
+            pass
+    
+    original = os.path.join(os.path.dirname(__file__))+"/predicao_arima/SaidaArima/"+str(last_date).split(' ')[0]
+    target = os.path.join(os.path.dirname(__file__))+"/static/graficos/projecoes"
+    copy_tree(original, target)
+
+def storeBot():
+    print("Armazenando extrações")
+
+    dfEstados = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por Estado.csv', sep=',')
+    dfEstadosHistorico = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Casos por Estado.csv', sep=',')
+    dfCidades = pandas.read_csv(os.path.join(os.path.dirname(__file__))+'/bot/Ultimos Casos por cidade.csv', sep=',')
+
+    estados = []
+    for index, row in dfEstados.iterrows():
+            estados.append([row['date'], row['state'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    estadosHistorico = []
+    for index, row in dfEstadosHistorico.iterrows():
+            estadosHistorico.append([row['date'], stateName[row['state']], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    cidades = []
+    for index, row in dfCidades.iterrows():
+        if pandas.notnull(row['estimated_population_2019']):
+            cidades.append([row['date'], stateName[row['state']], row['city'], row['confirmed'], row['deaths'], row['estimated_population_2019'], row['confirmed_per_100k_inhabitants']])
+
+    CasosEstado.objects.all().delete()
+    CasosEstadoHistorico.objects.all().delete()
+    CasosCidade.objects.all().delete()
+
+    objs = [
+        CasosEstado(
+            data_atualizacao=m[0],
+            estado=m[1],
+            confirmados=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estados
+    ]
+    CasosEstado.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosEstadoHistorico(
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            quantidade_casos=m[2],
+            obitos=m[3],
+            populacao_estimada_2019 = m[4],
+            confirmados_100k = m[5],
+        )
+        for m in estadosHistorico
+    ]
+    CasosEstadoHistorico.objects.bulk_create(objs=objs)
+
+    objs = [
+        CasosCidade(
+            data_notificacao=m[0],
+            estado_residencia=m[1],
+            municipio = m[2],
+            quantidade_casos=m[3],
+            obitos=m[4],
+            populacao_estimada_2019 = m[5],
+            confirmados_100k = m[6],
+        )
+        for m in cidades
+    ]
+    CasosCidade.objects.bulk_create(objs=objs)
+
 def send_prediction_to_db():
-    Prediction.objects.all().delete()
+    PredictionBR.objects.all().delete()
 
     df = pandas.read_csv(
-        PATH_FILES+'Predicao24-25-26-03.csv',
+        PATH_FILES+'saidaFinalBR.csv',
         header = 0
     )
-    print("Armazenando predicoes")
+    print("Armazenando predicoes do BR")
 
     #maxPredction = df['prediction'].max()
 
     predictions = []
     for index, row in df.iterrows():
-        predictions.append([index, row['latitude'], row['longitude'], row['pred_dia1'], row['pred_dia2'], row['pred_dia3']])
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
 
     objs = [
-        Prediction(
+        PredictionBR(
             id=m[0],
             latitude=m[1],
             longitude=m[2],
@@ -106,7 +344,35 @@ def send_prediction_to_db():
         )
         for m in predictions
     ]
-    Prediction.objects.bulk_create(objs=objs)
+    PredictionBR.objects.bulk_create(objs=objs)
+
+
+    PredictionPE.objects.all().delete()
+
+    df = pandas.read_csv(
+        PATH_FILES+'saidaFinalPE.csv',
+        header = 0
+    )
+    print("Armazenando predicoes do PE")
+
+    #maxPredction = df['prediction'].max()
+
+    predictions = []
+    for index, row in df.iterrows():
+        predictions.append([index, row['latitude'], row['longitude'], row['prediction_day1'], row['prediction_day2'], row['prediction_day3']])
+
+    objs = [
+        PredictionPE(
+            id=m[0],
+            latitude=m[1],
+            longitude=m[2],
+            prediction1=m[3],
+            prediction2=m[4],
+            prediction3=m[5],
+        )
+        for m in predictions
+    ]
+    PredictionPE.objects.bulk_create(objs=objs)
 
 def prediction():
     print('Chamando IA')
@@ -161,7 +427,7 @@ def build_IAbase():
         data['Sexo'].append(notification.sexo)
         data['Idade'].append(notification.idade)
         data['CEP residência'].append(notification.cep)
-        #data['País de residência'].append(notification.pais_residencia)
+        data['País de residência'].append(notification.pais_residencia)
         data['Estado de residência'].append(notification.estado_residencia)
         data['Município'].append(notification.municipio)
         data['Endereço completo'].append(notification.endereco)
@@ -170,48 +436,98 @@ def build_IAbase():
         else:
             data['Data dos primeiros sintomas'].append(notification.data_primeiros_sintomas)
         data['Paciente foi hospitalizado?'].append(notification.paciente_hospitalizado)
-        #if notification.data_internacao:
-        #    data['Data da internação hospitalar'].append(notification.data_internacao.isoformat())
-        #else:
-        #    data['Data da internação hospitalar'].append(notification.data_internacao)
-        #if notification.data_alta:
-        #    data['Data da alta hospitalar'].append(notification.data_alta.isoformat())
-        #else:
-        #    data['Data da alta hospitalar'].append(notification.data_alta)
-        #if notification.data_isolamento:
-        #    data['Data do isolamento'].append(notification.data_isolamento.isoformat())
-        #else:
-        #    data['Data do isolamento'].append(notification.data_isolamento)
-        #data['Paciente foi submetido a ventilação mecânica?'].append(notification.ventilacao_mecanica)
-        #data['Situação de saúde do paciente no momento da notificação'].append(notification.situacao_notificacao)
-        #data['Foi realizada coleta de amostra do paciente?'].append(notification.coleta_amostra)
-        #data['Foi para outro local de transmissão?'].append(notification.foi_outro_local_transmissao)
-        #data['Outro local de transmissão, descrever (cidade, região, país)'].append(notification.outro_local_transmissao)
-        #if notification.data_ida_outro_local_transmissao:
-        #    data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao.isoformat())
-        #else:
-        #    data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao)
-        #if notification.data_volta_outro_local_transmissao:
-        #    data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao.isoformat())
-        #else:
-        #    data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao)
-        #if notification.data_chegada_brasil:
-        #    data['Data da chegada no Brasil'].append(notification.data_chegada_brasil.isoformat())
-        #else:
-        #    data['Data da chegada no Brasil'].append(notification.data_chegada_brasil)
-        #data['Estado de notificação (UF)'].append(notification.estado_notificacao)
-        #data['Município de notificação'].append(notification.municipio_notificacao)
+        if notification.data_internacao:
+            data['Data da internação hospitalar'].append(notification.data_internacao.isoformat())
+        else:
+            data['Data da internação hospitalar'].append(notification.data_internacao)
+        if notification.data_alta:
+            data['Data da alta hospitalar'].append(notification.data_alta.isoformat())
+        else:
+            data['Data da alta hospitalar'].append(notification.data_alta)
+        if notification.data_isolamento:
+            data['Data do isolamento'].append(notification.data_isolamento.isoformat())
+        else:
+            data['Data do isolamento'].append(notification.data_isolamento)
+        data['Paciente foi submetido a ventilação mecânica?'].append(notification.ventilacao_mecanica)
+        data['Situação de saúde do paciente no momento da notificação'].append(notification.situacao_notificacao)
+        data['Foi realizada coleta de amostra do paciente?'].append(notification.coleta_amostra)
+        data['Foi para outro local de transmissão?'].append(notification.foi_outro_local_transmissao)
+        data['Outro local de transmissão, descrever (cidade, região, país)'].append(notification.outro_local_transmissao)
+        if notification.data_ida_outro_local_transmissao:
+            data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao.isoformat())
+        else:
+            data['Data da viagem de ida para outro local transmissão'].append(notification.data_ida_outro_local_transmissao)
+        if notification.data_volta_outro_local_transmissao:
+            data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao.isoformat())
+        else:
+            data['Data da viagem de volta do outro local transmissão'].append(notification.data_volta_outro_local_transmissao)
+        if notification.data_chegada_brasil:
+            data['Data da chegada no Brasil'].append(notification.data_chegada_brasil.isoformat())
+        else:
+            data['Data da chegada no Brasil'].append(notification.data_chegada_brasil)
+        data['Estado de notificação (UF)'].append(notification.estado_notificacao)
+        data['Município de notificação'].append(notification.municipio_notificacao)
         data['Coleta de exames'].append(notification.coleta_exames)
         data['Classificação final'].append(notification.classificacao)
         data['Resultado'].append(notification.resultado)
         data['INTERNADO'].append(notification.internado)
         data['EVOLUÇÃO'].append(notification.evolucao)
 
-    df = pandas.DataFrame(data, columns=collum_names)
+    df = pandas.DataFrame(data)
     df.to_csv(PATH_FILES+'entradaPreProcessada.csv')
     os.rename(PATH_FILES+BASE_NAME,PATH_FILES+'ok '+str(timezone.now().date())+' '+BASE_NAME)
 
-def store_base(df):
+def store_base():
+    pasta = PATH_FILES+'bases predicao BR/'
+
+    InterpolationBR.objects.all().delete()
+
+    for fileName in os.listdir(pasta):
+        a = pandas.read_csv(pasta+fileName, sep=',')
+
+        interporlations = []
+        date = datetime.strptime(fileName.split('predicao_covid19BR_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes do BR do dia ' + str(date))
+        for index, row in a.iterrows():
+            interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
+        
+        objs = [
+            InterpolationBR(
+                latitude=m[0],
+                longitude=m[1],
+                prediction=m[2],
+                date=m[3],
+            )
+            for m in interporlations
+        ]
+        InterpolationBR.objects.bulk_create(objs=objs)
+
+
+    pasta = PATH_FILES+'bases predicao PE/'
+
+    InterpolationPE.objects.all().delete()
+
+    for fileName in os.listdir(pasta):
+        a = pandas.read_csv(pasta+fileName, sep=',')
+
+        interporlations = []
+        date = datetime.strptime(fileName.split('predicao_covid19PE_')[1].split('.csv')[0]+'-20', '%m-%d-%y')
+        print('Armazenando Interpolacoes de PE do dia ' + str(date))
+        for index, row in a.iterrows():
+            interporlations.append([row['latitude'], row['longitude'], row['prediction'], date])
+        
+        objs = [
+            InterpolationPE(
+                latitude=m[0],
+                longitude=m[1],
+                prediction=m[2],
+                date=m[3],
+            )
+            for m in interporlations
+        ]
+        InterpolationPE.objects.bulk_create(objs=objs)
+
+    """df = df.replace({np.nan: None})
     for index, row in df.iterrows():
         try:
             notification = Notification.objects.get(id = int(row['ID']))
@@ -219,50 +535,56 @@ def store_base(df):
             notification = Notification(id = int(row['ID']))
         print("Armazenando notificacao de ID: "+str(row['ID']))
         
-        notification.data_atualizacao = buildDate(row['Data Atualização'])
-        notification.data_notificacao = buildDate(row['Data da notificação'])
+        notification.data_atualizacao = buildDate(row['Data AtualizaÃ§Ã£o'])
+        notification.data_notificacao = buildDate(row['Data da notificaÃ§Ã£o'])
         notification.sexo = str(row['Sexo']).title()
         if pandas.notnull(row['Idade']):
             try:
                 notification.idade = int(row['Idade'])
             except:
                 notification.idade = 0
-        notification.cep = str(row['CEP residência'])
-        #notification.pais_residencia = str(row['País de residência']).title()
-        notification.estado_residencia = str(row['Estado de residência']).title()
-        notification.municipio = str(row['Município']).title()
-        notification.endereco = str(row['Endereço completo']).title()
+        notification.cep = str(row['CEP residÃªncia'])
+        #notification.pais_residencia = str(row['PaÃ­s de residÃªncia']).title()
+        notification.estado_residencia = str(row['Estado de residÃªncia']).title()
+        notification.municipio = str(row['MunicÃ­pio']).title()
+        notification.endereco = str(row['EndereÃ§o completo']).title()
         notification.data_primeiros_sintomas = buildDate(row['Data dos primeiros sintomas'])
         notification.paciente_hospitalizado = str(row['Paciente foi hospitalizado?']).title()
-        #notification.data_internacao = row['Data da internação hospitalar']
+        #notification.data_internacao = row['Data da internaÃ§Ã£o hospitalar']
         #notification.data_alta = row['Data da alta hospitalar']
         #notification.data_isolamento = row['Data do isolamento']
-        #notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilação mecânica?']).title()
-        #notification.situacao_notificacao = str(row['Situação de saúde do paciente no momento da notificação']).title()
+        #notification.ventilacao_mecanica = str(row['Paciente foi submetido a ventilaÃ§Ã£o mecÃ¢nica?']).title()
+        #notification.situacao_notificacao = str(row['SituaÃ§Ã£o de saÃºde do paciente no momento da notificaÃ§Ã£o']).title()
         #notification.coleta_amostra = str(row['Foi realizada coleta de amostra do paciente?']).title()
-        #notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissão?']).title()
-        #notification.outro_local_transmissao = str(row['Outro local de transmissão, descrever (cidade, região, país)']).title()
-        #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissão']
-        #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissão']
-        """if row['Data da chegada no Brasil']:
-            try:
-                notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
-            except ValueError:
-                try:
-                    notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
-                except ValueError:
-                    notification.data_chegada_brasil = None"""
-        #notification.estado_notificacao = str(row['Estado de notificação (UF)']).title()
-        #notification.municipio_notificacao = str(row['Município de notificação']).title()
+        #notification.foi_outro_local_transmissao = str(row['Foi para outro local de transmissÃ£o?']).title()
+        #notification.outro_local_transmissao = str(row['Outro local de transmissÃ£o, descrever (cidade, regiÃ£o, paÃ­s)']).title()
+        #notification.data_ida_outro_local_transmissao = row['Data da viagem de ida para outro local transmissÃ£o']
+        #notification.data_volta_outro_local_transmissao = row['Data da viagem de volta do outro local transmissÃ£o']
+        #if row['Data da chegada no Brasil']:
+        #    try:
+        #        notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%Y')
+        #    except ValueError:
+        #        try:
+        #            notification.data_chegada_brasil = datetime.strptime(row['Data da chegada no Brasil'].split(' ')[0],'%d/%m/%y')
+        #        except ValueError:
+        #            notification.data_chegada_brasil = None
+        #notification.estado_notificacao = str(row['Estado de notificaÃ§Ã£o (UF)']).title()
+        #notification.municipio_notificacao = str(row['MunicÃ­pio de notificaÃ§Ã£o']).title()
         notification.coleta_exames = str(row['Coleta de exames']).title()
-        notification.classificacao = str(row['Classificação final']).title()
+        notification.classificacao = str(row['ClassificaÃ§Ã£o final']).title()
         notification.resultado = str(row['Resultado']).title()
         notification.internado = str(row['INTERNADO']).title()
-        notification.evolucao = str(row['EVOLUÇÃO']).title()
+        notification.evolucao = str(row['EVOLUÃ‡ÃƒO']).title()
         notification.bairro = str(row['Bairro']).title()
         notification.latitude = row['Latitude']
         notification.longitude = row['Longitude']
-        notification.save()
+
+        if notification.estado_residencia != 'Pernambuco':
+            notification.estado_residencia = 'Pernambuco'
+            notification.municipio = 'Recife'
+            notification.bairro = 'Boa Viagem'
+
+        notification.save()"""
 
 def pre_processing(df):
     df["Bairro"] = None
@@ -529,6 +851,13 @@ def buildDate(original_date):
         if dateBuilded == False:
             try:
                 result_date = datetime.strptime(str(original_date).split(' ')[0],'%Y-%m-%d')
+                dateBuilded = True
+            except ValueError:
+                pass
+
+        if dateBuilded == False:
+            try:
+                result_date = datetime.strptime(str(original_date).split(' ')[0]+'/2020','%d/%m/%Y')
                 dateBuilded = True
             except ValueError:
                 pass
