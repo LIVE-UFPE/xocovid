@@ -32,6 +32,7 @@ module.exports ={
           this.componentKey += 1
         },
         getCasos(estado){
+            console.log(`datedb ehh ${this.datedb.toISOString()} e estado ${estado}`)
             if (this.request != null) {
                 this.request.abort();
             }
@@ -45,8 +46,7 @@ module.exports ={
                     let resposta = JSON.parse(response)
                     if(resposta.length != 0){
                         this.casos = resposta
-                        // console.log('Casos: ',this.casos)
-
+                        console.log(this.casos)
                         this.casos.forEach(element => {
                             this.ultimoscasos[element['municipio']] = element
 
@@ -63,7 +63,9 @@ module.exports ={
         }
     },
     mounted() {
-        // console.log(this.estado.split(' ').join('_'))
+        this.getCasos('Pernambuco')
+
+        console.log(this.estado.split(' ').join('_'))
         this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
         this.getCasos(this.estado)
         var objectCoord = {lat: [], lon: []}
@@ -204,19 +206,19 @@ module.exports ={
             
             if (props) {
                 try {
-                    // console.log(props.NOME)
+                    console.log(props.NOME)
                     let test = that.casos.find( elem => elem['municipio'] === props.NOME)
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
                 } catch (error) {
-                    // console.log('sem dados')
+                    console.log('sem dados')
                     try {
                         casos = that.ultimoscasos[props.NOME]['quantidade_casos']
                         obitos = that.ultimoscasos[props.NOME]['obitos']
                     } catch (err) {
                         casos = 0
                         obitos = 0
-                        // console.log('também não há dados anteriores para este municipio')
+                        console.log('também não há dados anteriores para este municipio')
                     }
                         
                 }    
@@ -275,7 +277,7 @@ module.exports ={
     },
     watch: {
         datewatch() {
-            
+            console.log(`estado é ${this.estado}`)
             this.getCasos(this.estadoComp)
         }
     }
