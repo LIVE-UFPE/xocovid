@@ -113,9 +113,9 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
-    #print("Extraindo informações de outras bases")
-    #bot.processingData()
-    #storeBot()
+    print("Extraindo informações de outras bases")
+    bot.processingData()
+    storeBot()
     
     print("Executando predicoes do Arima")
     stateCityData.main()
@@ -123,7 +123,7 @@ def listener():
     saveImages()
     storeProjections()
 
-    #getCasosPernambuco()
+    getCasosPernambuco()
 
     #prediction()
     #store_base()
