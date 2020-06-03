@@ -1,5 +1,5 @@
 <template>
-    <div :key="componentKey" style="border-radius: 25px" id="mapcity">
+    <div :key="componentKey" style="border-radius: 25px; display: flex; justify-content: center" id="mapcity">
 
     </div>
 </template>
@@ -133,7 +133,7 @@ module.exports ={
         // method that we will use to update the control based on feature properties passed
         info.update = function (props) {
             this._div.innerHTML = (props ?
-                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                `<div id='cidadeDiv' style="width: 100%;display: flex; justify-content: center; position: relative"><div style="right: 50%; left: 50%;;display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.NOME + 
                     `</h2>
@@ -160,7 +160,7 @@ module.exports ={
                 : 
                 `<h5 style="color: white" class="text-center">
                     Passe o mouse por uma cidade
-                </h5>`);
+                </h5></div>`);
         };
         info.addTo(map);
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
@@ -184,6 +184,10 @@ module.exports ={
     height: 100%;
     width: 100%;
     z-index: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
 }
 .info {
     padding: 6px 8px;
@@ -205,16 +209,25 @@ module.exports ={
     font-weight: 900;
     font-size:large;
 }
-.info .leaflet-control {
-    background-color: #777;
+.info {
+    right: 10vw;
+    
 }
-
 .leaflet-control-zoom{
     margin-left: 80px;
     position:absolute;
     margin-top: 80px
 }
+.leaflet-popup {
+    margin-left: 55px !important;
+}
 /* .leaflet-control-container{
      margin-left: 200px;
 } */
+.leaflet-top .leaflet-right{
+    margin-left: 40px;
+}
+#cidadeDiv{
+    margin-left: 0px;
+}
 </style>
