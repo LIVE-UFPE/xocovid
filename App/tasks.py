@@ -113,21 +113,21 @@ def listener():
     except FileNotFoundError:
         print("Nenhuma base de dados para ser pre_processada")"""
     
-    print("Extraindo informações de outras bases")
-    bot.processingData()
-    storeBot()
+    #print("Extraindo informações de outras bases")
+    #bot.processingData()
+    #storeBot()
     
-    print("Executando predicoes do Arima")
-    stateCityData.main()
-    pipelineArima.main()
-    saveImages()
-    storeProjections()
+    #print("Executando predicoes do Arima")
+    #stateCityData.main()
+    #pipelineArima.main()
+    #saveImages()
+    #storeProjections()
 
-    getCasosPernambuco()
+    #getCasosPernambuco()
 
     #prediction()
-    #store_base()
-    #send_prediction_to_db()
+    store_base()
+    send_prediction_to_db()
     
     print("Listener parado")
 

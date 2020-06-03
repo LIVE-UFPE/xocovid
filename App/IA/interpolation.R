@@ -39,7 +39,7 @@ if(state == 'BR'){
   grid <- spsample(state_shp, type = 'regular', n = 90000)
 }
 
-grid <- spsample(state_shp, type = 'regular', n = 50000)
+grid <- spsample(state_shp, type = 'regular', n = 10000)
 
 
 # Distribution map of the confirmed cases of covid-19 for each day (including the predicted)
