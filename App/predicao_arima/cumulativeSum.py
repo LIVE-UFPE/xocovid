@@ -3,71 +3,49 @@ import numpy as np
 from datetime import timedelta
 import os
 
-
-def formatData(a):
-    # função retirada do código countbyday.py para ajustar as datas
-    retorno = a
-    b = a.split('-')
-    #print('entrada',retorno)
-    try:
-        if(int(b[2]) <= 12 and int(b[1]) <= 12):
-            b[1], b[2] = b[2], b[1]
-            #print('aaa')
-            retorno = '-'.join(b)
-    except:
-        print("An exception occurred")
-    retorno = retorno.replace(' 00:00:00','')
-    #print('saida',retorno)
-    return retorno
-
 def date_array(dataframe):
-    start_date = dataframe["Data da notificação"].min().to_pydatetime()
-    end_date = dataframe["Data da notificação"].max().to_pydatetime()
+    start_date = dataframe['date'].min().to_pydatetime()
+    end_date = dataframe['date'].max().to_pydatetime()
     end_date = end_date + timedelta(days=1)
     array_dates = np.arange(start_date, end_date, dtype='datetime64[D]')
     return array_dates
 
-def accumulate(datas, datas_confirmacoes, dataframe):
-    v_acumulado = np.array([])
-    for i in range(0, len(datas)):
-        if (i == 0) & (datas[i] not in datas_confirmacoes):
-            n_casos = 0
-            v_acumulado = np.append(v_acumulado, [[n_casos]])
-        else:
-            if datas[i] not in datas_confirmacoes:
-                n_casos = v_acumulado[i-1]
-                v_acumulado = np.append(v_acumulado, [[n_casos]])
-            if datas[i] in datas_confirmacoes:
-                for j in range(0, len(datas_confirmacoes)):
-                    if datas[i] == datas_confirmacoes[j]:
-                        n_casos = v_acumulado[i-1] + dataframe["Classificação final"][j]
-                        v_acumulado = np.append(v_acumulado, [[n_casos]])
-                        break
-    return(v_acumulado)
+def main(data):
 
-def main():
-    #loading the database
-    dados_PE = pd.read_csv(os.path.join(os.path.dirname(__file__))+"/entradaPreProcessada.csv", delimiter=',')
+    # loading the csv file
+    cases_per_state = pd.read_csv(os.path.join(os.path.dirname(__file__))+'/dados/Casos por Estado '+ data +'.csv', delimiter=',',index_col = 0)
+    cases_per_state['date'] = pd.to_datetime(cases_per_state['date'])
 
-    #Sorting the dataset by date
-    dados_PE['Data da notificação'] = list(map(formatData, dados_PE['Data da notificação']))
-    dados_PE = dados_PE.sort_values(by=['Data da notificação'])
-    dados_PE['Data da notificação'] = pd.to_datetime(dados_PE["Data da notificação"])
+    # sorting dataset by date
+    cases_per_state['date'] = pd.to_datetime(cases_per_state['date'])
+    cases_per_state = cases_per_state.sort_values(by=['date'])
 
-    # Selecting the covid-19 confirmed cases in Recife
-    casosConfirmados = dados_PE[(dados_PE['Município'] == 'Recife') & (dados_PE['Classificação final'].str.lower() == 'confirmado')]
+    cases_per_state = cases_per_state[['date','state','confirmed','deaths']]
 
-    # counting the number of cases for each day
-    casosConfirmados = casosConfirmados.groupby("Data da notificação")["Classificação final"].count().reset_index()
+    #casesPE = casesPE[casesPE['city'] != 'Importados/Indefinidos']
+    states = cases_per_state['state'].unique()
 
-    # calculating the cumulative sum of the confirmed cases in Recife-PE
-    dates = date_array(dados_PE)
-    datas_confirmados = casosConfirmados["Data da notificação"].values.astype('datetime64[D]')
-    casos = accumulate(dates, datas_confirmados, casosConfirmados)
-
-    # exporting to a csv file
-    df2 = pd.DataFrame({'dt_notificacao': dates, 'acumulado_confirmados': casos})
-    df2.to_csv(os.path.join(os.path.dirname(__file__))+"/baseARIMA_" + str(dates[-1]) + ".csv", index=False)
+    for state in states:
+        temp = cases_per_state[cases_per_state['state'] == state]
+        dates_for_timeserie = date_array(temp)
+        confirmed_cases = len(dates_for_timeserie) * [0]
+        deaths_cases = len(dates_for_timeserie) * [0]
+        notification_dates_array = temp['date'].values.astype('datetime64[D]')  # datas dos casos confirmados
+        array_index = 0
+        for day in dates_for_timeserie:
+            if day in notification_dates_array:
+                idx = temp[temp['date'] == day].index
+                confirmed_cases[array_index] = temp['confirmed'][idx[0]]
+                deaths_cases[array_index] = temp['deaths'][idx[0]]
+                array_index = array_index + 1
+            else:
+                confirmed_cases[array_index] = confirmed_cases[array_index - 1]
+                deaths_cases[array_index] = deaths_cases[array_index - 1]
+                array_index = array_index + 1
+        confirmed_cases_dataframe = pd.DataFrame({'dt_notificacao':dates_for_timeserie, 'acumulado_confirmados':confirmed_cases})
+        confirmed_cases_dataframe.to_csv(os.path.join(os.path.dirname(__file__))+"/dados/confirmados/" + data + state + ".csv", index=False)
+        deaths_cases_dataframe = pd.DataFrame({'dt_notificacao': dates_for_timeserie,'acumulado_mortes':deaths_cases})
+        deaths_cases_dataframe.to_csv(os.path.join(os.path.dirname(__file__))+"/dados/mortes/" + data + state + ".csv", index=False)
+        array_index = 0
 
 
-main()

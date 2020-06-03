@@ -1,28 +1,43 @@
 import pandas as pd
 import time
+from datetime import datetime, timedelta
 import os
+
+
+def getYesterday(): 
+	today=datetime.today() 
+	oneday=timedelta(days=1) 
+	yesterday=today-oneday  
+	return yesterday
+
+global ontem
+ontem = getYesterday()
+ontem = datetime(ontem.year,ontem.month, ontem.day,23,59)
+
+# ontem = datetime(2020,5,9,23,59)
+
 
 # Pega a base de dados do Brasil.io e faz o processamento para extrair os casos por cidade e por estados
 def processingData():
+    global ontem
     
     brasil_cases = pd.read_csv('https://brasil.io/dataset/covid19/caso/?format=csv', sep=',')
+    brasil_cases['date'] = brasil_cases['date'].astype('datetime64[D]')
+    brasil_cases = brasil_cases[brasil_cases['date'] < ontem]
+
+    most_recent = str(brasil_cases['date'].max()).split(' ')[0]
 
     brasil_cases = brasil_cases.drop(['place_type', 'death_rate', 'city_ibge_code'], axis=1)
 
-    # Casos em PE por cidade
-    pernambuco_cases = brasil_cases[brasil_cases['state'] == 'PE']
-    pernambuco_cases = pernambuco_cases[pernambuco_cases['city'].notna()]
-
+    
     states = brasil_cases.state.unique()
 
-    most_recent = brasil_cases.date.unique()
-    most_recent = sorted(most_recent)[-1]
-
-    pernambuco_cases.to_csv(os.path.join(os.path.dirname(__file__))+'/casos_pernambuco' + most_recent +'.csv')
+    
 
     # Casos acumulados no país por cidade e por estado 
     acumulado_pais = brasil_cases
-    casesbystate = pd.DataFrame(columns = ['date', 'state', 'city', 'confirmed', 'deaths', 'estimated_population_2019', 'confirmed_per_100k_inhabitants'])
+    print(brasil_cases.columns)
+    casesbystate = pd.DataFrame(columns = brasil_cases.columns)
 
     for state in states:
         temp = acumulado_pais[acumulado_pais['state'] == state]
@@ -30,11 +45,32 @@ def processingData():
         casesbystate = pd.concat([stateCases, casesbystate], ignore_index=True)
 
     casesbystate = casesbystate.drop('city', axis=1)
-    casesbystate.to_csv(os.path.join(os.path.dirname(__file__))+'/Casos por Estado.csv')
+    
+    casesbystate.to_csv(os.path.join(os.path.dirname(__file__))+'/dados/Casos por Estado '+ most_recent +'.csv')
 
     casesbycity = acumulado_pais[acumulado_pais['city'].notna()]
-    casesbycity.to_csv(os.path.join(os.path.dirname(__file__))+'/Ultimos Casos por cidade.csv')
 
-    casesbystate = casesbystate[casesbystate['is_last']==True]
-    casesbystate.to_csv(os.path.join(os.path.dirname(__file__))+'/Ultimos Casos por Estado.csv')
+    
+def brasilCases():
+    global ontem
+    casosBrasil = pd.read_csv("https://brasil.io/dataset/covid19/caso_full/?place_type=state&format=csv")
+    casosBrasil['date'] = casosBrasil['date'].astype('datetime64[D]')
 
+    print('Dados coletados até: ',ontem)
+
+    # ontem = datetime(ontem.year,ontem.month, ontem.day,23,59)
+    
+    casosBrasil = casosBrasil[casosBrasil['date'] < ontem]
+    most_recent = str(casosBrasil['date'].max()).split(' ')[0]
+    
+    
+    casosBrasil.rename(columns={'last_available_confirmed':'confirmed','last_available_deaths':'deaths'}, inplace=True)
+    b = casosBrasil.groupby('date').sum()['confirmed']
+    b.to_csv(os.path.join(os.path.dirname(__file__))+'/dados/ConfirmadosBrazil '+ most_recent + '.csv')
+    b = casosBrasil.groupby('date').sum()['deaths']
+    b.to_csv(os.path.join(os.path.dirname(__file__))+'/dados/MortesBrazil '+ most_recent + '.csv')
+    
+
+def main():
+    processingData()
+    brasilCases()

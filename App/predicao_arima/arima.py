@@ -1,6 +1,6 @@
 import subprocess
 import os
-import App.predicao_arima.cumulativeSum
+
 
 
 
@@ -11,13 +11,13 @@ def arimaForecast(predictionFile,estado):
     # Define command and arguments
     command = '/usr/bin/Rscript'
     # command = r'C:\Program Files\R\R-3.6.3\bin\Rscript'
-    path2script = os.getcwd() + '/arima.R'
+    path2script = os.getcwd() + '/App/predicao_arima/arima.R'
 
     #Build process command
     cmd = [command, '--vanilla', path2script] + arg
 
     #check_output will run to the command and store result
-    print(cmd)
+    # print(cmd)
     subprocess.call(cmd)
     
 def main(estado):

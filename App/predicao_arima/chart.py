@@ -1,5 +1,3 @@
-# import numpy as np 
-# import pandas as pd  
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -26,9 +24,10 @@ def formatDate(date):
 
 
 
-def main(estado):
+def main(estado,data):
 
     proj = pd.read_csv(os.path.join(os.path.dirname(__file__))+"/proj_.csv")
+    print("tamanho da projecao ", proj.shape)
     proj = proj.rename(columns={"Unnamed: 0": "dt_notificacao","Point.Forecast":"acumulado_confirmados"})
     pred = pd.read_csv(os.path.join(os.path.dirname(__file__))+"/pred_.csv")
     pred = pred.rename(columns={"Unnamed: 0": "dt_notificacao","Point.Forecast":"acumulado_confirmados"})
@@ -69,7 +68,7 @@ def main(estado):
     # Projeção
     # plt.figure(figsize=(15, 5),dpi=200)
     plt.figure(figsize=(20, 5),dpi=200)
-    plt.title("Modelo Arima Projeção")
+    plt.title("Projeção")
     plt.xlabel("Data")
     plt.ylabel("Casos confirmados")
 
@@ -83,12 +82,22 @@ def main(estado):
     plt.fill_between(x_proj, y_proj_max95,y_proj_min95,color='green', alpha=0.1)
     plt.grid()
 
-    plt.savefig(os.path.join(os.path.dirname(__file__))+'/SaidaArima/projecao'+estado+'.png')
-    projecao.to_csv(os.path.join(os.path.dirname(__file__))+'/SaidaArima/projecao'+estado+'.csv')
+    # data = str(datetime(2020,4,30)).split(' ')[0]
+    
+    if(os.path.exists(os.path.join(os.path.dirname(__file__))+'/SaidaArima/'+data) == False):
+        os.mkdir(os.path.join(os.path.dirname(__file__))+"/SaidaArima/"+data)
+        
+    
+
+
+    
+    plt.savefig(os.path.join(os.path.dirname(__file__))+'/SaidaArima/'+data+'/projecao'+estado+data+'.png')
+    projecao.to_csv(os.path.join(os.path.dirname(__file__))+'/SaidaArima/'+data+'/projecao'+estado+data+'.csv')
 
 
 
-    # Predicao
+
+    # # Predicao
     # plt.figure(figsize=(20, 5),dpi=200)
     # plt.title("Modelo Arima Predição")
     # plt.xlabel("Data")
@@ -114,7 +123,9 @@ def main(estado):
     # plt.legend(loc="upper left")
     # plt.grid()
 
-    # plt.savefig('./SaidaArima/predicao'+estado+'.png')
+    
+    # plt.savefig('./SaidaArima/'+data+'/predicao/'+estado+data+'.png')
+    # projecao.to_csv('./SaidaArima/'+data+'/predicao/'+estado+data+'.csv')
 
 
 

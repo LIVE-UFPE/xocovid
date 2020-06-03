@@ -11,7 +11,7 @@ def interpolacao(day1, day2, day3, day4, state, shapefile):
     # path2script = os.getcwd() + '/interpolation.R'
 
     command = '/usr/bin/Rscript'
-    path2script = os.getcwd() + '/interpolation.R'
+    path2script = os.getcwd() + '/App/IA/interpolation.R'
 
     #Build process command
     cmd = [command, '--vanilla', path2script] + arg
@@ -27,8 +27,8 @@ def main():
     for shapes in range(0, len(shapefiles)):
         
         state = shapefiles[shapes].split(".")
-        shapefiles_path = os.getcwd() + '/shapefiles' + "/" + shapefiles[shapes]
-        pasta = os.getcwd() + '/casos confirmados ' + state[0]
+        shapefiles_path = os.getcwd() + '/App/IA/shapefiles' + "/" + shapefiles[shapes]
+        pasta = os.getcwd() + '/App/IA/casos confirmados ' + state[0]
         caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
         arquivos = [arq for arq in caminhos if os.path.isfile(arq)]
         arquivos.sort()
