@@ -5,6 +5,7 @@ App/IA/casos confirmados BR/
 App/IA/casos confirmados PE/
 App/IA/lista_municipios/
 App/IA/temp/
+App/IA/__pycache__/
 App/predicao_arima/SaidaArima/
 App/predicao_arima/coeficientes modelo/
 App/predicao_arima/coeficientes predicao/
