@@ -72,12 +72,8 @@ module.exports ={
         var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
         var estadoLocal = this.estado
-<<<<<<< HEAD:App/static/homeCityMap/HomeCityMap.vue
 
         this.geojson = L.geoJson(eval(this.estado), {style: style});
-=======
-        geojson = L.geoJson(eval(this.estado), {style: style});
->>>>>>> master:App/static/map/HomeCityMap.vue
         
         function samDash(estado, cidade){
             buscaResponse = []
@@ -259,15 +255,11 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-<<<<<<< HEAD:App/static/homeCityMap/HomeCityMap.vue
         this.style = style.bind(this)    
         this.geojson = L.geoJson(eval(this.estado), {style: this.style, onEachFeature: onEachFeature.bind(this)}).addTo(map);
         this.geojson.addTo(map)
         this.map = map
         this.getCasos(this.estado)
-=======
-        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature}).addTo(map);
->>>>>>> master:App/static/map/HomeCityMap.vue
     },
     computed: {
         datewatch() {
