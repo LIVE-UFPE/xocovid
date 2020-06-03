@@ -116,14 +116,14 @@ module.exports ={
                 d = that.ultimoscasos[estado]['quantidade_casos']
             }
             return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
-                d >= Math.floor(media * 0.75)  ? '#ff4242' :
-                d >= Math.floor(media * 0.625)  ? '#ff6e6e' :
-                d >= Math.floor(media * 0.5)  ? '#ff8a8a' :
-                d >= Math.floor(media * 0.375)   ? '#ffabab' :
-                d >= Math.floor(media * 0.25)   ? '#ffbaba' :
-                d >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
-                d >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#38ff26'
+                d >= Math.floor(media * 0.75)  ? '#ff2121' :
+                d >= Math.floor(media * 0.625)  ? '#ff4040' :
+                d >= Math.floor(media * 0.5)  ? '#ff5252' :
+                d >= Math.floor(media * 0.375)   ? '#ff8080' :
+                d >= Math.floor(media * 0.25)   ? '#ff9696' :
+                d >= Math.floor(media * 0.125)   ? '#ffa8a8' : // * tons de amarelo
+                d >= Math.floor(media * 0.03125)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
+                    '#ffffff'
         }
         function style(feature) {
             return {
