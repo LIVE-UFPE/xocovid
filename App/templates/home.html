@@ -313,7 +313,7 @@
       <!-- --------CARD MENU------- -->
       <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
         <!-- Map Name -->
-        <v-card
+        <!-- <v-card
           class="mx-auto mb-4"
           max-width="344"
           outlined
@@ -322,7 +322,7 @@
         >
             <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
             <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
-        </v-card>
+        </v-card> -->
         
         <template>
           <v-bottom-navigation
@@ -370,7 +370,7 @@
                   <span style="color:#1E9CF8">Alterar Mapa</span>
                   <div class="text-center">
                     <v-list-item-title v-if="maxInt === 0" style="color:#1E9CF8">Projeção de Casos</v-list-item-title>
-                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8">Casos Acumulados</v-list-item-title>
+                    <v-list-item-title v-if="maxInt === 1" style="color:#1E9CF8; font-size: small;">Casos Acumulados/óbitos</v-list-item-title>
                   </div>
                 </v-btn>
               </template>
@@ -401,7 +401,7 @@
                               <template v-slot:activator="{ on }">
                                 <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
                               </template>
-                              <span>Visualização do mapa de projeção da projeção de casos</span>
+                              <span>Visualização do mapa de projeção de casos usando Inteligência Artificial - IA</span>
                             </v-tooltip>
                           </v-list-item>
                           <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Projeção de Casos</v-list-item-title>   
@@ -439,8 +439,8 @@
                             </v-tooltip>
                           </v-list-item>
 
-                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Casos Acumulados</v-list-item-title>   
-                          <v-list-item-subtitle class="mb-2">Exibe a quantidade de casos acumulados por estado.</v-list-item-subtitle>
+                          <v-list-item-title style="margin-top: -45px;" class="headline mb-1">Casos Acumulados e óbitos</v-list-item-title>   
+                          <v-list-item-subtitle class="mb-2">Exibe a quantidade de casos acumulados e óbitos por estado.</v-list-item-subtitle>
                       
                           <div class="justify-center">
                               <v-btn style="border-radius: 5px;" @click="sheet = !sheet;maxInt=1" outlined color="#1E9CF8">
@@ -460,44 +460,47 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-      <div style="position: absolute;top: 95px;left: 10vmin;z-index: 1" v-if="maxInt === 1">
-        <v-card
-        class="mx-auto pb-2"
-        max-width="220"
-        max-height="500"
-        width="220"
-        outlined
-        style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
-        >
-            <p class="body-1 mb-0 pt-2 text-center d-block"> Dados do: </p>
-            <v-card-actions class="pt-0 text-center">
-              <v-radio-group v-model="radioheat" class="pa-0">
-                  <v-radio label="Brasil" value="brasil"></v-radio>
-                  <!-- <v-radio label="Estados" value="pernambuco"></v-radio> -->
-              </v-radio-group>
-            </v-card-actions>
-            <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
-              <v-autocomplete
-                v-model="homeSelecao"
-                :items="estadosSiglaDashboard"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o estado"
-                width="400"
-                class="pl-2 pr-2"
-              ></v-autocomplete>
-              <v-btn @click="keychange += 1; " class="mb-2" width='110' color='#1E9CF8' style="color: white;">Selecionar</v-btn>
-            </div>
-        </v-card> 
-      </div>
+    <div style="position: absolute;top: 95px;left: 10vmin;z-index: 1" v-if="maxInt === 1">
+      <v-card
+      class="mx-auto pb-2"
+      max-width="220"
+      max-height="500"
+      width="220"
+      outlined
+      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
+      >
+      <h3 v-if='maxInt === 1' style="color: #1E9CF8;font-size: medium;text-align: center;" class="mb-0 mt-3 mb-2">Casos confirmados e óbitos</h3>
+      <h3 v-if='maxInt === 0' style="color: #1E9CF8;font-size: medium;text-align: center;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
+          <p class="body-1 mb-0 pt-2 text-center d-block"> Dados do: </p>
+          <v-card-actions v-if="maxInt === 1" class="pt-0 text-center">
+            <v-radio-group v-model="radioheat" class="pa-0">
+                <v-radio label="Brasil" value="brasil"></v-radio>
+                <v-radio label="Estados" value="pernambuco"></v-radio>
+            </v-radio-group>
+          </v-card-actions>
+          <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
+            <v-autocomplete
+              v-model="homeSelecao"
+              :items="estadosSiglaDashboard"
+              outlined
+              dense
+              chips
+              small-chips
+              label="Selecione o estado"
+              width="400"
+              class="pl-2 pr-2"
+            ></v-autocomplete>
+            <v-btn v-if="maxInt === 1" @click="keychange += 1; " class="mb-2" width='110' color='#1E9CF8' style="color: white;">Selecionar</v-btn>
+          </div>
+      </v-card> 
+    </div>
       
       {% comment %} DEBUG pq n pega c os 2 juntos {% endcomment %}
       {% comment %} <state-map :datedb="datedb" ></state-map> {% endcomment %}
 
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
       <!-- <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map> -->
+      <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map>
       <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" v-on:dados-legenda="updatelegenda" ></state-map>
       <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
