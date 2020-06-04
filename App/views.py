@@ -80,7 +80,7 @@ def home(request):
         notificationsPE = []
         # ! inicialmente é BR
         predictions = list(PredictionBR.objects.all())
-        predictionsPE = list(PredictionPE.objects.all())
+        #predictionsPE = list(PredictionPE.objects.all())
         debug = 0
         for prediction in predictions:
             predicts.append({
@@ -92,7 +92,7 @@ def home(request):
             })
             debug += 1
         print('enviando',debug, 'pontos de predição do BR')
-        debug = 0
+        """debug = 0
         for prediction in predictionsPE:
             predictsPE.append({
                 "latitude": prediction.latitude,
@@ -102,28 +102,28 @@ def home(request):
                 "intensidade3": prediction.prediction3,
             })
             debug += 1
-        print('enviando',debug, 'pontos de predição do PE')
+        print('enviando',debug, 'pontos de predição do PE')"""
         for note in InterpolationBR.objects.order_by('-date').values_list('date', flat=True).distinct():
             notifications.append(
                 note.isoformat()
             )
-        for note in InterpolationPE.objects.order_by('-date').values_list('date', flat=True).distinct():
+        """for note in InterpolationPE.objects.order_by('-date').values_list('date', flat=True).distinct():
             notificationsPE.append(
                 note.isoformat()
-            )
+            )"""
         # DEBUG datas com interpolacao
         # print('temos',len(notifications),'datas com interpolação:')
         # print(notifications)
         maior_int = InterpolationBR.objects.order_by('-prediction').first().prediction
-        maior_int_PE = InterpolationPE.objects.order_by('-prediction').first().prediction
-        print('maior int BR é',maior_int,'e maior int PE é',maior_int_PE)
+        #maior_int_PE = InterpolationPE.objects.order_by('-prediction').first().prediction
+        #print('maior int BR é',maior_int,'e maior int PE é',maior_int_PE)
         context['template'] = "'home'"
         context["maior_int"] = json.dumps(maior_int)
-        context["maior_int_pe"] = json.dumps(maior_int_PE)
+        #context["maior_int_pe"] = json.dumps(maior_int_PE)
         context["items_json"] = json.dumps(notifications)
-        context["items_json_pe"] = json.dumps(notificationsPE)
+        #context["items_json_pe"] = json.dumps(notificationsPE)
         context["predicts_json"] = json.dumps(predicts)
-        context["predicts_pe_json"] = json.dumps(predictsPE)
+        #context["predicts_pe_json"] = json.dumps(predictsPE)
         context["data"] = data
         return render(request, 'home.html', context)
 
