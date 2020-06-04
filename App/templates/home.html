@@ -369,7 +369,7 @@
       
       
       <!-- --------CARD MENU------- -->
-      <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
+      <div id="HomeBar" class="homebar text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
         <!-- Map Name -->
         <!-- <v-card
           class="mx-auto mb-4"
@@ -563,5 +563,4 @@
       <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>
   </div>
-
 {% endblock %}

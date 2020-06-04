@@ -50,11 +50,12 @@
         </div>
       </template>
     <!-- Graph Card -->
+    <v-container fluid>
     <template>
       <v-card
-            class="mx-auto mt-6 pa-3 pb-6"
+            class="mx-auto mt-6 pa-6 pb-6"
             max-width="1044"
-            width="1044"
+            width="auto"
             height='auto'
             outlined
           >
@@ -89,10 +90,12 @@
             </div> -->
           </div>
             <!-- Relatorio cards -->
+            
             <v-card
-                  class="mx-auto mt-6 pa-4"
+                  class="mx-auto mt-6 pa-10 ml-2 mr-2"
+                  id="card1"
                   max-width="990"
-                  width="990"
+                  width='auto'
                   height='auto'
                   style='box-shadow:0px 0px 1px 2px rgba(28, 28, 28, 0.091)'
             >
@@ -102,7 +105,7 @@
               
               <div style="display: flex;flex-direction: column;justify-content:center;">
                 <v-col style="display: flex;flex-direction: column;justify-content:center;" cols="12" sm="12">
-                  <div style="display: flex;flex-direction: row;width: 100%;" class="pr-4 mb-4 mt-6" >
+                  <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
                     <v-autocomplete
                       v-model="selecaoGraficoR"
                       :items="estadosSigla"
@@ -113,7 +116,7 @@
                       label="Selecione"
                       width="400"
                     ></v-autocomplete>
-                    <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar</v-btn>
+                    <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar</v-btn>
                   </div> 
                   <!-- <v-textarea
                     label="Selecione uma data"
@@ -143,7 +146,7 @@
                 
                 <div style="display: flex;justify-content: center;width: 100%;">
                   <v-chip
-                    class="ma-2 pr-1"
+                    class="ma-2 pr-1 "
                     color="#1E9CF8"
                     text-color="white"
                     medium
@@ -173,30 +176,33 @@
                   </v-pagination>
                 </div>
               </div>
-              <div v-if="page==1" class="pa-0 mt-0" style="text-align: left;">Obs.: Predição temporal com intervalo de confiança de 95%</div>
+              <div v-if="page==1" class="pa-0 mt-0" style="text-align: center;">Obs.: Predição temporal com intervalo de confiança de 95%</div>
             </v-card>
   
           </v-card>
         </div>
         </template>
+      </v-container>
 
       <!-- Dashboard -->
+      <v-container fluid>
       <template>
         <v-card
               class="mx-auto mt-6 pa-4"
               max-width="1044"
-              width="1044"
-              height='600'
+              width="auto"
+              height='auto'
               outlined
               
         >
           <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
           </div>
-          <div style="display: flex;flex-direction: row;">
+          <v-container fluid>
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
             <v-card
                   class="mx-auto mt-6 pa-4"
-                  max-width="300"
+                  max-width="330"
                   width="300"
                   height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
@@ -239,13 +245,12 @@
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
             </v-card>
-            
           </div>
           <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="980"
-                  width="975"
-                  height='220'
+                  width="auto"
+                  height='auto'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
@@ -264,15 +269,17 @@
               </div>
               <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
             </v-card>
+          </v-container>
         </v-card>
       </template>
-  
+    </v-container>
         <!-- Dashboard -->
+    <v-container fluid>
       <template>
         <v-card
               class="mx-auto mt-6 pa-4 pb-8"
               max-width="1044"
-              width="1044"
+              width="auto"
               height='auto'
               outlined  
         >
@@ -281,7 +288,7 @@
           <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard Personalizado</v-list-item-title>
           </div>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="pr-4 mb-4 mt-6" >
+          <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
             <v-autocomplete
               v-model="selecaoDashboard"
               :items="estadosSiglaDashboard"
@@ -292,12 +299,12 @@
               label="Selecione o estado"
               width="400"
             ></v-autocomplete>
-            <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
+            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
           </div>
           <div class="pl-6 pr-6">
             <city-map :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
           </div>
-          <div style="display: flex;flex-direction: row;">
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
             <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
@@ -348,8 +355,8 @@
           <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="980"
-                  width="975"
-                  height='220'
+                  width="auto"
+                  height='auto'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
@@ -370,7 +377,7 @@
             </v-card>
         </v-card>
       </template>
-      
+    </v-container>
 
       <template>
         <v-card
@@ -805,5 +812,8 @@
       
   </v-app>
 </div>
+<style>
+  
+</style>
 
 {% endblock %}
