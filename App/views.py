@@ -213,9 +213,9 @@ def get_data(request):
                             print('inserindo dados antigos para',state)
             # ? pega dados de todas as cidades do estado de PE, dado o dia!
             elif keyBusca == 'cidadesdia':
-                dia = request.GET['dia']
+                dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
-                response = list(CasosCidade.objects.filter(data_notificacao=datetime.strptime(dia,'%Y-%m-%d')).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
+                response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
                 
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
