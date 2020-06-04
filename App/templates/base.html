@@ -307,8 +307,7 @@
             mediacasos: 0,
             pins: null,
             pinspe: null,
-            datedb: new Date('2020-03-24' + 'T00:00:00Z'), //WORKAROUND
-            //datedb: new Date(pins[0] + 'T00:00:00Z'),
+            datedb: new Date(pins[0] + 'T00:00:00Z'),
             predicts: predicts,
             predictspe: predictspe,
             useIa: false,
@@ -961,8 +960,7 @@
         watch: {
             // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação, para evitar possíveis bugs
             maxInt() {
-                //this.datedb = new Date(pins[0] + 'T00:00:00Z')
-                this.datedb = new Date('2020-03-24' + 'T00:00:00Z') //WORKAROUDN
+                this.datedb = new Date(pins[0] + 'T00:00:00Z')
             }
         }
     });

@@ -200,11 +200,17 @@ def get_data(request):
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             
-            # ? pega dados de todos os estados, dado o dia!
+            # ? pega dados de todos os estados(27), dado o dia!
             elif keyBusca == 'estadosdia':
-                dia = request.GET['dia']
-                # TODO devolver ultimos dados para cada estado sem dados, o mesmo para as cidades?
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia,'%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+                dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
+
+                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+
+                if(len(response) != 27):
+                    for state in stateName.values():
+                        if not any(estado['estado_residencia'] == state for estado in response):
+                            response.append(CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos').first())
+                            print('inserindo dados antigos para',state)
             # ? pega dados de todas as cidades do estado de PE, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = request.GET['dia']

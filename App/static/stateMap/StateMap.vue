@@ -18,7 +18,6 @@ module.exports ={
             map: null,
             geojson: null,
             style: null,
-            ultimoscasos: [],
             txtsnack: 'Oi',
             snackbar: false,
         } 
@@ -49,15 +48,14 @@ module.exports ={
                         // console.log(this.casos)
                         this.maiscasos = this.casos[0]['quantidade_casos']
                         this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
-                        console.log(`maiscasos = ${this.maiscasos} e menoscasos = ${this.menoscasos}`)
-                        this.casos.forEach(element => {
-                            this.ultimoscasos[element['estado_residencia']] = element
-                        });
+                        console.log(`maiscasos = ${this.maiscasos} idsidhs menoscasos = ${this.menoscasos}`)
+                        
                         // console.log(this.ultimoscasos)
                         this.geojson.setStyle(this.style)
                         let legenda = [this.maiscasos,this.menoscasos]
                         this.$emit('dados-legenda',legenda)   
                     }else {
+                        // TODO tirar esse else pq nunca vai retornar nada
                         this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
                         this.snackbar = true
                         // console.log(this.ultimoscasos)
@@ -113,7 +111,6 @@ module.exports ={
             } catch (error) {
                 this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
                 this.snackbar = true
-                d = that.ultimoscasos[estado]['quantidade_casos']
             }
             return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff2121' :
@@ -123,7 +120,7 @@ module.exports ={
                 d >= Math.floor(media * 0.25)   ? '#ff9696' :
                 d >= Math.floor(media * 0.125)   ? '#ffa8a8' : // * tons de amarelo
                 d >= Math.floor(media * 0.03125)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#ffffff'
+                    '#e6e6e6'
         }
         function style(feature) {
             return {
@@ -152,8 +149,6 @@ module.exports ={
                     obitos = test['obitos']
                 } catch (error) {
                     console.log(`sem dados para ${props.name}`)
-                    casos = that.ultimoscasos[props.name]['quantidade_casos']
-                    obitos = that.ultimoscasos[props.name]['obitos']
                 }    
             }
             this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
