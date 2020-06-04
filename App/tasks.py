@@ -94,39 +94,19 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    """try:
-        df = pandas.read_csv(
-            PATH_FILES+BASE_NAME,
-            header = 0,
-            names=collum_names,
-        )
+    print("Extraindo informações de outras bases")
+    bot.processingData()
+    storeBot()
     
-        df = pre_processing(df)
-    
-        store_base(df)
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
+    storeProjections()
 
-        build_IAbase()
+    getCasosPernambuco()
 
-        prediction()
-
-        send_prediction_to_db()
-    except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")"""
-    
-    #print("Extraindo informações de outras bases")
-    #bot.processingData()
-    #storeBot()
-    
-    #print("Executando predicoes do Arima")
-    #stateCityData.main()
-    #pipelineArima.main()
-    #saveImages()
-    #storeProjections()
-
-    #getCasosPernambuco()
-    #jnsksnkaj
-
-    #prediction()
+    prediction()
     store_base()
     send_prediction_to_db()
     
