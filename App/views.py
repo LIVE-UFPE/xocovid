@@ -11,12 +11,13 @@ from django.db.models.query import QuerySet
 from .tasks import listener
 import json
 import requests
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
+
 
 stateName = {
     'AC': 'Acre',
@@ -203,19 +204,58 @@ def get_data(request):
             # ? pega dados de todos os estados(27), dado o dia!
             elif keyBusca == 'estadosdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
+                maiorcaso = request.GET['maiorcaso']
+                # print(maiorcaso)
+                if maiorcaso == 'true': maiorcaso = True
+                else: maiorcaso = False
+                if not maiorcaso:
+                    response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos','data_notificacao').order_by('-quantidade_casos'))
+                    for item in response:
+                        print(item)
+                        item['dados_dia_requisitado'] = True
+                        dia_anterior = dia - timedelta(1)
+                        casos_antes = CasosEstadoHistorico.objects.filter(data_notificacao=dia_anterior).filter(estado_residencia=item['estado_residencia']).values('quantidade_casos','obitos').first()
+                        if casos_antes is not None:
+                            obitos_antes = casos_antes['obitos']
+                            casos_antes = casos_antes['quantidade_casos']
+                            item['quantidade_casos_diarios'] = item['quantidade_casos'] - casos_antes
+                            item['quantidade_obitos_diarios'] = item['obitos'] - obitos_antes
 
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+                        else:
+                            item['quantidade_casos_diarios'] = '-'
+                            item['quantidade_obitos_diarios'] = '-'
 
-                if(len(response) != 27):
-                    for state in stateName.values():
-                        if not any(estado['estado_residencia'] == state for estado in response):
-                            response.append(CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos').first())
-                            print('inserindo dados antigos para',state)
-            # ? pega dados de todas as cidades do estado de PE, dado o dia!
+                    print('\n')
+                    for item in response: print(item)
+                    if(len(response) != 27):
+                        for state in stateName.values():
+                            if not any(estado['estado_residencia'] == state for estado in response):
+                                antigo = CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos','data_notificacao').first()
+                                dia_anterior = antigo['data_notificacao'] - timedelta(1)
+                                antigo['dados_dia_requisitado'] = False
+                                casos_antes = CasosEstadoHistorico.objects.filter(data_notificacao=dia_anterior).filter(estado_residencia=antigo['estado_residencia']).values('quantidade_casos','obitos').first()
+                                if casos_antes is not None:
+                                    obitos_antes = casos_antes['obitos']
+                                    casos_antes = casos_antes['quantidade_casos']
+                                    antigo['quantidade_casos_diarios'] = antigo['quantidade_casos'] - casos_antes
+                                    antigo['quantidade_obitos_diarios'] = antigo['obitos'] - obitos_antes
+
+                                else:
+                                    antigo['quantidade_casos_diarios'] = '-'
+                                    antigo['quantidade_obitos_diarios'] = '-'
+
+                                response.append(antigo)
+                                print('inserindo dados antigos para',state)
+                else:
+                    response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
+                    response = response['quantidade_casos']
+
+            # ? pega dados de todas as cidades do estado, dado o dia!
             elif keyBusca == 'cidadesdia':
-                dia = request.GET['dia']
+                dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
-                response = list(CasosCidade.objects.filter(data_notificacao=datetime.strptime(dia,'%Y-%m-%d')).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
+                
+                response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
                 
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':

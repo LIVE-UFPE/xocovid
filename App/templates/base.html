@@ -321,6 +321,11 @@
             maiorintpe: maior_int_pe,
         }),
         mounted: function (){
+            let agora = new Date() // "agora"
+            agora.setUTCHours(agora.getUTCHours() - 3)
+            agora.setUTCDate(agora.getUTCDate() - 1)
+            this.datedb = agora
+
             console.log(template)
             this.$nextTick(function () {
                 //console.log()
@@ -938,8 +943,9 @@
                     }
                 }else{
                     test.setUTCDate( test.getUTCDate() + 1 );
-                    let agora = new Date()
+                    let agora = new Date() // "agora"
                     agora.setUTCHours(agora.getUTCHours() - 3)
+                    agora.setUTCDate(agora.getUTCDate() - 1)
                     test.setUTCHours(23,59,58)
                     agora.setUTCHours(23,59,59)
                     console.log(`test é ${test.toISOString()}\nagora é ${agora.toISOString()}`)
@@ -949,7 +955,7 @@
                         this.datedb = test
                         return
                     }else{
-                        console.log('nao temos dados além de hoje!')
+                        console.log('nao temos dados além de ontem!')
                         return
                     }
                 }
@@ -958,9 +964,15 @@
             }
         },
         watch: {
-            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação, para evitar possíveis bugs
+            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação ou ontem, dependendo do mapa
             maxInt() {
-                this.datedb = new Date(pins[0] + 'T00:00:00Z')
+                if(this.maxInt == 0) this.datedb = new Date(pins[0] + 'T00:00:00Z')
+                else{
+                    let agora = new Date() // "agora"
+                    agora.setUTCHours(agora.getUTCHours() - 3)
+                    agora.setUTCDate(agora.getUTCDate() - 1)
+                    this.datedb = agora
+                }
             }
         }
     });

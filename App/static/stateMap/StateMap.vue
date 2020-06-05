@@ -11,7 +11,7 @@ module.exports ={
     name: 'state-map',
     data: function (){
         return{
-            menoscasos: null,
+            menoscasos: 0,
             maiscasos: null,
             request: null,
             casos: [],
@@ -20,6 +20,7 @@ module.exports ={
             style: null,
             txtsnack: 'Oi',
             snackbar: false,
+            blockrequest: true
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -40,14 +41,12 @@ module.exports ={
                 context: this,
                 type: 'GET',
                 url: "graphs/get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": '',"maiorcaso": false},
                 success: function (response) {
                     let resposta = JSON.parse(response)
                     if(resposta.length != 0){
                         this.casos = resposta
                         // console.log(this.casos)
-                        this.maiscasos = this.casos[0]['quantidade_casos']
-                        this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} idsidhs menoscasos = ${this.menoscasos}`)
                         
                         // console.log(this.ultimoscasos)
@@ -63,11 +62,34 @@ module.exports ={
                     
                 }
             })
+        },
+        getMaiorCaso(){
+            this.blockrequest = true
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                // TODO fix async issue
+                async: false,
+                context: this,
+                type: 'GET',
+                url: "graphs/get_data",
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": '',"maiorcaso": true},
+                success: function (response) {
+                    // let resposta = JSON.parse(response)
+                    this.maiscasos = Number(response)
+                    console.log(`passando a maior quantidade de casos ${this.maiscasos} tipo é ${typeof(this.maiscasos)}`)
+                    
+                },
+                complete: function (a,b) {
+                    this.blockrequest = false
+                }
+            })
             
         }
     },
     mounted() {
-        
+        this.getMaiorCaso()
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('map',{zoomControl: false}).setView([-15.776250, -47.796619], 5);
         function highlightFeature(e) {
@@ -105,14 +127,14 @@ module.exports ={
             let d = that.casos.find( elem => elem['estado_residencia'] === estado)
             //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
             let media = (that.maiscasos + that.menoscasos) / 2
-            // console.log(media)
+            // TODO limpar esse try catch
             try {
                 d = d['quantidade_casos']
             } catch (error) {
                 this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
                 this.snackbar = true
             }
-            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
+            return d >= Math.floor(media * 1.5) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff2121' :
                 d >= Math.floor(media * 0.625)  ? '#ff4040' :
                 d >= Math.floor(media * 0.5)  ? '#ff5252' :
@@ -142,17 +164,21 @@ module.exports ={
         info.update = function (props, that) {
             let casos = 0
             let obitos = 0
+            let casos_diarios = 0,obitos_diarios = 0,dados_dia = false
             if (props) {
                 try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
+                    casos_diarios = test['quantidade_casos_diarios']
+                    obitos_diarios = test['quantidade_obitos_diarios']
+                    dados_dia = test['dados_dia_requisitado']
                 } catch (error) {
                     console.log(`sem dados para ${props.name}`)
                 }    
             }
-            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
-                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+            this._div.innerHTML = '<h4 class="text-center" >Número de casos confirmados</h4>' +  (props ?
+                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.name + 
                     `</h2>
@@ -163,7 +189,7 @@ module.exports ={
                                 + casos + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos confirmados
+                                Casos acumulados
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -171,11 +197,31 @@ module.exports ={
                                 + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos confirmados
+                                Óbitos acumulados
                             </h4>
                         </div> 
                     </div>
-                    </div>`
+                    <br />
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + casos_diarios + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos diários
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + obitos_diarios + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos diários
+                            </h4>
+                        </div> 
+                    </div>
+                    ` + (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``) + `
+                </div>`
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
