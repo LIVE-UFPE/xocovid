@@ -18,6 +18,7 @@ from App import views
 from django.contrib.auth.models import User
 import os
 
+
 stateName = {
     'AC': 'Acre',
     'AL': 'Alagoas',
@@ -203,18 +204,27 @@ def get_data(request):
             # ? pega dados de todos os estados(27), dado o dia!
             elif keyBusca == 'estadosdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
+                maiorcaso = request.GET['maiorcaso']
+                # print(maiorcaso)
+                if maiorcaso == 'true': maiorcaso = True
+                else: maiorcaso = False
+                if not maiorcaso:
+                    response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
 
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
+                    if(len(response) != 27):
+                        for state in stateName.values():
+                            if not any(estado['estado_residencia'] == state for estado in response):
+                                response.append(CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos').first())
+                                print('inserindo dados antigos para',state)
+                else:
+                    response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
+                    response = response['quantidade_casos']
 
-                if(len(response) != 27):
-                    for state in stateName.values():
-                        if not any(estado['estado_residencia'] == state for estado in response):
-                            response.append(CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos').first())
-                            print('inserindo dados antigos para',state)
-            # ? pega dados de todas as cidades do estado de PE, dado o dia!
+            # ? pega dados de todas as cidades do estado, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
+                
                 response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
                 
         elif informacao == 'Casos Suspeitos':

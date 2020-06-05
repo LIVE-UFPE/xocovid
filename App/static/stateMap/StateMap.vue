@@ -11,7 +11,7 @@ module.exports ={
     name: 'state-map',
     data: function (){
         return{
-            menoscasos: null,
+            menoscasos: 0,
             maiscasos: null,
             request: null,
             casos: [],
@@ -20,6 +20,7 @@ module.exports ={
             style: null,
             txtsnack: 'Oi',
             snackbar: false,
+            blockrequest: true
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -40,14 +41,12 @@ module.exports ={
                 context: this,
                 type: 'GET',
                 url: "graphs/get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": ''},
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": '',"maiorcaso": false},
                 success: function (response) {
                     let resposta = JSON.parse(response)
                     if(resposta.length != 0){
                         this.casos = resposta
                         // console.log(this.casos)
-                        this.maiscasos = this.casos[0]['quantidade_casos']
-                        this.menoscasos = this.casos[this.casos.length - 1]['quantidade_casos']
                         console.log(`maiscasos = ${this.maiscasos} idsidhs menoscasos = ${this.menoscasos}`)
                         
                         // console.log(this.ultimoscasos)
@@ -63,11 +62,34 @@ module.exports ={
                     
                 }
             })
+        },
+        getMaiorCaso(){
+            this.blockrequest = true
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                // TODO fix async issue
+                async: false,
+                context: this,
+                type: 'GET',
+                url: "graphs/get_data",
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'estadosdia', "dia": this.datedb.toISOString().substring(0,10), "estado": '', "cidade": '', "bairro": '',"maiorcaso": true},
+                success: function (response) {
+                    // let resposta = JSON.parse(response)
+                    this.maiscasos = Number(response)
+                    console.log(`passando a maior quantidade de casos ${this.maiscasos} tipo é ${typeof(this.maiscasos)}`)
+                    
+                },
+                complete: function (a,b) {
+                    this.blockrequest = false
+                }
+            })
             
         }
     },
     mounted() {
-        
+        this.getMaiorCaso()
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('map',{zoomControl: false}).setView([-15.776250, -47.796619], 5);
         function highlightFeature(e) {
@@ -105,7 +127,7 @@ module.exports ={
             let d = that.casos.find( elem => elem['estado_residencia'] === estado)
             //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
             let media = (that.maiscasos + that.menoscasos) / 2
-            // console.log(media)
+            // TODO limpar esse try catch
             try {
                 d = d['quantidade_casos']
             } catch (error) {
