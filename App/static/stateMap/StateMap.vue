@@ -164,17 +164,21 @@ module.exports ={
         info.update = function (props, that) {
             let casos = 0
             let obitos = 0
+            let casos_diarios = 0,obitos_diarios = 0,dados_dia = false
             if (props) {
                 try {
                     let test = that.casos.find( elem => elem['estado_residencia'] === props.name)
                     casos = test['quantidade_casos']
                     obitos = test['obitos']
+                    casos_diarios = test['quantidade_casos_diarios']
+                    obitos_diarios = test['quantidade_obitos_diarios']
+                    dados_dia = test['dados_dia_requisitado']
                 } catch (error) {
                     console.log(`sem dados para ${props.name}`)
                 }    
             }
-            this._div.innerHTML = '<h4>Número de casos acumulados</h4>' +  (props ?
-                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+            this._div.innerHTML = '<h4 class="text-center" >Número de casos confirmados</h4>' +  (props ?
+                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.name + 
                     `</h2>
@@ -185,7 +189,7 @@ module.exports ={
                                 + casos + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos confirmados
+                                Casos acumulados
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -193,11 +197,31 @@ module.exports ={
                                 + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos confirmados
+                                Óbitos acumulados
                             </h4>
                         </div> 
                     </div>
-                    </div>`
+                    <br />
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + casos_diarios + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos diários
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + obitos_diarios + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos diários
+                            </h4>
+                        </div> 
+                    </div>
+                    ` + (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``) + `
+                </div>`
                 : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
         };
         info.addTo(map);
