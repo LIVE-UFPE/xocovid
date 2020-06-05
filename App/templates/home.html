@@ -52,9 +52,9 @@
       <div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
         <v-card
           class="mx-auto pb-2"
-          max-width="220"
+          max-width="440"
           max-height="500"
-          width="220"
+          width="440"
           outlined
           style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
         >
@@ -70,144 +70,205 @@
             </v-tooltip>
           </div>
 
-          <v-list dense>
-            <!-- ? quantidade de casos -->
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #e6e6e6;"></v-list-item-icon>
+          <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
+            <v-list dense class="d-block">
+              <!-- ? projecao de casos -->
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 0">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #00d60e;"></v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>0-[[Math.floor(mediacasos * 0.03125)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>Baixa Densidade</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffc2c2;"></v-list-item-icon>
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 0">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ede500;"></v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos * 0.125)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>  
-             
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffa8a8;"></v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>Média Densidade</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos * 0.25)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 0">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #d91d00;"></v-list-item-icon>
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff9696;"></v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>Alta Densidade</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos * 0.375)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item> 
+              <!-- ? quantidade de casos -->
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #e6e6e6;"></v-list-item-icon>
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff8080;"></v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>0-[[Math.floor(mediacasos * 0.03125)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos * 0.5)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffc2c2;"></v-list-item-icon>
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff5252;"></v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos * 0.125)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>  
+               
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffa8a8;"></v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos * 0.625)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos * 0.25)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff4040;"></v-list-item-icon>
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff9696;"></v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos * 0.75)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos * 0.375)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item> 
 
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 1">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff2121;"></v-list-item-icon>
+            </v-list>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos * 0.875)]]</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+            <v-list dense class="d-block">
 
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff8080;"></v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos * 0.5)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff5252;"></v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos * 0.625)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff4040;"></v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos * 0.75)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff2121;"></v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos * 0.875)]]</div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+            </v-list>
+          </div>
+
+          <v-list dense class="pt-0" style="display: flex; justify-content: center;flex-direction: column;align-items: center">
             <v-list-item 
               class="mx-2 mt-2 py-n1"
               color="white"
@@ -220,64 +281,12 @@
 
               <v-list-item-content>
                 <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 0.875)]]+</div>
+                  <div>[[Math.floor(mediacasos * 1.5)]]+</div>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-
-            <!-- ? projecao de casos -->
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 0">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #00d60e;"></v-list-item-icon>
-
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>Baixa Densidade</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 0">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ede500;"></v-list-item-icon>
-
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>Média Densidade</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item 
-              class="mx-2 mt-2 py-n1"
-              color="white"
-              label
-              outlined
-              style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
-              v-if="maxInt === 0">
-              
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #d91d00;"></v-list-item-icon>
-
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>Alta Densidade</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
           </v-list>
+            
         </v-card>
       </div>
       <!-- Card Popup-->
@@ -518,7 +527,7 @@
       </div>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
-    <div style="position: absolute;top: 95px;left: 10vmin;z-index: 1" v-if="maxInt === 1">
+    <div style="position: absolute;top: 95px;right: 10vmin;z-index: 1" v-if="maxInt === 1">
       <v-card
       class="mx-auto pb-2"
       max-width="220"

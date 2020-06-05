@@ -134,7 +134,7 @@ module.exports ={
                 this.txtsnack = `não temos informações sobre ${estado} nesse dia,mantendo ultimos dados obtidos`
                 this.snackbar = true
             }
-            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
+            return d >= Math.floor(media * 1.5) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff2121' :
                 d >= Math.floor(media * 0.625)  ? '#ff4040' :
                 d >= Math.floor(media * 0.5)  ? '#ff5252' :
