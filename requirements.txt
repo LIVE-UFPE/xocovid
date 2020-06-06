@@ -12,3 +12,4 @@ psycopg2
 Pillow
 matplotlib
 bs4
+python-Levenshtein

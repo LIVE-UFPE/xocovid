@@ -75,11 +75,43 @@ module.exports ={
                     
                 },
             })  
+        },
+        levenshtein(a,b){
+            if(a.length == 0) return b.length; 
+            if(b.length == 0) return a.length; 
+
+            var matrix = [];
+
+            // increment along the first column of each row
+            var i;
+            for(i = 0; i <= b.length; i++){
+                matrix[i] = [i];
+            }
+
+            // increment each column in the first row
+            var j;
+            for(j = 0; j <= a.length; j++){
+                matrix[0][j] = j;
+            }
+
+            // Fill in the rest of the matrix
+            for(i = 1; i <= b.length; i++){
+                for(j = 1; j <= a.length; j++){
+                    if(b.charAt(i-1) == a.charAt(j-1)){
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                                Math.min(matrix[i][j-1] + 1, // insertion
+                                                        matrix[i-1][j] + 1)); // deletion
+                    }
+                }
+            }
+
+            return matrix[b.length][a.length];
         }
     },
     mounted() {
         this.getMaiorCaso(this.estadoComp)
-
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
@@ -119,7 +151,9 @@ module.exports ={
         }
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
-            let d = that.casos.find( elem => elem['municipio'] === municipio)
+
+            // busque o municipio com nome mais similar ao municipio pedido
+            let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
             if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
@@ -172,7 +206,8 @@ module.exports ={
                     }
                     
                 } catch (error) {
-                    console.log('sem dados')
+                    console.log(`sem dados para ${props.NOME}`)
+                    casos = -1
                 }    
             }
 

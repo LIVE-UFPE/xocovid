@@ -11,6 +11,7 @@
     ```cmd
         pip3 install -r requirements.txt
     ```
+    OBS: https://stackoverflow.com/questions/13200330/how-to-install-python-levenshtein-on-windows
 
 2. Digite o comando
 

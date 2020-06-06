@@ -17,6 +17,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
+import Levenshtein
 
 
 stateName = {
@@ -325,6 +326,8 @@ def get_data(request):
                                     # ! CASO NAO TENHA NEM POR SIMILARIDADE, será feito como está atualmente aqui para informar que não existem dados, ou coisa do tipo
                     
                     # TODO montar sistema de busca POR SIMILARIDADE(do nome da cidade) de dados em dias anteriores para cidades
+                    # ! não é necessário implementar similaridade aqui, pois tecnicamente os nomes são similares, mas caso seja, Levenshtein está aqui
+
                 else:
                     response = CasosCidade.objects.filter(estado_residencia=estado).values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
