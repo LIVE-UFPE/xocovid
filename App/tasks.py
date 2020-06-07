@@ -328,7 +328,7 @@ def send_prediction_to_db():
     PredictionBR.objects.bulk_create(objs=objs)
 
 
-    PredictionPE.objects.all().delete()
+    """PredictionPE.objects.all().delete()
 
     df = pandas.read_csv(
         PATH_FILES+'saidaFinalPE.csv',
@@ -353,7 +353,7 @@ def send_prediction_to_db():
         )
         for m in predictions
     ]
-    PredictionPE.objects.bulk_create(objs=objs)
+    PredictionPE.objects.bulk_create(objs=objs)"""
 
 def prediction():
     print('Chamando IA')
@@ -484,7 +484,7 @@ def store_base():
         InterpolationBR.objects.bulk_create(objs=objs)
 
 
-    pasta = PATH_FILES+'bases predicao PE/'
+    """pasta = PATH_FILES+'bases predicao PE/'
 
     InterpolationPE.objects.all().delete()
 
@@ -506,7 +506,7 @@ def store_base():
             )
             for m in interporlations
         ]
-        InterpolationPE.objects.bulk_create(objs=objs)
+        InterpolationPE.objects.bulk_create(objs=objs)"""
 
     """df = df.replace({np.nan: None})
     for index, row in df.iterrows():

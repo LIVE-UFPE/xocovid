@@ -23,8 +23,8 @@ def interpolacao(day1, day2, day3, day4, state, shapefile):
 #interpolacao("casos confirmados PE/covid19_18-04.csv", "casos confirmados PE/covid19_19-04.csv", "casos confirmados PE/covid19_20-04.csv", "casos confirmados PE/covid19_21-04.csv")
 def main():
     #casospordia.main()
-    shapefiles = ['PE.shp', 'BR.shp']
-    #shapefiles = ['BR.shp']
+    #shapefiles = ['PE.shp', 'BR.shp']
+    shapefiles = ['BR.shp']
     for shapes in range(0, len(shapefiles)):
         
         state = shapefiles[shapes].split(".")
