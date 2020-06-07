@@ -555,8 +555,10 @@
                 return chart
             },
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
-                if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
-                else label = informacao + ' em '
+                /*if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
+                else label = informacao + ' em '*/
+
+                label = informacao + ' ' + diaouacu + ' em '
 
                 if(bairro != ''){
                     keyBusca = 'bairros'
@@ -598,6 +600,10 @@
                         console.log("erro na requisição atual, ou ela foi cancelada")
                     }
                 })
+
+                console.log(cidade)
+                console.log(buscaResponse)
+                console.log('-------------------')
 
                 buscaResponse.forEach((notificacao, index) =>{        
                     if(! chart2.columns.includes(label)){
