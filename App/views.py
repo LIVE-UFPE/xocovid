@@ -263,7 +263,7 @@ def get_data(request):
                 if not maiorcaso:
                     municipios = []
                     # * pegando lista de municipios no JSON
-                    with open(os.path.join(os.path.dirname(__file__))+'/static/estados-cidades.json',encoding="utf8") as f:
+                    with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as f:
                         data = json.load(f)
 
                         for state in data['estados']:
