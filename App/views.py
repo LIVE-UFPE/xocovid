@@ -198,7 +198,7 @@ def get_data(request):
             elif keyBusca == 'cidades':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(Q(estado_residencia=estado)&Q(municipio=cidade)).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             
@@ -282,7 +282,7 @@ def get_data(request):
                         print(item)
                         item['dados_dia_requisitado'] = True
                         dia_anterior = dia - timedelta(1)
-                        casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(municipio=item['municipio']).values('quantidade_casos','obitos').first()
+                        casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=item['municipio'])).values('quantidade_casos','obitos').first()
                         if casos_antes is not None:
                             obitos_antes = casos_antes['obitos']
                             casos_antes = casos_antes['quantidade_casos']
@@ -301,11 +301,11 @@ def get_data(request):
                             # ? se nao houver nenhum municipio em response com o nome atual da lista de municipios
                             if not any(municipio == cidade_response['municipio'] for cidade_response in response):
                                 # busque o dia com dados do municipio mais recente a data desejada
-                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(municipio=municipio).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
+                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
                                 if antigo is not None:
                                     dia_anterior = antigo['data_notificacao'] - timedelta(1)
                                     antigo['dados_dia_requisitado'] = False
-                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(municipio=municipio).values('quantidade_casos','obitos').first()
+                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('quantidade_casos','obitos').first()
                                     if casos_antes is not None:
                                         obitos_antes = casos_antes['obitos']
                                         casos_antes = casos_antes['quantidade_casos']
@@ -351,7 +351,7 @@ def get_data(request):
             elif keyBusca == 'cidades':
                 response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(Q(estado_residencia=estado)&Q(municipio=cidade)).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Recuperados':
