@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
 """DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'd1ibhu3tsi7ghj'),
-        'USER': os.environ.get('DB_USER', 'tslryogoucxpjv'),
+        'NAME': os.environ.get('DB_NAME', 'covidsgisdb'),
+        'USER': os.environ.get('DB_USER', 'covidsgis'),
         'PASSWORD': os.environ.get('DB_PASS', '32432025'),
-        'HOST': '172.20.36.172',
+        'HOST': 'localhost',
         'PORT': '5432'
     }
 }"""

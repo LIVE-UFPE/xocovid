@@ -65,7 +65,7 @@
                 <v-btn v-on="on" icon><v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon></v-btn>
               </template>
               <span v-if="maxInt===0">As cores indicam a densidade de casos</span>
-              <span v-else >As cores indicam a quantidade de casos</span>
+              <span v-else >As cores indicam a quantidade de casos confirmados</span>
 
             </v-tooltip>
           </div>
@@ -567,7 +567,7 @@
 
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
       <!-- <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map> -->
-      <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map>
+      <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" v-on:dados-legenda="updatelegenda" style="height: 100%;"></home-city-map>
       <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" v-on:dados-legenda="updatelegenda" ></state-map>
       <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
     </v-app>

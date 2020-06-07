@@ -17,6 +17,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
+import Levenshtein
 
 
 stateName = {
@@ -227,6 +228,7 @@ def get_data(request):
 
                     print('\n')
                     for item in response: print(item)
+                    # ? sistema de busca por dados faltando
                     if(len(response) != 27):
                         for state in stateName.values():
                             if not any(estado['estado_residencia'] == state for estado in response):
@@ -250,13 +252,88 @@ def get_data(request):
                     response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
 
-            # ? pega dados de todas as cidades do estado, dado o dia!
+
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
-                
-                response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio'))
-                
+                maiorcaso = request.GET['maiorcaso']
+                if maiorcaso == 'true': maiorcaso = True
+                else: maiorcaso = False
+                print('maiorcaso é',maiorcaso)
+                if not maiorcaso:
+                    municipios = []
+                    # * pegando lista de municipios no JSON
+                    with open(os.path.join(os.path.dirname(__file__))+'/static/estados-cidades.json',encoding="utf8") as f:
+                        data = json.load(f)
+
+                        for state in data['estados']:
+                            # DEBUG
+                            print('estou buscando por',estado,'e estou, no momento atual, olhando para',state['nome'])
+                            if estado == state['nome']:
+                                municipios = state['cidades'].copy()
+                                # print(municipios)
+                                break
+
+                    # * todos os objetos no dia dado, no estado solicitado
+                    response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao'))
+                    
+                    # * coleta casos e obitos diarios, se possivel
+                    for item in response:
+                        print(item)
+                        item['dados_dia_requisitado'] = True
+                        dia_anterior = dia - timedelta(1)
+                        casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(municipio=item['municipio']).values('quantidade_casos','obitos').first()
+                        if casos_antes is not None:
+                            obitos_antes = casos_antes['obitos']
+                            casos_antes = casos_antes['quantidade_casos']
+                            item['quantidade_casos_diarios'] = item['quantidade_casos'] - casos_antes
+                            item['quantidade_obitos_diarios'] = item['obitos'] - obitos_antes
+
+                        else:
+                            item['quantidade_casos_diarios'] = '-'
+                            item['quantidade_obitos_diarios'] = '-'
+
+                    # * sistema de busca de dados em dias anteriores para cidades que faltam
+                    if(len(response) != len(municipios)):
+                        # DEBUG
+                        print('nao existem dados para todos os dias')
+                        for municipio in municipios:
+                            # ? se nao houver nenhum municipio em response com o nome atual da lista de municipios
+                            if not any(municipio == cidade_response['municipio'] for cidade_response in response):
+                                # busque o dia com dados do municipio mais recente a data desejada
+                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(municipio=municipio).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
+                                if antigo is not None:
+                                    dia_anterior = antigo['data_notificacao'] - timedelta(1)
+                                    antigo['dados_dia_requisitado'] = False
+                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(municipio=municipio).values('quantidade_casos','obitos').first()
+                                    if casos_antes is not None:
+                                        obitos_antes = casos_antes['obitos']
+                                        casos_antes = casos_antes['quantidade_casos']
+                                        antigo['quantidade_casos_diarios'] = antigo['quantidade_casos'] - casos_antes
+                                        antigo['quantidade_obitos_diarios'] = antigo['obitos'] - obitos_antes
+                                    else:
+                                        antigo['quantidade_casos_diarios'] = '-'
+                                        antigo['quantidade_obitos_diarios'] = '-'
+                                    response.append(antigo)
+                                    print('inserindo dados antigos para',municipio)
+                                else:
+                                    print('não existem dados para',municipio)
+                                    response.append({'municipio': municipio, 'quantidade_casos': -1})
+                                    # ! PASSANDO -1 NO QUANTIDADE_CASOS CASO NAO EXISTAM DADOS SOBRE O MUNICIPIO NO DB
+                                    
+                                    # ? caso nao tenha dados anteriores para esse municipio?
+                                    # ! atualmente nada, pois iremos buscar por similaridade
+                                    # ! CASO NAO TENHA NEM POR SIMILARIDADE, será feito como está atualmente aqui para informar que não existem dados, ou coisa do tipo
+                    
+                    # TODO montar sistema de busca POR SIMILARIDADE(do nome da cidade) de dados em dias anteriores para cidades
+                    # ! não é necessário implementar similaridade aqui, pois tecnicamente os nomes são similares, mas caso seja, Levenshtein está aqui
+
+                else:
+                    response = CasosCidade.objects.filter(estado_residencia=estado).values('quantidade_casos').order_by('-quantidade_casos').first()
+                    response = response['quantidade_casos']
+                    print('passando quantidade_casos',response)
+
+
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
                 response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
@@ -406,3 +483,20 @@ CRUD é a base de qualquer framework
 ! Só que tem mais um detalhe!!!
 para acessar essa função, devemos especificar uma rota através do sistema de rotas do Django.
 """
+
+# with open(os.path.join(os.path.dirname(__file__))+'/static/statesData.json',encoding="utf8") as f:
+#     data = json.load(f)
+#     test = []
+#     # DEBUG
+#     print('abrido')
+#     for elem in data:
+#         test.append({'UF': elem['features'][0]['properties']['UF'],'municipios'})
+#     for elem in data:
+#         # DEBUG
+#         print('estou buscando por',estado,'e estou, no momento atual, olhando para',statename[elem['features'][0]['properties']['UF']])
+#         if estado is statename[elem['features'][0]['properties']['UF']]:
+#             for dict_to_prop in elem['features']:
+#                 municipios.append(dict_to_prop['properties']['NOME'])
+#                 print('identifiquei a cidade',dict_to_prop['properties']['NOME'])
+#             break
+#     print('acabado')

@@ -14,7 +14,7 @@ module.exports ={
             request: null,
             componentKey: 0,
             casos: [],
-            ultimoscasos: [],
+            maiscasos: 0,
             txtsnack: '',
             snackbar: false,
             geojson: null,
@@ -39,16 +39,15 @@ module.exports ={
                 type: 'GET',
                 url: "graphs/get_data",
                 // TODO rodar a busca no views.py
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": ''},
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": '',"maiorcaso": false},
                 success: function (response) {
                     let resposta = JSON.parse(response)
                     if(resposta.length != 0){
                         this.casos = resposta
                         // console.log('Casos: ',this.casos)
-                        this.casos.forEach(element => {
-                            this.ultimoscasos[element['municipio']] = element
-                        });
                         this.geojson.setStyle(this.style)
+                        let legenda = [this.maiscasos,0]
+                        this.$emit('dados-legenda',legenda) 
                     }else {
                         this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
                         this.snackbar = true
@@ -56,62 +55,65 @@ module.exports ={
                     }
                 }
             })
-            
+        },
+        getMaiorCaso(estado){
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                // TODO fix async issue
+                async: false,
+                context: this,
+                type: 'GET',
+                url: "graphs/get_data",
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": '',"maiorcaso": true},
+                success: function (response) {
+                    // let resposta = JSON.parse(response)
+                    this.maiscasos = Number(response)
+                    console.log(`passando a maior quantidade de casos ${this.maiscasos} tipo é ${typeof(this.maiscasos)}`)
+                    
+                },
+            })  
+        },
+        levenshtein(a,b){
+            if(a.length == 0) return b.length; 
+            if(b.length == 0) return a.length; 
+            var matrix = [];
+            // increment along the first column of each row
+            var i;
+            for(i = 0; i <= b.length; i++){
+                matrix[i] = [i];
+            }
+            // increment each column in the first row
+            var j;
+            for(j = 0; j <= a.length; j++){
+                matrix[0][j] = j;
+            }
+            // Fill in the rest of the matrix
+            for(i = 1; i <= b.length; i++){
+                for(j = 1; j <= a.length; j++){
+                    if(b.charAt(i-1) == a.charAt(j-1)){
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                                Math.min(matrix[i][j-1] + 1, // insertion
+                                                        matrix[i-1][j] + 1)); // deletion
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
         }
     },
     mounted() {
-        // console.log(this.estado.split(' ').join('_'))
-        this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
-        this.getCasos(this.estado)
+        this.getMaiorCaso(this.estadoComp)
         var objectCoord = {lat: [], lon: []}
-        objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
-        objectCoord.lon.push(eval(this.estado).features[0].geometry.coordinates[0][0][1])
+        objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
+        objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
-        var estadoLocal = this.estado
-        this.geojson = L.geoJson(eval(this.estado), {style: style});
-        
-        function samDash(estado, cidade){
-            buscaResponse = []
-            // console.log('Object: ',buscaResponse, estadoLocal, cidade)
-            var request = $.ajax({
-                context: this,
-                type: 'GET',
-                url: "graphs/get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estadoLocal, "cidade": cidade, "bairro": ''},
-                async: false,
-                success: function (response) {
-                    buscaResponse = JSON.parse(response)
-                }
-            })
-            
-            if(buscaResponse.length == 0){
-                 return 0
-            }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
-            }
-        }
-        function samDashObitos(estado, cidade){
-            buscaResponse = []
-            
-            var request = $.ajax({
-                context: this,
-                type: 'GET',
-                url: "graphs/get_data",
-                data: {"informacao": 'Óbitos', "keyBusca": 'cidades2', "estado": estadoLocal, "cidade": cidade, "bairro": ''},
-                async: false,
-                success: function (response) {
-                    buscaResponse = JSON.parse(response)
-                }
-            })
-            
-            if(buscaResponse.length == 0){
-                 return 0
-            }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
-            }
-        }
+        var estadoLocal = this.estadoComp
+        // this.geojson = L.geoJson(eval(this.estado), {style: style});
         function highlightFeature(e) {
             var layer = e.target;
             layer.setStyle({
@@ -139,42 +141,28 @@ module.exports ={
                 click: zoomToFeature.bind(this),
             });
         }
-        function getColor(d, media) {
-            return d >= Math.floor(media * 0.875) ? '#ff0000' : // * tons de vermelho
-                d >= Math.floor(media * 0.75)  ? '#ff4242' :
-                d >= Math.floor(media * 0.625)  ? '#ff6e6e' :
-                d >= Math.floor(media * 0.5)  ? '#ff8a8a' :
-                d >= Math.floor(media * 0.375)   ? '#ffabab' :
-                d >= Math.floor(media * 0.25)   ? '#ffbaba' :
-                d >= Math.floor(media * 0.125)   ? '#ffd000' : // * tons de amarelo
-                d >= Math.floor(media * 0.03125)   ? '#ffe054' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#38ff26'
+        function getColor(municipio, that) {
+            if(that.casos.length == 0) return '#800026'
+            // busque o municipio com nome mais similar ao municipio pedido
+            let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
+            if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
+            if(d['quantidade_casos'] == -1) return '#6a00ff'
+            d = d['quantidade_casos']
+            //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
+            let media = that.maiscasos / 2
+            return d >= Math.floor(media * 1) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(media * 0.75)  ? '#ff2121' :
+                d >= Math.floor(media * 0.625)  ? '#ff4040' :
+                d >= Math.floor(media * 0.5)  ? '#ff5252' :
+                d >= Math.floor(media * 0.25)   ? '#ff8080' :
+                d >= Math.floor(media * 0.125)   ? '#ff9696' :
+                d >= Math.floor(media * 0.03125)   ? '#ffa8a8' : // * tons de amarelo
+                d >= Math.floor(media * 0.015625)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
+                    '#e6e6e6'
         }
         function style(feature) {
-            var casoLocal = 0
-            var menor = 0
-            var maior = 0
-            var i = 0
-            // console.log("Feature: ",this.casos)
-            if(this.casos){
-                this.casos.forEach(caso => {
-                    if(!i){
-                        maior = caso.quantidade_casos
-                        menor = caso.quantidade_casos
-                        i++
-                    }
-                    if(caso.quantidade_casos > maior)
-                        maior = caso.quantidade_casos
-                    if(caso.quantidade_casos < menor)
-                        menor = caso.quantidade_casos
-                    if(caso.municipio == feature.properties.NOME){
-                        casoLocal = caso.quantidade_casos
-                    }
-                })
-                // console.log('Casos Locais: ', casoLocal)
-            }
             return {
-                fillColor: getColor(casoLocal, (menor+maior)/2),
+                fillColor: getColor(feature.properties.NOME, this),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -189,29 +177,28 @@ module.exports ={
             this.update();
             return this._div;
         };
-        // console.log('ESTADO: ', this.estado)
+        
         // method that we will use to update the control based on feature properties passed
         info.update = function (props, that) {
             let casos = 0
             let obitos = 0
+            let casos_diarios = 0,obitos_diarios = 0
             
             if (props) {
                 try {
                     // console.log(props.NOME)
                     let test = that.casos.find( elem => elem['municipio'] === props.NOME)
                     casos = test['quantidade_casos']
-                    obitos = test['obitos']
-                } catch (error) {
-                    // console.log('sem dados')
-                    try {
-                        casos = that.ultimoscasos[props.NOME]['quantidade_casos']
-                        obitos = that.ultimoscasos[props.NOME]['obitos']
-                    } catch (err) {
-                        casos = 0
-                        obitos = 0
-                        // console.log('também não há dados anteriores para este municipio')
+                    if(casos != -1){
+                        obitos = test['obitos']
+                        casos_diarios = test['quantidade_casos_diarios']
+                        obitos_diarios = test['quantidade_obitos_diarios']
+                        dados_dia = test['dados_dia_requisitado']
                     }
-                        
+                    
+                } catch (error) {
+                    console.log(`sem dados para ${props.NOME}`)
+                    casos = -1
                 }    
             }
             this._div.innerHTML = (props ?
@@ -223,7 +210,7 @@ module.exports ={
                     <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + casos + 
+                                + (casos != -1 ? casos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
                                 Casos confirmados
@@ -231,14 +218,34 @@ module.exports ={
                         </div> 
                         <div style="display: flex; flex-direction: column;">
                             <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + obitos + 
+                                + (casos != -1 ? obitos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
                             </h4>
                         </div> 
                     </div>
-                    </div>`
+                    <br />
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? casos_diarios : `-`) + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos diários
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? obitos_diarios : `-`) + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos diários
+                            </h4>
+                        </div> 
+                    </div>
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``)) + `
+                </div>`
                 : 
                 `<h5 style="color: white" class="text-center">
                     Passe o mouse por uma cidade
@@ -251,11 +258,11 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-        this.style = style.bind(this)    
-        this.geojson = L.geoJson(eval(this.estado), {style: this.style, onEachFeature: onEachFeature.bind(this)}).addTo(map);
+        this.style = style.bind(this)
+        this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
         this.geojson.addTo(map)
         this.map = map
-        this.getCasos(this.estado)
+        this.getCasos(this.estadoComp)
     },
     computed: {
         datewatch() {
@@ -267,7 +274,6 @@ module.exports ={
     },
     watch: {
         datewatch() {
-            
             this.getCasos(this.estadoComp)
         }
     }
