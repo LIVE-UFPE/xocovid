@@ -33,7 +33,7 @@ GOOGLE_RECAPTCHA_SECRET_KEY = '6LcTWegUAAAAAJNd65xHuZoiQOm5UzrU0Ym4isFX'
 SECRET_KEY = '$_(q*+!(u(ll90!r9^3uppqp03*n&#rq=@!!=$&o=5@t-uvw_7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
