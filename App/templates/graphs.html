@@ -50,20 +50,21 @@
         </div>
       </template>
     <!-- Graph Card -->
+    <v-container fluid>
     <template>
       <v-card
-            class="mx-auto mt-6 pa-3 pb-6"
+            class="mx-auto mt-6 pa-6 pb-6"
             max-width="1044"
-            width="1044"
+            width="auto"
             height='auto'
             outlined
           >
           <div style="display: flex;flex-direction: column;">
   
             <div style="display: block;flex-direction: row;">
-            <div  class="text-center">
-              <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório</v-list-item-title>
-            </div>
+              <div  class="text-center">
+                <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório por Região</v-list-item-title>
+              </div>
             <!-- <div style="display:flex;flex-direction:row;justify-content: center">
               <div style="width: 900px;" class="pr-4 pl-4 mt-4"> 
                 <v-autocomplete
@@ -89,20 +90,22 @@
             </div> -->
           </div>
             <!-- Relatorio cards -->
-            <v-card
-                  class="mx-auto mt-6 pa-4"
+            
+            <!-- <v-card
+                  class="mx-auto mt-6 pb-4 ml-0 mr-0 ma-xs-2"
+                  id="card1"
                   max-width="990"
-                  width="990"
+                  width='auto'
                   height='auto'
                   style='box-shadow:0px 0px 1px 2px rgba(28, 28, 28, 0.091)'
             >
               <p class="mt-4" style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
                 Relatório por Região
-              </p>
+              </p> -->
               
               <div style="display: flex;flex-direction: column;justify-content:center;">
-                <v-col style="display: flex;flex-direction: column;justify-content:center;" cols="12" sm="12">
-                  <div style="display: flex;flex-direction: row;width: 100%;" class="pr-4 mb-4 mt-6" >
+                
+                  <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
                     <v-autocomplete
                       v-model="selecaoGraficoR"
                       :items="estadosSigla"
@@ -113,7 +116,7 @@
                       label="Selecione"
                       width="400"
                     ></v-autocomplete>
-                    <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar</v-btn>
+                    <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar</v-btn>
                   </div> 
                   <!-- <v-textarea
                     label="Selecione uma data"
@@ -141,19 +144,20 @@
                   </v-col>
                 </div> -->
                 
-                <div style="display: flex;justify-content: center;width: 100%;">
+                <!-- <div style="display: flex;justify-content: center;width: 100%;">
                   <v-chip
-                    class="ma-2 pr-1"
+                    class="ma-2 pr-1 "
                     color="#1E9CF8"
                     text-color="white"
+                    width="300"
                     medium
                   >
                     <v-avatar left>
                       <v-icon>mdi-chart-pie</v-icon>
                     </v-avatar>
-                      Exibindo informações de | 
+                      Informações de | 
                       <v-chip
-                        class="ml-2 mr-0"
+                        class="ml-0 mr-0"
                         color="white"
                         text-color="#1E9CF8"
                         small
@@ -161,8 +165,8 @@
                         [[valueChipR]] 
                       </v-chip>
                   </v-chip>
-                </div>
-                <div  class="text-center">
+                </div> -->
+                <div  class="text-center pt-4">
                   <ve-line v-if="page==1" :data="chartProjecao" ></ve-line>
                   <img v-else class="mb-4" style="border-radius: 20px;" :src= "imageData[page-1]" width="auto" height="480">
                   <!-- <img class="mb-4" style="border-radius: 20px;" src= "../static/graficos/modelos/modelo_AL.png" width="640" height="480"> -->
@@ -173,30 +177,33 @@
                   </v-pagination>
                 </div>
               </div>
-              <div v-if="page==1" class="pa-0 mt-0" style="text-align: left;">Obs.: Predição temporal com intervalo de confiança de 95%</div>
-            </v-card>
+              <div v-if="page==1" class="pa-0 mt-0 pt-4" style="text-align: center;">Obs.: Predição temporal com intervalo de confiança de 95%</div>
+            <!-- </v-card> -->
   
           </v-card>
         </div>
         </template>
+      </v-container>
 
       <!-- Dashboard -->
+      <v-container fluid>
       <template>
         <v-card
               class="mx-auto mt-6 pa-4"
               max-width="1044"
-              width="1044"
-              height='600'
+              width="auto"
+              height='auto'
               outlined
               
         >
           <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
           </div>
-          <div style="display: flex;flex-direction: row;">
+          <v-container fluid>
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
             <v-card
                   class="mx-auto mt-6 pa-4"
-                  max-width="300"
+                  max-width="330"
                   width="300"
                   height='200'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
@@ -239,13 +246,12 @@
               </p>
               <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
             </v-card>
-            
           </div>
           <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="980"
-                  width="975"
-                  height='220'
+                  width="auto"
+                  height='auto'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
@@ -264,15 +270,17 @@
               </div>
               <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
             </v-card>
+          </v-container>
         </v-card>
       </template>
-  
+    </v-container>
         <!-- Dashboard -->
+    <v-container fluid>
       <template>
         <v-card
               class="mx-auto mt-6 pa-4 pb-8"
               max-width="1044"
-              width="1044"
+              width="auto"
               height='auto'
               outlined  
         >
@@ -281,7 +289,7 @@
           <div  class="text-center">
             <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard Personalizado</v-list-item-title>
           </div>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="pr-4 mb-4 mt-6" >
+          <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
             <v-autocomplete
               v-model="selecaoDashboard"
               :items="estadosSiglaDashboard"
@@ -292,12 +300,12 @@
               label="Selecione o estado"
               width="400"
             ></v-autocomplete>
-            <v-btn height='40' width='30%' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
+            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
           </div>
-          <div class="pl-6 pr-6">
+          <div class="">
             <city-map :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
           </div>
-          <div style="display: flex;flex-direction: row;">
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
             <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="300"
@@ -348,8 +356,8 @@
           <v-card
                   class="mx-auto mt-6 pa-4"
                   max-width="980"
-                  width="975"
-                  height='220'
+                  width="auto"
+                  height='auto'
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
@@ -370,53 +378,56 @@
             </v-card>
         </v-card>
       </template>
-      
+    </v-container>
 
+    <v-container fluid>
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
-          width="1044"
+          width="auto"
           height="auto"
           outlined
-        >
-          <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados Acumulados em Pernambuco</v-list-item-title>
-          </div>
+        > 
+          <h1 style="color: #1E9CF8; font-weight: 900;text-align: center;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados Acumulados em Pernambuco</h1>
           <ve-pie :data="chartDataPie"></ve-pie>
           <div class="pa-0 mt-4 mb-8" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, em que a soma das 4 distribuições equivale a 100% do total.  </div>
         </v-card>
       </template>
+    </v-container>
 
+
+    <v-container fluid>
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
-          width="1044"
+          width="auto"
           height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</v-list-item-title>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</h1>
           </div>
           <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
         </v-card>
       </template>
+    </v-container>
 
+    <v-container fluid>
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
-          width="1044"
+          width="auto"
           height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</v-list-item-title>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</h1>
           </div>
           <ve-line :data="chartDataO" ></ve-line>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
+          <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
               <v-autocomplete
                 v-model="personalizadoPaises"
                 :items="personalizadoPaises"
@@ -425,12 +436,11 @@
                 chips
                 small-chips
                 label="Selecione o país"
-                width="400"
+                width="100"
                 multiple
                 disabled
-              ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pr-4" >
+                class="pl-4 pr-4"
+              ></v-autocomplete> 
               <v-autocomplete
                 v-model="values"
                 :items="itemsChips"
@@ -439,13 +449,12 @@
                 chips
                 small-chips
                 label="Selecione o estado"
-                width="400"
+                width="100"
                 @click="printName(values)"
                 @change="setCity(values, 'itemsChipsC', 'valuesCS')"
                 multiple
+                class="pl-4 pr-4"
               ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pl-4 pr-4" >
               <v-autocomplete
                 v-model="valuesCS"
                 :items="itemsChipsCS"
@@ -454,16 +463,16 @@
                 chips
                 small-chips
                 label="Selecione a cidade"
-                width="400"
+                width="100"
                 @change="setDistrict(valuesCS, 'itemsChipsDS')"
                 @click="printName(valuesCS)"
                 @mousedown="setCity(values, 'itemsChipsCS')"
                 multiple
+                class="pl-4 pr-4"
               ></v-autocomplete>
-            </div>
             <div>
               <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
+                <v-btn height='40' width='200px' color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
                   <v-icon class="pr-2">mdi-download-outline</v-icon>
                    Filtrar
                 </v-btn>
@@ -471,92 +480,22 @@
             </div>
         </v-card>
       </template>
+    </v-container>
 
-      <!--<template>
-        <v-card
-          class="mx-auto mt-6 mb-8"
-          max-width="1044"
-          width="1044"
-          height="auto"
-          outlined
-        >
-          <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Suspeitos Por Dia</v-list-item-title>
-          </div>
-          <ve-line :data="chartDataS" ></ve-line>
-          <div style="display: flex;flex-direction: row;width: 100%;align-items:flex-start;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
-              <v-autocomplete
-                v-model="valuesS"
-                :items="itemsChipsS"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o estado"
-                width="400"
-                @click="printName(valuesS)"
-                @change="setCity(valuesS, 'itemsChipsCS', 'valuesCS')"
-                multiple
-                disabled
-              ></v-autocomplete>
-            </div> 
-              <div style="width: 100%;" class="pl-4 pr-4" >
-                <v-autocomplete
-                  v-model="valuesCS"
-                  :items="itemsChipsCS"
-                  outlined
-                  dense
-                  chips
-                  small-chips
-                  label="Selecione a cidade"
-                  width="400"
-                  @change="setDistrict(valuesCS, 'itemsChipsDS')"
-                  @click="printName(valuesCS)"
-                  @mousedown="setCity(valuesS, 'itemsChipsCS')"
-                  multiple
-                ></v-autocomplete>
-              </div>
-              <div style="width: 100%;" class="pl-4">
-                <v-autocomplete
-                  v-model="valuesDS"
-                  :items="itemsChipsDS"
-                  outlined
-                  dense
-                  chips
-                  small-chips
-                  label="Selecione o bairro"
-                  multiple
-                  width="400"
-                ></v-autocomplete>
-              </div>
-              <div>
-                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Suspeitos'], valuesS, valuesCS, valuesDS, 'chartDataS', ['diários'])">
-                    <v-icon class="pr-2">mdi-download-outline</v-icon>
-                     Filtrar
-                  </v-btn>
-                </div>
-              </div>
-            </div>
-        </v-card>
-      </template>-->
-
-
+      <v-container fluid>
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
-          width="1044"
+          width="auto"
           height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</v-list-item-title>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</h1>
           </div>
           <ve-line :data="chartData" ></ve-line>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
+          <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
               <v-autocomplete
                 v-model="personalizadoPaises"
                 :items="personalizadoPaises"
@@ -568,9 +507,8 @@
                 width="400"
                 multiple
                 disabled
+                class="pl-4 pr-4"
               ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pr-4" >
               <v-autocomplete
                 v-model="valuesCE"
                 :items="itemsChips"
@@ -583,9 +521,8 @@
                 @click="printName(values)"
                 @change="setCity(valuesCE, 'itemsChipsC', valuesC)"
                 multiple
+                class="pl-4 pr-4"
               ></v-autocomplete>
-            </div> 
-              <div style="width: 100%;" class="pl-4 pr-4" >
                 <v-autocomplete
                   v-model="valuesC"
                   :items="itemsChipsC"
@@ -599,21 +536,8 @@
                   @click="printName(valuesC)"
                   @mousedown="setCity(valuesCE, 'itemsChipsC')"
                   multiple
+                  class="pl-4 pr-4"
                 ></v-autocomplete>
-              </div>
-              <!--<div style="width: 100%;" class="pl-4">
-                <v-autocomplete
-                  v-model="valuesD"
-                  :items="itemsChipsD"
-                  outlined
-                  dense
-                  chips
-                  small-chips
-                  label="Selecione o bairro"
-                  multiple
-                  width="400"
-                ></v-autocomplete>
-              </div>-->
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
                   <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados', 'Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários', 'acumulados'])">
@@ -625,73 +549,79 @@
             </div>
         </v-card>
       </template>
+    </v-container>
 
+
+    <v-container fluid>
       <template>
         <v-card
           class="mx-auto mt-6 mb-8"
           max-width="1044"
-          width="1044"
+          width="auto"
           height="auto"
           outlined
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Gráfico Personalizado</v-list-item-title>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Gráfico Personalizado</h1>
           </div>
 
           <ve-line v-if="linhaOuHist === 'linhas'" :data="chartDataSA"></ve-line>
           <ve-histogram v-else :data="chartDataSA"></ve-histogram>
 
-          <v-row>
-            <v-col style="margin-left: 8px;" cols="6">
+          <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content: space-around; align-items: center;">
+            <div>
               <v-card 
                 outlined
                 class="mx-auto"
-                max-width="450"
-                width="450"
+                style="margin-top: 30px !important;width: 90%;display: flex;flex-flow:wrap !important; justify-content: center; align-items: center;"
+                max-width="300"
+                min-width="300"
+                width="auto"
                 height="auto"
-                class="ml-8"
               >
                 <div class="text-center pt-2">
-                  <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Dado</v-list-item-title>
+                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Dado</h1>
                 </div>
-                <v-radio-group style="display:flex; justify-content:center; align-items:center" v-model="diaOUAcu" :mandatory="false">
-                  <v-row style="display: flex;margin-left:-20px;justify-content: space-evenly;">
-                    <v-col cols="4">
+                <v-radio-group class=" text-center" v-model="diaOUAcu" :mandatory="false">
+                  <div style="display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;padding-left: 50px !important;">
+                    <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
                       <v-radio label="Diários" value="diários"></v-radio>
-                    </v-col>
-                    <v-col cols="4">
+                    </div>
+                    <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
                       <v-radio label="Acumulados"  value="acumulados"></v-radio>
-                    </v-col>
-                  </v-row>              
+                    </div>
+                  </div>              
                 </v-radio-group>
               </v-card>
-            </v-col>
-            <v-col style="margin-right: 0px;" cols="5">
+            </div>
+            <div>
               <v-card 
                 outlined
                 class="mx-auto"
-                max-width="444"
-                width="444"
+                style="margin-top: 30px !important;width: 90%;display: flex;flex-flow:wrap !important; justify-content: center; align-items: center;"
+                max-width="300"
+                min-width="300"
+                width="auto"
                 height="auto"
               >
                 <div class="text-center pt-2">
-                  <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Gráfico</v-list-item-title>
+                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Gráfico</h1>
                 </div>
-                <v-radio-group style="width:100%" class="pl-12 text-center" v-model="linhaOuHist" :mandatory="false">
-                  <v-row>
-                    <v-col cols="6">
+                <v-radio-group class="text-center" v-model="linhaOuHist" :mandatory="false">
+                  <div style="display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;flex-direction: column;">
+                    <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
                       <v-radio label="Gráfico de linhas" value="linhas"></v-radio>
-                    </v-col>
-                    <v-col cols="6">
+                    </div>
+                    <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
                       <v-radio label="Histograma"  value="histograma"></v-radio>
-                    </v-col>
-                  </v-row>              
+                    </div>
+                  </div>              
                 </v-radio-group>
               </v-card>
-            </v-col>
-          </v-row>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
+            </div>
+          </div>
+          <div style="width: 100%;margin-top: 30px !important; display: flex;flex-flow:wrap !important; justify-content: center; align-items: center;flex-direction: row;" class="mt-4 pl-6 pr-6 mb-4">
+            <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;">
               <v-autocomplete
                 v-model="valuesSelect"
                 :items="itemsChipsSelect"
@@ -701,13 +631,14 @@
                 small-chips
                 label="Selecione uma informação"
                 multiple
+                max-width='200'
                 width="400"
+                class="mr-4 ml-4"
               ></v-autocomplete>
             </div> 
           </div>
-          <div style="display: flex;flex-direction: row;width: 100%;" class="mt-4 pl-6 pr-6 mb-4">
-            <div style="width: 100%;" class="pr-4" >
-              <v-autocomplete
+          <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
+              <!-- <v-autocomplete
                 v-model="personalizadoPaises"
                 :items="personalizadoPaises"
                 outlined
@@ -715,12 +646,12 @@
                 chips
                 small-chips
                 label="Selecione o país"
-                width="400"
+                width="200"
+                max-width='200'
                 multiple
                 disabled
-              ></v-autocomplete>
-            </div>
-            <div style="width: 100%;" class="pr-4" >
+              ></v-autocomplete> -->
+            
               <v-autocomplete
                 v-model="valuesA"
                 :items="itemsChipsA"
@@ -729,12 +660,13 @@
                 chips
                 small-chips
                 label="Selecione o estado"
-                width="400"
+                max-width='200'
+                width="100"
                 @change="setCity(valuesA, 'itemsChipsCA', 'valuesCA')"
                 multiple
+                class="mr-4 ml-4"
               ></v-autocomplete>
-            </div> 
-              <div style="width: 100%;" class="pl-4 pr-4" >
+
                 <v-autocomplete
                   v-model="valuesCA"
                   :items="itemsChipsCA"
@@ -743,37 +675,26 @@
                   chips
                   small-chips
                   label="Selecione a cidade"
-                  width="400"
+                  width="100"
                   @mousedown="setCity(valuesA, 'itemsChipsCA')"
                   @change="setDistrict(valuesCA, 'itemsChipsDA')"
-                  
+                  class="mr-4 ml-4"
                   multiple
                 ></v-autocomplete>
-              </div>
-              <!--<div style="width: 100%;" class="pl-4">
-                <v-autocomplete
-                  v-model="valuesDA"
-                  :items="itemsChipsDA"
-                  outlined
-                  dense
-                  chips
-                  small-chips
-                  label="Selecione o bairro"
-                  multiple
-                  width="400"
-                ></v-autocomplete>
-              </div>-->
+              
+                <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(valuesSelect, valuesA, valuesCA, valuesDA, 'chartDataSA', [diaOUAcu])">
+                  <v-icon class="pr-2">mdi-download-outline</v-icon>
+                    Filtrar
+                </v-btn>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(valuesSelect, valuesA, valuesCA, valuesDA, 'chartDataSA', [diaOUAcu])">
-                    <v-icon class="pr-2">mdi-download-outline</v-icon>
-                     Filtrar
-                  </v-btn>
+                  
                 </div>
               </div>
             </div>
         </v-card>
       </template>
+    </v-container>
       <!-- Footer -->
       <template class="mt-12">
         <v-footer
@@ -805,5 +726,8 @@
       
   </v-app>
 </div>
+<style>
+  
+</style>
 
 {% endblock %}
