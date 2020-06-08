@@ -29,4 +29,4 @@ urlpatterns = [
     path('graphs/get_data',views.get_data, name="get_data"),
 ]
 
-#views.listener(repeat=3600, repeat_until=None)
+#views.listener(repeat=7200, repeat_until=None)
