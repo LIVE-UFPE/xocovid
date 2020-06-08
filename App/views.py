@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 import os
 import Levenshtein
 from django.core.mail import send_mail
+from covidWeb.settings import EMAIL_HOST_USER
 
 
 stateName = {
@@ -172,9 +173,9 @@ def send_email(request):
         
         response = send_mail(
             assunto,
-            mensagem,
-            remetente,
-            ['covidsgis@live.cin.ufpe.br'],
+            remetente + ' : ' + mensagem,
+            EMAIL_HOST_USER,
+            [EMAIL_HOST_USER],
             fail_silently=False,
         )
 

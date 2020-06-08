@@ -161,3 +161,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/homeCityMap'),
     os.path.join(BASE_DIR, 'App/static/statesData'),
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '' #ISSO PRECISA SER CONFIGURA
+EMAIL_HOST_PASSWORD = '' #ISSO PRECISA SER CONFIGURADO
