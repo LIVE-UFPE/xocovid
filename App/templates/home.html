@@ -191,6 +191,23 @@
                     <div>[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos * 0.375)]]</div>
                   </v-list-item-title>
                 </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item 
+                class="mx-2 mt-2 py-n1"
+                color="white"
+                label
+                outlined
+                style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                v-if="maxInt === 1">
+                
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #6a00ff;"></v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div>Sem Dados</div>
+                  </v-list-item-title>
+                </v-list-item-content>
               </v-list-item> 
 
             </v-list>
@@ -265,11 +282,7 @@
                 </v-list-item-content>
               </v-list-item>
 
-            </v-list>
-          </div>
-
-          <v-list dense class="pt-0" style="display: flex; justify-content: center;flex-direction: column;align-items: center">
-            <v-list-item 
+              <v-list-item 
               class="mx-2 mt-2 py-n1"
               color="white"
               label
@@ -285,7 +298,9 @@
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-          </v-list>
+
+            </v-list>
+          </div>
             
         </v-card>
       </div>
@@ -562,11 +577,8 @@
       </v-card> 
     </div>
       
-      {% comment %} DEBUG pq n pega c os 2 juntos {% endcomment %}
-      {% comment %} <state-map :datedb="datedb" ></state-map> {% endcomment %}
-
       <!-- ! por algum motivo, as alterações so vao qd um deles é comentado -->
-      <!-- <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" style="height: 100%;"></home-city-map> -->
+      
       <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb" v-on:dados-legenda="updatelegenda" style="height: 100%;"></home-city-map>
       <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" v-on:dados-legenda="updatelegenda" ></state-map>
       <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb" :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol" :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>

@@ -1,5 +1,33 @@
+Skip to content
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@gabrielsm0405 
+LIVE-UFPE
+/
+xocovid
+Private
+2
+00
+ Code
+ Issues 0
+ Pull requests 0 Actions
+ Projects 0
+ Wiki
+ Security 0
+ Insights
+ Settings
+xocovid/App/static/cityMap/CityMap.vue
+@sbjsouza sbjsouza Improved graphs responsivity and fixed MapCity data
+28d81d7 1 hour ago
+230 lines (222 sloc)  8.23 KB
+  
 <template>
-    <div :key="componentKey" style="border-radius: 25px" id="mapcity">
+    <div :key="componentKey" style="border-radius: 0px !important" id="mapcity">
 
     </div>
 </template>
@@ -24,13 +52,16 @@ module.exports ={
     mounted() {
         console.log(this.estado.split(' ').join('_'))
         this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        console.log("Estado: ", this.estado)
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estado).features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         var geojson;
-        
+        let estadoGlobal = this.estado
+        var buttonStatus = false
+        var previousClick = null
         geojson = L.geoJson(eval(this.estado), {style: style});
         
         function samDash(estado, cidade){
@@ -45,7 +76,7 @@ module.exports ={
                     buscaResponse = JSON.parse(response)
                 }
             })
-            
+            console.log('response: ', buscaResponse)
             if(buscaResponse.length == 0){
                  return 0
             }else{
@@ -58,7 +89,7 @@ module.exports ={
                 context: this,
                 type: 'GET',
                 url: "get_data",
-                data: {"informacao": 'Óbitos', "keyBusca": 'cidades2', "estado": estado, "cidade": cidade, "bairro": ''},
+                data: {"informacao": 'Óbitos', "keyBusca": 'cidades2', "estado": estadoGlobal, "cidade": cidade, "bairro": ''},
                 async: false,
                 success: function (response) {
                     buscaResponse = JSON.parse(response)
@@ -91,11 +122,23 @@ module.exports ={
         function zoomToFeature(e) {
             map.fitBounds(e.target.getBounds());
         }
+        function clickHandler(e){
+            console.log('Console: ',e.target)
+            if(previousClick){
+                resetHighlight(previousClick)
+                highlightFeature(e)  
+            }else{
+                highlightFeature(e)  
+            }
+            buttonStatus = !buttonStatus
+            previousClick = e
+        }
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature,
                 mouseout: resetHighlight,
-                click: zoomToFeature
+                click: clickHandler
+                // click: zoomToFeature
             });
         }
         function getColor(d) {
@@ -136,16 +179,16 @@ module.exports ={
                     <br /> 
                     <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
                         <div style="display: flex; flex-direction: column;">
-                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDash(toString(this.estado), props.NOME) + 
+                            <h1 class="text-center" style="padding-top: 15px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + samDash(toString(estadoGlobal), props.NOME) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
                                 Casos confirmados
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
-                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDashObitos(toString(this.estado), props.NOME) + 
+                            <h1 class="text-center" style="padding-top: 15px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + samDashObitos(toString(estadoGlobal), props.NOME) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
@@ -186,9 +229,9 @@ module.exports ={
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    border-radius: 5px;
-    right: 10vw;
+    right: 0vw;
     top: 10px;
+    width: 89% !important;
 }
 .info h4 {
     margin: 0 0 5px;
@@ -212,3 +255,15 @@ module.exports ={
      margin-left: 200px;
 } */
 </style>
+© 2020 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
