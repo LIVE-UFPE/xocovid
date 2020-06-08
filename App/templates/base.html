@@ -358,6 +358,15 @@
             })
         },
         methods: {
+            send_email: function(assunto, mensagem, remetente){
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "send_email",
+                    data: {"assunto": assunto, "mensagem": mensagem, "remetente": remetente},
+                    async: false
+                })
+            },
             //? metodos da graph
             setChartDistribuicaoBrasil: function(){
                 chart = {
