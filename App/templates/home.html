@@ -49,12 +49,13 @@
         </div>
       </template>
       <!-- Card legenda -->
+    </v-container fluid>
       <div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
         <v-card
-          class="mx-auto pb-2"
+          class="mx-auto pb-2 d-none d-lg-block d-xl-none"
           max-width="440"
           max-height="500"
-          width="440"
+          width="auto"
           outlined
           style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
         >
@@ -304,6 +305,7 @@
             
         </v-card>
       </div>
+    </v-container>
       <!-- Card Popup-->
       <!-- Esse componente deverá ser colocado como popup na api do mapa -->
       {% comment %} <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
@@ -391,22 +393,110 @@
         </v-card>
       </div> {% endcomment %}
       
-      
+      <!-- Card menu mobile -->
+      <container fluid>
+        <div class="text-center d-lg-none d-xl-block" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
+          <v-bottom-navigation
+              v-if="isHomeComponentCollapsed === true"
+              grow
+              height="120"
+              background-color="white"
+              color="#1E9CF8"
+              :value="activeBtn"
+              style="z-index: 1;border-radius: 20px 20px 0px 0px"
+            >
+              <div style="width: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;">
+                <v-btn width="30" style="margin: 0" @click="isHomeComponentCollapsed = false">
+                  <v-icon size="35" color="#1E9CF8">mdi-chevron-up</v-icon>
+                </v-btn>
+                <div style="width: 100%;display: flex;flex-direction: row;justify-content:space-around;align-items: center;">
+                  <v-btn width="50" @click="dateBack" style="margin-left: 10px;">
+                    <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">11/03/2020</v-list-item-subtitle>
+                    <v-icon size="45" color="#1E9CF8">mdi-chevron-left-box</v-icon>
+                  </v-btn>
+                  <v-btn disabled style="background-color: white !important;" >
+                    <div class="text-center">
+                      <v-list-item-title style="color:#1E9CF8;font-size: large; margin-left: 0;margin-right: 0;"><b>[[datedb.toISOString().substring(0,10)]]</b></v-list-item-title>
+                    </div> 
+                  </v-btn>
+                  <v-btn width="50" @click="dateForward" style="margin-right: 10px;">
+                    <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">31/03/2020</v-list-item-subtitle>
+                    <v-icon size="45" color="#1E9CF8">mdi-chevron-right-box</v-icon>
+                  </v-btn>
+                </div>
+              </div>
+            </v-bottom-navigation>
+            <v-bottom-navigation
+              v-if="isHomeComponentCollapsed === false"
+              grow
+              height="auto"
+              background-color="white"
+              color="#1E9CF8"
+              :value="activeBtn"
+              style="z-index: 1;border-radius: 20px 20px 0px 0px;"
+            >
+              <div style="width: 100%;display: flex;flex-direction: column;justify-content:space-between;align-items: center;margin-bottom: 20px;">
+                <v-btn width="30" style="margin: 0" @click="isHomeComponentCollapsed = true">
+                  <v-icon size="35" color="#1E9CF8">mdi-chevron-down</v-icon>
+                </v-btn>
+                <v-card
+                class="mx-auto pb-2"
+                outlined
+                style="width: 90%;display: flex;flex-direction: column;justify-content: center;align-items: center;box-shadow: 0 0 2px 0px rgba(0, 0, 0, 0.1);border-radius: 20px;z-index: 1; margin-bottom: 20px;"
+                > 
+                    <p class="body-1 text-center d-block mt-4"> Seleção de mapa: </p>
+                    <v-card-actions class="pt-0 text-center">
+                      <v-radio-group v-model="radioMap" class="pa-0">
+                          <v-radio label="Projeção de casos" value="mapEnd" name="maxInt=1" @change="maxInt=0"></v-radio>
+                          <v-radio label="Número de casos" value="mapInit" name="maxInt=0" @change="maxInt=1"></v-radio>
+                      </v-radio-group>
+                    </v-card-actions>
+                    <p v-if="maxInt === 1" class="body-1 text-center d-block mt-4"> Dados do: </p>
+                    <v-card-actions v-if="maxInt === 1" class="pt-0 text-center">
+                      <v-radio-group v-model="radioheat" class="pa-0">
+                          <v-radio label="Brasil" value="brasil"></v-radio>
+                          <v-radio label="Estados" value="pernambuco"></v-radio>
+                      </v-radio-group>
+                    </v-card-actions>
+                    <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
+                      <v-autocomplete
+                        v-model="homeSelecao"
+                        :items="estadosSiglaDashboard"
+                        outlined
+                        dense
+                        chips
+                        small-chips
+                        label="Selecione o estado"
+                        width="auto"
+                        class="pl-2 pr-2"
+                      ></v-autocomplete>
+                      <v-btn v-if="maxInt === 1" style="border-radius: 5px;color: white !important;" @click="keychange += 1; " height="40" color="#1E9CF8">
+                        Selecionar
+                      </v-btn>
+                    </div>
+                </v-card> 
+                <div style="width: 100%;display: flex;flex-direction: row;justify-content:space-around;align-items: center;">
+                  <v-btn width="50" @click="dateBack" style="margin-left: 10px;">
+                    <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">11/03/2020</v-list-item-subtitle>
+                    <v-icon size="45" color="#1E9CF8">mdi-chevron-left-box</v-icon>
+                  </v-btn>
+                  <v-btn disabled style="background-color: white !important;" >
+                    <div class="text-center">
+                      <v-list-item-title style="color:#1E9CF8;font-size: large; margin-left: 0;margin-right: 0;"><b>[[datedb.toISOString().substring(0,10)]]</b></v-list-item-title>
+                    </div> 
+                  </v-btn>
+                  <v-btn width="50" @click="dateForward" style="margin-right: 10px;">
+                    <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">31/03/2020</v-list-item-subtitle>
+                    <v-icon size="45" color="#1E9CF8">mdi-chevron-right-box</v-icon>
+                  </v-btn>
+                </div>
+              </div>
+            </v-bottom-navigation>
+        </div>
+      </container>
       <!-- --------CARD MENU------- -->
-      <div class="text-center" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
-        <!-- Map Name -->
-        <!-- <v-card
-          class="mx-auto mb-4"
-          max-width="344"
-          outlined
-          height='50'
-          style="border-radius: 5px;"
-        >
-            <h3 v-if='maxInt === 1' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de casos confirmados</h3>
-            <h3 v-if='maxInt === 0' style="color: #1E9CF8;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
-        </v-card> -->
-        
-        <template>
+      <container fluid>
+      <div class="text-center d-none d-lg-flex d-xl-none" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
           <v-bottom-navigation
             grow
             height="100"
@@ -457,13 +547,6 @@
                 </v-btn>
               </template>
               <v-sheet class="text-center" height="200px">
-                <!-- <v-btn
-                  class="mt-6"
-                  text
-                  color="blue"
-                  @click="sheet = !sheet"
-                  v-on='o'
-                >close</v-btn> -->
                 <v-container>
                   <v-row>
                     <v-col
@@ -538,13 +621,13 @@
               </v-sheet>
             </v-bottom-sheet>
           </v-bottom-navigation>
-        </template>
       </div>
+    </container>
     <!-- --------CARD MENU 2------- -->
     <!-- Map -->
     <div style="position: absolute;top: 95px;right: 10vmin;z-index: 1" v-if="maxInt === 1">
       <v-card
-      class="mx-auto pb-2"
+      class="mx-auto pb-2 d-none d-lg-block d-xl-none"
       max-width="220"
       max-height="500"
       width="220"
