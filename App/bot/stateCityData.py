@@ -1,3 +1,4 @@
+from urllib.request import Request, urlopen
 import pandas as pd
 import time
 import os
@@ -5,7 +6,11 @@ import os
 # Pega a base de dados do Brasil.io e faz o processamento para extrair os casos por cidade e por estados
 def processingData():
     
-    brasil_cases = pd.read_csv('https://brasil.io/dataset/covid19/caso/?format=csv', sep=',')
+    req = Request('https://brasil.io/dataset/covid19/caso/?format=csv', headers={'User-Agent': 'Mozilla/5.0'})
+
+    response = urlopen(req)
+
+    brasil_cases = pd.read_csv(response, sep=',')
 
     brasil_cases = brasil_cases.drop(['place_type', 'death_rate', 'city_ibge_code'], axis=1)
 

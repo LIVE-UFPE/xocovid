@@ -2,6 +2,7 @@ import pandas as pd
 import time
 from datetime import datetime, timedelta
 import os
+from urllib.request import Request, urlopen
 
 
 def getYesterday(): 
@@ -20,8 +21,12 @@ ontem = datetime(ontem.year,ontem.month, ontem.day,23,59)
 # Pega a base de dados do Brasil.io e faz o processamento para extrair os casos por cidade e por estados
 def processingData():
     global ontem
-    
-    brasil_cases = pd.read_csv('https://brasil.io/dataset/covid19/caso/?format=csv', sep=',')
+
+    req = Request('https://brasil.io/dataset/covid19/caso/?format=csv', headers={'User-Agent': 'Mozilla/5.0'})
+
+    response = urlopen(req)
+
+    brasil_cases = pd.read_csv(response, sep=',')
     brasil_cases['date'] = brasil_cases['date'].astype('datetime64[D]')
     brasil_cases = brasil_cases[brasil_cases['date'] < ontem]
 
@@ -53,7 +58,11 @@ def processingData():
     
 def brasilCases():
     global ontem
-    casosBrasil = pd.read_csv("https://brasil.io/dataset/covid19/caso_full/?place_type=state&format=csv")
+    req = Request("https://brasil.io/dataset/covid19/caso_full/?place_type=state&format=csv", headers={'User-Agent': 'Mozilla/5.0'})
+
+    response = urlopen(req)
+
+    casosBrasil = pd.read_csv(response)
     casosBrasil['date'] = casosBrasil['date'].astype('datetime64[D]')
 
     print('Dados coletados até: ',ontem)
