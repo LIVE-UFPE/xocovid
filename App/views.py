@@ -17,7 +17,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-import Levenshtein
+# import Levenshtein
 from django.core.mail import send_mail
 from covidWeb.settings import EMAIL_HOST_USER
 
@@ -275,10 +275,12 @@ def get_data(request):
                     response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
 
-
+            # ? pega dados de todos os municipios de um estado, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
+                print("estado era",estado,"agora é",estado.replace("_"," "))
+                estado = estado.replace("_"," ")
                 maiorcaso = request.GET['maiorcaso']
                 if maiorcaso == 'true': maiorcaso = True
                 else: maiorcaso = False
