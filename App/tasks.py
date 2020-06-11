@@ -1,4 +1,4 @@
-from .models import Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco
+from .models import Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosCidade, CasosEstadoHistorico, Projecao, CasosPernambuco, statesData
 import json
 import requests
 import pandas
@@ -94,28 +94,9 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
     
-    """try:
-        df = pandas.read_csv(
-            PATH_FILES+BASE_NAME,
-            header = 0,
-            names=collum_names,
-        )
-    
-        df = pre_processing(df)
-    
-        store_base(df)
-
-        build_IAbase()
-
-        prediction()
-
-        send_prediction_to_db()
-    except FileNotFoundError:
-        print("Nenhuma base de dados para ser pre_processada")"""
-    
-    #print("Extraindo informações de outras bases")
-    #bot.processingData()
-    #storeBot()
+    print("Extraindo informações de outras bases")
+    bot.processingData()
+    storeBot()
     
     print("Executando predicoes do Arima")
     stateCityData.main()
@@ -123,13 +104,24 @@ def listener():
     saveImages()
     storeProjections()
 
-    #getCasosPernambuco()
+    getCasosPernambuco()
 
-    #prediction()
-    #store_base()
-    #send_prediction_to_db()
+    prediction()
+    store_base()
+    send_prediction_to_db()
     
     print("Listener parado")
+
+def statesDataToDB():
+    with open(os.path.join(os.path.dirname(__file__))+'/static/statesData.json') as json_file:
+        data = json.load(json_file)
+        for estado in data:
+            print('Armazenando dados de '+ estado['features'][0]['properties']['UF'])
+            stateData = statesData(
+                uf = estado['features'][0]['properties']['UF'],
+                data = estado
+            )
+            stateData.save()
 
 def getCasosPernambuco():
     print("Extraindo casos de Pernambuco")
@@ -347,7 +339,7 @@ def send_prediction_to_db():
     PredictionBR.objects.bulk_create(objs=objs)
 
 
-    PredictionPE.objects.all().delete()
+    """PredictionPE.objects.all().delete()
 
     df = pandas.read_csv(
         PATH_FILES+'saidaFinalPE.csv',
@@ -372,7 +364,7 @@ def send_prediction_to_db():
         )
         for m in predictions
     ]
-    PredictionPE.objects.bulk_create(objs=objs)
+    PredictionPE.objects.bulk_create(objs=objs)"""
 
 def prediction():
     print('Chamando IA')
@@ -503,7 +495,7 @@ def store_base():
         InterpolationBR.objects.bulk_create(objs=objs)
 
 
-    pasta = PATH_FILES+'bases predicao PE/'
+    """pasta = PATH_FILES+'bases predicao PE/'
 
     InterpolationPE.objects.all().delete()
 
@@ -525,7 +517,7 @@ def store_base():
             )
             for m in interporlations
         ]
-        InterpolationPE.objects.bulk_create(objs=objs)
+        InterpolationPE.objects.bulk_create(objs=objs)"""
 
     """df = df.replace({np.nan: None})
     for index, row in df.iterrows():

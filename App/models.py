@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -113,3 +114,7 @@ class CasosPernambuco(models.Model):
 class AccessKey(models.Model):
     key = models.CharField(max_length = 20, unique=True)
     used = models.BooleanField(default=False)
+
+class statesData(models.Model):
+    uf = models.CharField(max_length = 2, null=True)
+    data = JSONField()

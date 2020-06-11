@@ -33,7 +33,7 @@ GOOGLE_RECAPTCHA_SECRET_KEY = '6LcTWegUAAAAAJNd65xHuZoiQOm5UzrU0Ym4isFX'
 SECRET_KEY = '$_(q*+!(u(ll90!r9^3uppqp03*n&#rq=@!!=$&o=5@t-uvw_7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
@@ -91,22 +91,23 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-"""DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'd1ibhu3tsi7ghj'),
-        'USER': os.environ.get('DB_USER', 'tslryogoucxpjv'),
+        'NAME': os.environ.get('DB_NAME', 'covidsgisdb'),
+        'USER': os.environ.get('DB_USER', 'covidsgis'),
         'PASSWORD': os.environ.get('DB_PASS', '32432025'),
         'HOST': '172.20.36.172',
+        #'HOST': 'localhost',
         'PORT': '5432'
     }
-}"""
-DATABASES = {
+}
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-}
+}"""
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -161,3 +162,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/homeCityMap'),
     os.path.join(BASE_DIR, 'App/static/statesData'),
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '' #ISSO PRECISA SER CONFIGURA
+EMAIL_HOST_PASSWORD = '' #ISSO PRECISA SER CONFIGURADO

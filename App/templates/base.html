@@ -38,7 +38,7 @@
         <script src="{% static 'leaflet-heatmap/leaflet-heatmap.js' %}"></script>
         <!-- fim dos imports de Leaflet -->
         <script type="text/javascript" src='../static/states/states.js'></script>
-        <script type="text/javascript" src='../static/statesData/statesData.js'></script>
+        <!--<script type="text/javascript" src='../static/statesData/statesData.js'></script>-->
         <!-- * jQuery -->
 
 
@@ -166,7 +166,7 @@
             'covid-map': httpVueLoader("{% static 'map/covidMap.vue' %}"),
             'state-map': httpVueLoader("{% static 'stateMap/StateMap.vue' %}"),
             'city-map': httpVueLoader("{% static 'cityMap/CityMap.vue' %}"),
-            'home-city-map': httpVueLoader("{% static 'homeCItyMap/HomeCityMap.vue' %}"),
+            'home-city-map': httpVueLoader("{% static 'homeCityMap/HomeCityMap.vue' %}"),
             VeLine,
             VeHistogram,
             VePie
@@ -304,6 +304,7 @@
             linhaOuHist: 'linhas',
 
             //? props da home
+            mediacasos: 0,
             pins: null,
             pinspe: null,
             datedb: new Date(pins[0] + 'T00:00:00Z'),
@@ -320,6 +321,11 @@
             maiorintpe: maior_int_pe,
         }),
         mounted: function (){
+            let agora = new Date() // "agora"
+            agora.setUTCHours(agora.getUTCHours() - 3)
+            agora.setUTCDate(agora.getUTCDate() - 1)
+            this.datedb = agora
+
             console.log(template)
             this.$nextTick(function () {
                 //console.log()
@@ -352,6 +358,15 @@
             })
         },
         methods: {
+            send_email: function(assunto, mensagem, remetente){
+                var request = $.ajax({
+                    context: this,
+                    type: 'GET',
+                    url: "send_email",
+                    data: {"assunto": assunto, "mensagem": mensagem, "remetente": remetente},
+                    async: false
+                })
+            },
             //? metodos da graph
             setChartDistribuicaoBrasil: function(){
                 chart = {
@@ -781,6 +796,11 @@
 
 
             //? metodos da home
+            updatelegenda: function (dados) {
+                this.mediacasos = Math.floor((dados[0] + dados[1]) / 2)
+                console.log(`mediacasos é ${this.mediacasos}`)
+
+            },
             //TODO trocar tudo de setDate ou setHours, etc, p setUTCDate, por exemplo, em dateBack e dateForward
             dateBack: function (event) {
                 let test = new Date(this.datedb);
@@ -932,8 +952,9 @@
                     }
                 }else{
                     test.setUTCDate( test.getUTCDate() + 1 );
-                    let agora = new Date()
+                    let agora = new Date() // "agora"
                     agora.setUTCHours(agora.getUTCHours() - 3)
+                    agora.setUTCDate(agora.getUTCDate() - 1)
                     test.setUTCHours(23,59,58)
                     agora.setUTCHours(23,59,59)
                     console.log(`test é ${test.toISOString()}\nagora é ${agora.toISOString()}`)
@@ -943,7 +964,7 @@
                         this.datedb = test
                         return
                     }else{
-                        console.log('nao temos dados além de hoje!')
+                        console.log('nao temos dados além de ontem!')
                         return
                     }
                 }
@@ -952,9 +973,15 @@
             }
         },
         watch: {
-            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação, para evitar possíveis bugs
+            // ? sempre que trocar de mapa, joga o dia pro ultimo com interpolação ou ontem, dependendo do mapa
             maxInt() {
-                this.datedb = new Date(pins[0] + 'T00:00:00Z')
+                if(this.maxInt == 0) this.datedb = new Date(pins[0] + 'T00:00:00Z')
+                else{
+                    let agora = new Date() // "agora"
+                    agora.setUTCHours(agora.getUTCHours() - 3)
+                    agora.setUTCDate(agora.getUTCDate() - 1)
+                    this.datedb = agora
+                }
             }
         }
     });

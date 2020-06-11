@@ -27,6 +27,7 @@ urlpatterns = [
     path('graphs/', views.graphs, name="graphs"),
     path('get/ajax/pins',views.get_pins, name="get_pins"),
     path('graphs/get_data',views.get_data, name="get_data"),
+    path('send_email',views.send_email, name="send_email"),
 ]
 
-#views.listener(repeat=10, repeat_until=None)
+#views.listener(repeat=7200, repeat_until=None)

@@ -4,19 +4,23 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
+from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco, statesData
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
 from .tasks import listener
 import json
 import requests
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.db.models import Count, Sum
 from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
+# import Levenshtein
+from django.core.mail import send_mail
+from covidWeb.settings import EMAIL_HOST_USER
+
 
 stateName = {
     'AC': 'Acre',
@@ -48,6 +52,36 @@ stateName = {
     'TO': 'Tocantins'
 }
 
+stateUF = {
+    'Acre': 'AC',
+    'Alagoas': 'AL',
+    'Amapa': 'AP',
+    'Amazonas': 'AM',
+    'Bahia': 'BA',
+    'Ceara': 'CE',
+    'Distrito Federal': 'DF',
+    'Espirito Santo': 'ES',
+    'Goias': 'GO',
+    'Maranhao': 'MA',
+    'Mato Grosso': 'MT',
+    'Mato Grosso do Sul': 'MS',
+    'Minas Gerais': 'MG',
+    'Para': 'PA',
+    'Paraiba': 'PB',
+    'Parana': 'PR',
+    'Pernambuco': 'PE',
+    'Piaui': 'PI',
+    'Rio de Janeiro': 'RJ',
+    'Rio Grande do Norte': 'RN',
+    'Rio Grande do Sul': 'RS',
+    'Rondonia': 'RO',
+    'Roraima': 'RR',
+    'Santa Catarina': 'SC',
+    'Sao Paulo': 'SP',
+    'Sergipe': 'SE',
+    'Tocantins': 'TO'
+}
+
 LIBERAR_ACESSO = True
 
 #! Todas as views que só podem ser mostradas se o usuário estiver logado, devem ter o @login_required
@@ -62,7 +96,7 @@ def graphs(request):
     if request.user.is_authenticated == False and LIBERAR_ACESSO == False:
         return user_login(request)
     else:
-        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as json_file:
+        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json', encoding="utf8") as json_file:
             data = json.load(json_file)
         
         return render(request, 'graphs.html', {'template': "'graphs'", 'data': data})
@@ -80,7 +114,7 @@ def home(request):
         notificationsPE = []
         # ! inicialmente é BR
         predictions = list(PredictionBR.objects.all())
-        predictionsPE = list(PredictionPE.objects.all())
+        #predictionsPE = list(PredictionPE.objects.all())
         debug = 0
         for prediction in predictions:
             predicts.append({
@@ -92,7 +126,7 @@ def home(request):
             })
             debug += 1
         print('enviando',debug, 'pontos de predição do BR')
-        debug = 0
+        """debug = 0
         for prediction in predictionsPE:
             predictsPE.append({
                 "latitude": prediction.latitude,
@@ -102,28 +136,28 @@ def home(request):
                 "intensidade3": prediction.prediction3,
             })
             debug += 1
-        print('enviando',debug, 'pontos de predição do PE')
+        print('enviando',debug, 'pontos de predição do PE')"""
         for note in InterpolationBR.objects.order_by('-date').values_list('date', flat=True).distinct():
             notifications.append(
                 note.isoformat()
             )
-        for note in InterpolationPE.objects.order_by('-date').values_list('date', flat=True).distinct():
+        """for note in InterpolationPE.objects.order_by('-date').values_list('date', flat=True).distinct():
             notificationsPE.append(
                 note.isoformat()
-            )
+            )"""
         # DEBUG datas com interpolacao
         # print('temos',len(notifications),'datas com interpolação:')
         # print(notifications)
         maior_int = InterpolationBR.objects.order_by('-prediction').first().prediction
-        maior_int_PE = InterpolationPE.objects.order_by('-prediction').first().prediction
-        print('maior int BR é',maior_int,'e maior int PE é',maior_int_PE)
+        #maior_int_PE = InterpolationPE.objects.order_by('-prediction').first().prediction
+        #print('maior int BR é',maior_int,'e maior int PE é',maior_int_PE)
         context['template'] = "'home'"
         context["maior_int"] = json.dumps(maior_int)
-        context["maior_int_pe"] = json.dumps(maior_int_PE)
+        #context["maior_int_pe"] = json.dumps(maior_int_PE)
         context["items_json"] = json.dumps(notifications)
-        context["items_json_pe"] = json.dumps(notificationsPE)
+        #context["items_json_pe"] = json.dumps(notificationsPE)
         context["predicts_json"] = json.dumps(predicts)
-        context["predicts_pe_json"] = json.dumps(predictsPE)
+        #context["predicts_pe_json"] = json.dumps(predictsPE)
         context["data"] = data
         return render(request, 'home.html', context)
 
@@ -161,6 +195,27 @@ def get_pins(request):
     # # DEBUG type test
     # print("De",len(notifications),",",null_notes,"tem dados nulos")
 
+def send_email(request):
+    if request.is_ajax and request.method == "GET":
+        assunto = request.GET['assunto']
+        mensagem = request.GET['mensagem']
+        remetente = request.GET['remetente']
+        
+        response = send_mail(
+            assunto,
+            remetente + ' : ' + mensagem,
+            EMAIL_HOST_USER,
+            [EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+
+        if response >= 1:
+            return JsonResponse({'successful': "O email foi enviado com sucesso"})
+        else:
+            return JsonResponse({'error': "Ocorreu um erro ao enviar o email"})
+    else:
+        return JsonResponse({'error': "Não é uma requisicao do tipo GET"})
+
 def get_data(request):
     if request.is_ajax and request.method == "GET":
         informacao = request.GET['informacao']
@@ -169,6 +224,7 @@ def get_data(request):
         cidade = request.GET['cidade']
         bairro = request.GET['bairro']
         response = []
+
         if informacao == 'PieChartData':
             response = list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados'))
         elif informacao == 'Casos Estado':
@@ -196,15 +252,142 @@ def get_data(request):
             elif keyBusca == 'cidades':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(Q(estado_residencia=estado)&Q(municipio=cidade)).values('data_notificacao', 'quantidade_casos').order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             
-            # ? pega dados de todos os estados, dado o dia!
+            # ? pega dados de todos os estados(27), dado o dia!
             elif keyBusca == 'estadosdia':
-                dia = request.GET['dia']
-                response = list(CasosEstadoHistorico.objects.filter(data_notificacao=datetime.strptime(dia, '%Y-%m-%d')).values('estado_residencia','quantidade_casos','obitos').order_by('-quantidade_casos'))
-        
+                dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
+                maiorcaso = request.GET['maiorcaso']
+                # print(maiorcaso)
+                if maiorcaso == 'true': maiorcaso = True
+                else: maiorcaso = False
+                if not maiorcaso:
+                    response = list(CasosEstadoHistorico.objects.filter(data_notificacao=dia).values('estado_residencia','quantidade_casos','obitos','data_notificacao').order_by('-quantidade_casos'))
+                    for item in response:
+                        print(item)
+                        item['dados_dia_requisitado'] = True
+                        dia_anterior = dia - timedelta(1)
+                        casos_antes = CasosEstadoHistorico.objects.filter(data_notificacao=dia_anterior).filter(estado_residencia=item['estado_residencia']).values('quantidade_casos','obitos').first()
+                        if casos_antes is not None:
+                            obitos_antes = casos_antes['obitos']
+                            casos_antes = casos_antes['quantidade_casos']
+                            item['quantidade_casos_diarios'] = item['quantidade_casos'] - casos_antes
+                            item['quantidade_obitos_diarios'] = item['obitos'] - obitos_antes
+
+                        else:
+                            item['quantidade_casos_diarios'] = '-'
+                            item['quantidade_obitos_diarios'] = '-'
+
+                    print('\n')
+                    for item in response: print(item)
+                    # ? sistema de busca por dados faltando
+                    if(len(response) != 27):
+                        for state in stateName.values():
+                            if not any(estado['estado_residencia'] == state for estado in response):
+                                antigo = CasosEstadoHistorico.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=state).values('estado_residencia','quantidade_casos','obitos','data_notificacao').first()
+                                dia_anterior = antigo['data_notificacao'] - timedelta(1)
+                                antigo['dados_dia_requisitado'] = False
+                                casos_antes = CasosEstadoHistorico.objects.filter(data_notificacao=dia_anterior).filter(estado_residencia=antigo['estado_residencia']).values('quantidade_casos','obitos').first()
+                                if casos_antes is not None:
+                                    obitos_antes = casos_antes['obitos']
+                                    casos_antes = casos_antes['quantidade_casos']
+                                    antigo['quantidade_casos_diarios'] = antigo['quantidade_casos'] - casos_antes
+                                    antigo['quantidade_obitos_diarios'] = antigo['obitos'] - obitos_antes
+
+                                else:
+                                    antigo['quantidade_casos_diarios'] = '-'
+                                    antigo['quantidade_obitos_diarios'] = '-'
+
+                                response.append(antigo)
+                                print('inserindo dados antigos para',state)
+                else:
+                    response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
+                    response = response['quantidade_casos']
+
+            # ? pega dados de todos os municipios de um estado, dado o dia!
+            elif keyBusca == 'cidadesdia':
+                dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
+                estado = request.GET['estado']
+                print("estado era",estado,"agora é",estado.replace("_"," "))
+                estado = estado.replace("_"," ")
+                maiorcaso = request.GET['maiorcaso']
+                if maiorcaso == 'true': maiorcaso = True
+                else: maiorcaso = False
+                print('maiorcaso é',maiorcaso)
+                if not maiorcaso:
+                    municipios = []
+                    # * pegando lista de municipios no JSON
+                    with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as f:
+                        data = json.load(f)
+
+                        for state in data['estados']:
+                            # DEBUG
+                            print('estou buscando por',estado,'e estou, no momento atual, olhando para',state['nome'])
+                            if estado == state['nome']:
+                                municipios = state['cidades'].copy()
+                                # print(municipios)
+                                break
+
+                    # * todos os objetos no dia dado, no estado solicitado
+                    response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao'))
+                    
+                    # * coleta casos e obitos diarios, se possivel
+                    for item in response:
+                        print(item)
+                        item['dados_dia_requisitado'] = True
+                        dia_anterior = dia - timedelta(1)
+                        casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=item['municipio'])).values('quantidade_casos','obitos').first()
+                        if casos_antes is not None:
+                            obitos_antes = casos_antes['obitos']
+                            casos_antes = casos_antes['quantidade_casos']
+                            item['quantidade_casos_diarios'] = item['quantidade_casos'] - casos_antes
+                            item['quantidade_obitos_diarios'] = item['obitos'] - obitos_antes
+
+                        else:
+                            item['quantidade_casos_diarios'] = '-'
+                            item['quantidade_obitos_diarios'] = '-'
+
+                    # * sistema de busca de dados em dias anteriores para cidades que faltam
+                    if(len(response) != len(municipios)):
+                        # DEBUG
+                        print('nao existem dados para todos os dias')
+                        for municipio in municipios:
+                            # ? se nao houver nenhum municipio em response com o nome atual da lista de municipios
+                            if not any(municipio == cidade_response['municipio'] for cidade_response in response):
+                                # busque o dia com dados do municipio mais recente a data desejada
+                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
+                                if antigo is not None:
+                                    dia_anterior = antigo['data_notificacao'] - timedelta(1)
+                                    antigo['dados_dia_requisitado'] = False
+                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('quantidade_casos','obitos').first()
+                                    if casos_antes is not None:
+                                        obitos_antes = casos_antes['obitos']
+                                        casos_antes = casos_antes['quantidade_casos']
+                                        antigo['quantidade_casos_diarios'] = antigo['quantidade_casos'] - casos_antes
+                                        antigo['quantidade_obitos_diarios'] = antigo['obitos'] - obitos_antes
+                                    else:
+                                        antigo['quantidade_casos_diarios'] = '-'
+                                        antigo['quantidade_obitos_diarios'] = '-'
+                                    response.append(antigo)
+                                    print('inserindo dados antigos para',municipio)
+                                else:
+                                    print('não existem dados para',municipio)
+                                    response.append({'municipio': municipio, 'quantidade_casos': -1})
+                                    # ! PASSANDO -1 NO QUANTIDADE_CASOS CASO NAO EXISTAM DADOS SOBRE O MUNICIPIO NO DB
+                                    
+                                    # ? caso nao tenha dados anteriores para esse municipio?
+                                    # ! atualmente nada, pois iremos buscar por similaridade
+                                    # ! CASO NAO TENHA NEM POR SIMILARIDADE, será feito como está atualmente aqui para informar que não existem dados, ou coisa do tipo
+                    
+                    # TODO montar sistema de busca POR SIMILARIDADE(do nome da cidade) de dados em dias anteriores para cidades
+                    # ! não é necessário implementar similaridade aqui, pois tecnicamente os nomes são similares, mas caso seja, Levenshtein está aqui
+
+                else:
+                    response = CasosCidade.objects.filter(estado_residencia=estado).values('quantidade_casos').order_by('-quantidade_casos').first()
+                    response = response['quantidade_casos']
+                    print('passando quantidade_casos',response)
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
                 response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
@@ -222,7 +405,7 @@ def get_data(request):
             elif keyBusca == 'cidades':
                 response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'cidades2':
-                response = list(CasosCidade.objects.filter(municipio=cidade).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
+                response = list(CasosCidade.objects.filter(Q(estado_residencia=estado)&Q(municipio=cidade)).values('data_notificacao', 'obitos').annotate(quantidade_casos=F('obitos')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(evolucao='Óbito')&Q(classificacao='Confirmado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
         elif informacao == 'Recuperados':
@@ -246,6 +429,9 @@ def get_data(request):
                 response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+        elif informacao == 'statesData':
+            print("CHEGUEI AQUIIIII")
+            response = list(statesData.objects.filter(uf=stateUF[estado]).values('data'))
 
         response = json.dumps(response, indent=4, sort_keys=True, default=str)
         
@@ -354,3 +540,20 @@ CRUD é a base de qualquer framework
 ! Só que tem mais um detalhe!!!
 para acessar essa função, devemos especificar uma rota através do sistema de rotas do Django.
 """
+
+# with open(os.path.join(os.path.dirname(__file__))+'/static/statesData.json',encoding="utf8") as f:
+#     data = json.load(f)
+#     test = []
+#     # DEBUG
+#     print('abrido')
+#     for elem in data:
+#         test.append({'UF': elem['features'][0]['properties']['UF'],'municipios'})
+#     for elem in data:
+#         # DEBUG
+#         print('estou buscando por',estado,'e estou, no momento atual, olhando para',statename[elem['features'][0]['properties']['UF']])
+#         if estado is statename[elem['features'][0]['properties']['UF']]:
+#             for dict_to_prop in elem['features']:
+#                 municipios.append(dict_to_prop['properties']['NOME'])
+#                 print('identifiquei a cidade',dict_to_prop['properties']['NOME'])
+#             break
+#     print('acabado')
