@@ -39,7 +39,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost',
     'xocovid.herokuapp.com',
-    'covidsgis.herokuapp.com'
+    'covidsgis.herokuapp.com',
+    '172.20.36.178'
 ]
 
 # Application definition
