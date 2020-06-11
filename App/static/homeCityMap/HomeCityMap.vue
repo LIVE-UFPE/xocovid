@@ -31,6 +31,8 @@ module.exports ={
           this.componentKey += 1
         },
         getCasos(estado){
+            this.txtsnack = "Coletando dados..."
+            this.snackbar = true
             if (this.request != null) {
                 this.request.abort();
             }
@@ -146,7 +148,7 @@ module.exports ={
             if(that.casos.length == 0) return '#800026'
             // busque o municipio com nome mais similar ao municipio pedido
             let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
-            console.log(d)
+            // console.log(d)
             if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']

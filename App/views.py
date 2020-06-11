@@ -17,7 +17,9 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-import Levenshtein
+# import Levenshtein
+from django.core.mail import send_mail
+from covidWeb.settings import EMAIL_HOST_USER
 
 
 stateName = {
@@ -163,6 +165,27 @@ def get_pins(request):
     # # DEBUG type test
     # print("De",len(notifications),",",null_notes,"tem dados nulos")
 
+def send_email(request):
+    if request.is_ajax and request.method == "GET":
+        assunto = request.GET['assunto']
+        mensagem = request.GET['mensagem']
+        remetente = request.GET['remetente']
+        
+        response = send_mail(
+            assunto,
+            remetente + ' : ' + mensagem,
+            EMAIL_HOST_USER,
+            [EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+
+        if response >= 1:
+            return JsonResponse({'successful': "O email foi enviado com sucesso"})
+        else:
+            return JsonResponse({'error': "Ocorreu um erro ao enviar o email"})
+    else:
+        return JsonResponse({'error': "Não é uma requisicao do tipo GET"})
+
 def get_data(request):
     if request.is_ajax and request.method == "GET":
         informacao = request.GET['informacao']
@@ -252,10 +275,12 @@ def get_data(request):
                     response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
 
-
+            # ? pega dados de todos os municipios de um estado, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
+                print("estado era",estado,"agora é",estado.replace("_"," "))
+                estado = estado.replace("_"," ")
                 maiorcaso = request.GET['maiorcaso']
                 if maiorcaso == 'true': maiorcaso = True
                 else: maiorcaso = False

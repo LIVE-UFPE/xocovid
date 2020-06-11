@@ -14,4 +14,5 @@ urlpatterns = [
     path('graphs/', views.graphs, name="graphs"),
     path('get/ajax/pins',views.get_pins, name="get_pins"),
     path('graphs/get_data',views.get_data, name="get_data"),
+    path('send_email',views.send_email, name="send_email"),
 ]

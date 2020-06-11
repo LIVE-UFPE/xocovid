@@ -70,7 +70,7 @@ module.exports ={
                 context: this,
                 type: 'GET',
                 url: "get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estado, "cidade": cidade, "bairro": ''},
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estadoGlobal, "cidade": cidade, "bairro": ''},
                 async: false,
                 success: function (response) {
                     buscaResponse = JSON.parse(response)
