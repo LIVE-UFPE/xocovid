@@ -112,11 +112,24 @@ module.exports ={
         function zoomToFeature(e) {
             this.map.fitBounds(e.target.getBounds());
         }
+        //TODO previousclick nao for num canto valido, resetar?
+        let previousClick = null
+        function clickHandler(e){
+            // console.log('Console: ',e.target)
+            if(previousClick){
+                resetHighlight.call(this,previousClick)
+                highlightFeature.call(this,e)
+            }else{
+                highlightFeature.call(this,e)
+            }
+            previousClick = e
+        }
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature.bind(this),
                 mouseout: resetHighlight.bind(this),
-                click: zoomToFeature.bind(this)
+                // click: zoomToFeature.bind(this),
+                click: clickHandler.bind(this)
             });
         }
         
@@ -155,6 +168,8 @@ module.exports ={
             };
         }
         var info = L.control();
+        info.setPosition('topleft')
+
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
             this.update();
@@ -264,8 +279,11 @@ module.exports ={
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    right: 84vmin;
+    /* right: 84vmin; */
     top: 10px;
+    /* TODO fix this \/ */
+    left: 10vmin;
+    z-index: 1;
 }
 .info h4 {
     margin: 0 0 5px;
