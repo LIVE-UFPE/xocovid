@@ -36,7 +36,6 @@ module.exports ={
                 context: this,
                 type: 'GET',
                 url: "graphs/get_data",
-                async: false,
                 data: {"informacao": 'statesData', "keyBusca": '', "estado": estado.slice(0, estado.length-5).split(' ').join(' '), "cidade": '', "bairro": ''},
                 success: function (response) {
                     resposta = JSON.parse(response)
