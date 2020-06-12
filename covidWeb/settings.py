@@ -33,15 +33,16 @@ GOOGLE_RECAPTCHA_SECRET_KEY = '6LcTWegUAAAAAJNd65xHuZoiQOm5UzrU0Ym4isFX'
 SECRET_KEY = '$_(q*+!(u(ll90!r9^3uppqp03*n&#rq=@!!=$&o=5@t-uvw_7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost',
-    'xocovid.herokuapp.com',
-    'covidsgis.herokuapp.com',
-    '172.20.36.178',
-    '172.20.36.172'
+    'covidsgis.cin.ufpe.br'
+    #'xocovid.herokuapp.com',
+    #'covidsgis.herokuapp.com',
+    #'172.20.36.178',
+    #'172.20.36.172'
 ]
 
 # Application definition
@@ -96,11 +97,11 @@ WSGI_APPLICATION = 'covidWeb.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'covidsgisdb'),
-        'USER': os.environ.get('DB_USER', 'covidsgis'),
-        'PASSWORD': os.environ.get('DB_PASS', '32432025'),
-        'HOST': '172.20.36.172',
-        #'HOST': 'localhost',
+        'NAME': 'covidsgisdb',
+        'USER': 'covidsgis',
+        'PASSWORD': '32432025',
+        #'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'PORT': '5432'
     }
 }
