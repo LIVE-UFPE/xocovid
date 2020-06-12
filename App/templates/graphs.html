@@ -49,6 +49,199 @@
           </v-app-bar>
         </div>
       </template>
+      <v-container fluid>
+      <template>
+        <v-card
+              class="mx-auto mt-6 pa-4"
+              max-width="1044"
+              width="auto"
+              height='auto'
+              outlined
+              
+        >
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
+          </div>
+          <v-container fluid>
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="330"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Óbitos Totais
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ nObitosBrasil ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Casos Confirmados
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ nConfirmadosBrasil ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Confirmados Relativo
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ n100kBrasil ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
+            </v-card>
+          </div>
+          <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="980"
+                  width="auto"
+                  height='auto'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Taxa de Letalidade no Brasil
+              </p>
+              <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
+                <v-progress-circular
+                  :rotate="360"
+                  :size="100"
+                  :width="15"
+                  :value="nConf"
+                  color="rgb(113, 113, 113)"
+                >
+                  [[ nLetalidadeBrasil]]%
+                </v-progress-circular>
+              </div>
+              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
+            </v-card>
+          </v-container>
+        </v-card>
+      </template>
+    </v-container>
+        <!-- Dashboard -->
+    <v-container fluid>
+      <template>
+        <v-card
+              class="mx-auto mt-6 pa-4 pb-8"
+              max-width="1044"
+              width="auto"
+              height='auto'
+              outlined  
+        >
+
+          {% comment %} nObitos nCasos nRecuperados nConf {% endcomment %}
+          <div  class="text-center">
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard Personalizado</v-list-item-title>
+          </div>
+          <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
+            <v-autocomplete
+              v-model="selecaoDashboard"
+              :items="estadosSiglaDashboard"
+              outlined
+              dense
+              chips
+              small-chips
+              label="Selecione o estado"
+              width="400"
+            ></v-autocomplete>
+            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
+          </div>
+          <div class="">
+            <city-map :datedb="datedb" :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
+          </div>
+          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Óbitos Totais
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ jobObitosTotais ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Casos Confirmados
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ jobConf ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado Acumulado</div>
+            </v-card>
+            <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="300"
+                  width="300"
+                  height='200'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Confirmados Relativo
+              </p>
+              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
+                [[ jobConfRel.toFixed(3) ]]
+              </p>
+              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
+            </v-card>
+            
+          </div>
+          <v-card
+                  class="mx-auto mt-6 pa-4"
+                  max-width="980"
+                  width="auto"
+                  height='auto'
+                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
+            >
+              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
+                Letalidade no Estado
+              </p>
+              <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
+                <v-progress-circular
+                  :rotate="360"
+                  :size="100"
+                  :width="15"
+                  :value="nConf"
+                  color="rgb(113, 113, 113)"
+                >
+                  [[ jobLetalidade.toFixed(3) ]]%
+                </v-progress-circular>
+              </div>
+              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
+            </v-card>
+        </v-card>
+      </template>
+    </v-container>
     <!-- Graph Card -->
     <v-container fluid>
     <template>
@@ -63,7 +256,7 @@
   
             <div style="display: block;flex-direction: row;">
               <div  class="text-center">
-                <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório por Região</v-list-item-title>
+                <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório por Estado</v-list-item-title>
               </div>
             <!-- <div style="display:flex;flex-direction:row;justify-content: center">
               <div style="width: 900px;" class="pr-4 pl-4 mt-4"> 
@@ -186,199 +379,7 @@
       </v-container>
 
       <!-- Dashboard -->
-      <v-container fluid>
-      <template>
-        <v-card
-              class="mx-auto mt-6 pa-4"
-              max-width="1044"
-              width="auto"
-              height='auto'
-              outlined
-              
-        >
-          <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
-          </div>
-          <v-container fluid>
-          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="330"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Óbitos Totais
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ nObitosBrasil ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
-            </v-card>
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="300"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Casos Confirmados
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ nConfirmadosBrasil ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
-            </v-card>
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="300"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Confirmados Relativo
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ n100kBrasil ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
-            </v-card>
-          </div>
-          <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="980"
-                  width="auto"
-                  height='auto'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Taxa de Letalidade no Brasil
-              </p>
-              <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
-                <v-progress-circular
-                  :rotate="360"
-                  :size="100"
-                  :width="15"
-                  :value="nConf"
-                  color="rgb(113, 113, 113)"
-                >
-                  [[ nLetalidadeBrasil]]%
-                </v-progress-circular>
-              </div>
-              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
-            </v-card>
-          </v-container>
-        </v-card>
-      </template>
-    </v-container>
-        <!-- Dashboard -->
-    <v-container fluid>
-      <template>
-        <v-card
-              class="mx-auto mt-6 pa-4 pb-8"
-              max-width="1044"
-              width="auto"
-              height='auto'
-              outlined  
-        >
-
-          {% comment %} nObitos nCasos nRecuperados nConf {% endcomment %}
-          <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard Personalizado</v-list-item-title>
-          </div>
-          <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
-            <v-autocomplete
-              v-model="selecaoDashboard"
-              :items="estadosSiglaDashboard"
-              outlined
-              dense
-              chips
-              small-chips
-              label="Selecione o estado"
-              width="400"
-            ></v-autocomplete>
-            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
-          </div>
-          <div class="">
-            <city-map :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
-          </div>
-          <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="300"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Óbitos Totais
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ jobObitosTotais ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
-            </v-card>
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="300"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Casos Confirmados
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ jobConf ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado Acumulado</div>
-            </v-card>
-            <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="300"
-                  width="300"
-                  height='200'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Confirmados Relativo
-              </p>
-              <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
-                [[ jobConfRel.toFixed(3) ]]
-              </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
-            </v-card>
-            
-          </div>
-          <v-card
-                  class="mx-auto mt-6 pa-4"
-                  max-width="980"
-                  width="auto"
-                  height='auto'
-                  style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
-            >
-              <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Letalidade no Estado
-              </p>
-              <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
-                <v-progress-circular
-                  :rotate="360"
-                  :size="100"
-                  :width="15"
-                  :value="nConf"
-                  color="rgb(113, 113, 113)"
-                >
-                  [[ jobLetalidade.toFixed(3) ]]%
-                </v-progress-circular>
-              </div>
-              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
-            </v-card>
-        </v-card>
-      </template>
-    </v-container>
+      
 
     <v-container fluid>
       <template>
@@ -712,13 +713,13 @@
             </v-card-text>
       
             <v-card-text style="width:100%" class="white--text pt-0">
-              The Vehicle Innovation Laboratory (LIVE) is a laboratory of the UFPE Informatics Center and was created in 2015 with the objective of developing innovation projects in the context of smart cities. We carry out research and development projects in partnership with industry and funding agencies in various segments such as Automotive, IoT, Embedded Systems, Energy, High Performance Computing, Electronics, Urban Mobility, Connectivity and Artificial Intelligence. 
+              The Smart Cities Innovation Laboratory (LIVE) is a laboratory of the UFPE Informatics Center and was created in 2015 with the objective of developing innovation projects in the context of smart cities. We carry out research and development projects in partnership with industry and funding agencies in various segments such as Automotive, IoT, Embedded Systems, Energy, High Performance Computing, Electronics, Urban Mobility, Connectivity and Artificial Intelligence. 
             </v-card-text>
       
             <v-divider></v-divider>
       
             <v-card-text class="white--text">
-              2020 — <strong>LIVE/Laboratório de Inovação Veicular</strong>
+              2020 — <strong>LIVE/Laboratório de Inovação para Cidades Inteligentes e LCB/Laboratório de Computação Biomédica</strong>
             </v-card-text>
           </v-card>
         </v-footer>
