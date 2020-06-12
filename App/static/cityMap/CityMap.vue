@@ -48,21 +48,39 @@ module.exports ={
         forceRerender() {
           this.componentKey += 1
         },  
+        get_shapefile(estado){
+
+            resposta = []
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                async: false,
+                data: {"informacao": 'statesData', "keyBusca": '', "estado": estado, "cidade": '', "bairro": ''},
+                success: function (response) {
+                    resposta = JSON.parse(response)
+                }
+            })
+
+            return resposta
+        },
     },
     mounted() {
         console.log(this.estado.split(' ').join('_'))
-        this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join(' ')
         console.log("Estado: ", this.estado)
         var objectCoord = {lat: [], lon: []}
-        objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
-        objectCoord.lon.push(eval(this.estado).features[0].geometry.coordinates[0][0][1])
+        resposta = this.get_shapefile(this.estado)
+        console.log(resposta)
+        objectCoord.lat.push(resposta[0].data.features[0].geometry.coordinates[0][0][0])
+        objectCoord.lon.push(resposta[0].data.features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         var geojson;
         let estadoGlobal = this.estado
         var buttonStatus = false
         var previousClick = null
-        geojson = L.geoJson(eval(this.estado), {style: style});
+        geojson = L.geoJson(resposta[0].data, {style: style});
         
         function samDash(estado, cidade){
             buscaResponse = []
@@ -208,7 +226,8 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature}).addTo(map);
+        resposta = this.get_shapefile(this.estado)
+        L.geoJson(resposta[0].data, {style: style, onEachFeature: onEachFeature}).addTo(map);
     },
     computed: {
         
