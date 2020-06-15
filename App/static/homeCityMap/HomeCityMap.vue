@@ -118,7 +118,7 @@ module.exports ={
         objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
-        var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
+        var map = L.map('mapcity',{zoomControl: false}).setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
         var estadoLocal = this.estadoComp
 
@@ -155,10 +155,23 @@ module.exports ={
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
 
-            // busque o municipio com nome mais similar ao municipio pedido
-            let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
-            // console.log(d)
-            if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
+            // DEBUG
+            // let test = that.casos.filter(elem => that.levenshtein(elem['municipio'], municipio) <= 2)
+            // if(test.length > 1){
+            //     console.log('array test:')
+            //     console.log(test)
+            // }
+
+            // busque o municipio com nome igual ao do municipio pedido
+            let d = that.casos.find( elem => elem['municipio'] == municipio )
+            if(d == undefined){
+                // busque o municipio com nome mais similar ao municipio pedido, c diferença de 1
+                d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 1 )    
+            }
+            // ? será q seria conveniente também ele não pegar municipios que existam, mesmo q passem no levenshtein? p isso, precisaria do JSON c somente o nome dos municipios
+            
+
+            if(d == undefined) return '#6a00ff'
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
             //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
