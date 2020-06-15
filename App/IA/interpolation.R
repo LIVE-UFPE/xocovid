@@ -36,10 +36,11 @@ list_interpolation = c() #store the interpolated data for each day of covid-19 c
 state_shp <- shapefile(list_arguments[[6]])
 
 if(state == 'BR'){
-  grid <- spsample(state_shp, type = 'regular', n = 90000)
+  #grid <- spsample(state_shp, type = 'regular', n = 90000)
+  grid <- spsample(state_shp, type = 'regular', n = 10000)
+} else {
+  grid <- spsample(state_shp, type = 'regular', n = 10000)
 }
-
-grid <- spsample(state_shp, type = 'regular', n = 10000)
 
 
 # Distribution map of the confirmed cases of covid-19 for each day (including the predicted)
@@ -82,15 +83,7 @@ df <- data.frame("longitude" = day1_int[[1]]$x1,
 )
 
 # saving interpolated values into a csv file
-split_string <- unlist(strsplit(list_days[4],"_")) 
+split_string <- unlist(strsplit(list_days[4],"_"))
 fileName <- paste0("predicao_covid19",state,"_",split_string[2])
 names(df)[1:6] <- c("longitude","latitude","day1","day2","day3","prediction")
-write.csv(df, paste0(paste(getwd(), "/App/IA/bases predicao ", sep=""),state,"/",fileName),row.names = FALSE)
-
-
-
-
-
-
-
-
+write.csv(df, paste0(paste(getwd(), "/bases predicao ", sep=""),state,"/",fileName),row.names = FALSE)

@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls import url,include
 from App import views
+from App.tasks import listener
+from datetime import datetime
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +32,4 @@ urlpatterns = [
     path('send_email',views.send_email, name="send_email"),
 ]
 
-#views.listener(repeat=7200, repeat_until=None)
+#listener(repeat=10, repeat_until=None)

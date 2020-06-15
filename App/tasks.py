@@ -183,9 +183,9 @@ def storeProjections():
             if  fileEstadoNome != 'BrasilConfirmados' and fileEstadoNome != 'BrasilMortes':
                 nomeEstado = stateName[fileName.split('projecao')[1].split('.csv')[0].split(str(last_date).split(' ')[0])[0]]
             elif fileEstadoNome == 'BrasilConfirmados':
-                nomeEstado = 'Projecao de Confirmados no Brasil'
+                nomeEstado = 'Confirmados no Brasil'
             else:
-                nomeEstado = 'Projecao de Óbitos no Brasil'
+                nomeEstado = 'Óbitos no Brasil'
 
             print('Armazenando projecoes de ' + nomeEstado)
                 

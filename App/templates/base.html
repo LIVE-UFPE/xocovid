@@ -564,8 +564,10 @@
                 return chart
             },
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
-                if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
-                else label = informacao + ' em '
+                if(diaouacuLength > 1){
+                    label = informacao + ' ' + diaouacu + ' de '
+                }
+                else label = informacao + ' de '
 
                 if(bairro != ''){
                     keyBusca = 'bairros'
@@ -777,13 +779,15 @@
             },
             renderGraficoR: function (selecaoGraficoR){
                 var imgUrlR = []
-                if(selecaoGraficoR != 'Projecao de Confirmados no Brasil' && selecaoGraficoR != 'Projecao de Óbitos no Brasil')
+                
+                if(selecaoGraficoR != 'Confirmados no Brasil' && selecaoGraficoR != 'Óbitos no Brasil')
                     sigla = selecaoGraficoR.split("- ").pop()
-                else if(selecaoGraficoR == 'Projecao de Confirmados no Brasil')
+                else if(selecaoGraficoR == 'Confirmados no Brasil')
                     sigla = 'Brasil'
                 else
                     sigla = ''
 
+                    
 
                 var nomeEstado = selecaoGraficoR.split(" - ")[0]
                 imgUrlR.push('../static/graficos/projecoes/projecao'+sigla+'.png')
@@ -1001,8 +1005,8 @@
     var folder = "../static/graficos/modelos/";
 
     //console.log(data.estados)
-    estadoS.push('Projecao de Confirmados no Brasil')
-    estadoS.push('Projecao de Óbitos no Brasil')
+    estadoS.push('Confirmados no Brasil')
+    estadoS.push('Óbitos no Brasil')
     data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })
