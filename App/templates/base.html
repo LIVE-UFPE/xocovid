@@ -166,6 +166,7 @@
             'state-map': httpVueLoader("{% static 'stateMap/StateMap.vue' %}"),
             'city-map': httpVueLoader("{% static 'cityMap/CityMap.vue' %}"),
             'home-city-map': httpVueLoader("{% static 'homeCityMap/HomeCityMap.vue' %}"),
+            'about-dialog': httpVueLoader("{% static 'dialog/dialog.vue' %}"),
             VeLine,
             VeHistogram,
             VePie
@@ -173,6 +174,7 @@
         },
         data: () => ({
             //? props da graphs
+            dialog: false,
             radioMap: 'mapInit',
             isHomeComponentCollapsed: true,
             homeSelecao: "Pernambuco - PE",
