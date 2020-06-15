@@ -272,19 +272,32 @@ module.exports ={
     width: 100%;
     z-index: 0;
 }
+
 .info {
+    /* align-self: center; */
+    /* margin: auto; */
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    /* right: 84vmin; */
-    top: 10px;
-    /* TODO fix this \/ */
-    left: 10vmin;
+    
     z-index: 1;
+
 }
+@media (max-width: 600px) {
+    .info {
+        top: 5px;
+    }
+}
+@media (min-width: 601px) {
+    .info {
+        left: 10vmin;
+        top: 10px;
+    }
+}
+
 .info h4 {
     margin: 0 0 5px;
     color: rgb(255, 255, 255);

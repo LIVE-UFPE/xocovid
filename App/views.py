@@ -275,7 +275,7 @@ def get_data(request):
                     response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
 
-
+            # ? pega dados de todos os munícipios de um estado, dado o dia
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
