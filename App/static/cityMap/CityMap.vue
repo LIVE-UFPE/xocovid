@@ -1,80 +1,123 @@
 <template>
-    <div :key="componentKey" style="border-radius: 0px !important" id="mapcity">
-
+    <div :key="componentKey" style="border-radius: 0px" id="mapcity">
+        <v-snackbar v-model="snackbar" top >
+            {{ txtsnack }}
+            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+        </v-snackbar>
     </div>
 </template>
 <script>
 module.exports ={
-    name: 'city-map',
+    name: 'home-city-map',
     data: function (){
         return{
-            test: null,
-            componentKey: 0
+            request: null,
+            componentKey: 0,
+            casos: [],
+            maiscasos: 0,
+            txtsnack: '',
+            snackbar: false,
+            geojson: null,
+            style: null,
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
     props: {
-        estado: String
+        estado: String,
+        datedb: Date,
     },
     methods: {
         forceRerender() {
           this.componentKey += 1
-        },  
+        },
+        getCasos(estado){
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                // TODO rodar a busca no views.py
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": '',"maiorcaso": false},
+                success: function (response) {
+                    let resposta = JSON.parse(response)
+                    if(resposta.length != 0){
+                        this.casos = resposta
+                        // console.log('Casos: ',this.casos)
+
+                        this.geojson.setStyle(this.style)
+                        let legenda = [this.maiscasos,0]
+                        this.$emit('dados-legenda',legenda) 
+                    }
+                }
+            })
+        },
+        getMaiorCaso(estado){
+            if (this.request != null) {
+                this.request.abort();
+            }
+            this.request = $.ajax({
+                // TODO fix async issue
+                async: false,
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": '',"maiorcaso": true},
+                success: function (response) {
+                    // let resposta = JSON.parse(response)
+                    this.maiscasos = Number(response)
+                    console.log(`passando a maior quantidade de casos ${this.maiscasos} tipo é ${typeof(this.maiscasos)}`)
+                    
+                },
+            })  
+        },
+        levenshtein(a,b){
+            if(a.length == 0) return b.length; 
+            if(b.length == 0) return a.length; 
+
+            var matrix = [];
+
+            // increment along the first column of each row
+            var i;
+            for(i = 0; i <= b.length; i++){
+                matrix[i] = [i];
+            }
+
+            // increment each column in the first row
+            var j;
+            for(j = 0; j <= a.length; j++){
+                matrix[0][j] = j;
+            }
+
+            // Fill in the rest of the matrix
+            for(i = 1; i <= b.length; i++){
+                for(j = 1; j <= a.length; j++){
+                    if(b.charAt(i-1) == a.charAt(j-1)){
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                                Math.min(matrix[i][j-1] + 1, // insertion
+                                                        matrix[i-1][j] + 1)); // deletion
+                    }
+                }
+            }
+
+            return matrix[b.length][a.length];
+        }
     },
     mounted() {
-        console.log(this.estado.split(' ').join('_'))
-        this.estado = this.estado.slice(0,this.estado.length-5).split(' ').join('_')
-        console.log("Estado: ", this.estado)
+        this.getMaiorCaso(this.estadoComp)
         var objectCoord = {lat: [], lon: []}
-        objectCoord.lat.push(eval(this.estado).features[0].geometry.coordinates[0][0][0])
-        objectCoord.lon.push(eval(this.estado).features[0].geometry.coordinates[0][0][1])
+        objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
+        objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
-        var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
-        var geojson;
-        let estadoGlobal = this.estado
-        var buttonStatus = false
-        var previousClick = null
+        var map = L.map('mapcity',{zoomControl: false}).setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
+        // var geojson;
+        var estadoLocal = this.estadoComp
 
-        geojson = L.geoJson(eval(this.estado), {style: style});
-        
-        function samDash(estado, cidade){
-            buscaResponse = []
-            var request = $.ajax({
-                context: this,
-                type: 'GET',
-                url: "get_data",
-                data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidades2', "estado": estadoGlobal, "cidade": cidade, "bairro": ''},
-                async: false,
-                success: function (response) {
-                    buscaResponse = JSON.parse(response)
-                }
-            })
-            console.log('response: ', buscaResponse)
-            if(buscaResponse.length == 0){
-                 return 0
-            }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
-            }
-        }
-        function samDashObitos(estado, cidade){
-            buscaResponse = []
-            var request = $.ajax({
-                context: this,
-                type: 'GET',
-                url: "get_data",
-                data: {"informacao": 'Óbitos', "keyBusca": 'cidades2', "estado": estadoGlobal, "cidade": cidade, "bairro": ''},
-                async: false,
-                success: function (response) {
-                    buscaResponse = JSON.parse(response)
-                }
-            })
-            
-            if(buscaResponse.length == 0){
-                 return 0
-            }else{
-                 return buscaResponse[buscaResponse.length-1]['quantidade_casos']
-            }
-        }
+        // this.geojson = L.geoJson(eval(this.estado), {style: style});
+
         function highlightFeature(e) {
             var layer = e.target;
             layer.setStyle({
@@ -86,47 +129,60 @@ module.exports ={
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 layer.bringToFront();
             }
-            info.update(layer.feature.properties);
+            info.update(layer.feature.properties, this);
         }
         function resetHighlight(e) {
-            geojson.resetStyle(e.target);
+            this.geojson.resetStyle(e.target);
             info.update();
         }
         function zoomToFeature(e) {
             map.fitBounds(e.target.getBounds());
         }
+        //TODO previousclick nao for num canto valido, resetar?
+        let previousClick = null
         function clickHandler(e){
-            console.log('Console: ',e.target)
+            // console.log('Console: ',e.target)
             if(previousClick){
-                resetHighlight(previousClick)
-                highlightFeature(e)  
+                resetHighlight.call(this,previousClick)
+                highlightFeature.call(this,e)
             }else{
-                highlightFeature(e)  
+                highlightFeature.call(this,e)
             }
-            buttonStatus = !buttonStatus
             previousClick = e
         }
         function onEachFeature(feature, layer) {
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight,
-                click: clickHandler
-                // click: zoomToFeature
+                mouseover: highlightFeature.bind(this),
+                mouseout: resetHighlight.bind(this),
+                // click: zoomToFeature.bind(this),
+                click: clickHandler.bind(this)
             });
         }
-        function getColor(d) {
-            return d > 1000 ? '#800026' :
-                d > 15  ? '#800026' :
-                d > 12  ? '#800026' :
-                d > 10  ? '#800026' :
-                d > 3   ? '#800026' :
-                d > 2   ? '#800026' :
-                d > 1   ? '#800026' :
-                            '#800026';
+        // TODO encontrar motivo de Acaraú, no Ceará, nao dar uma cor, pois atualmente NENHUMA ALTERAÇÃO FEITA AQUI MUDA NO SITE
+        function getColor(municipio, that) {
+            if(that.casos.length == 0) return '#800026'
+
+            // busque o municipio com nome mais similar ao municipio pedido
+            let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
+            // console.log(d)
+            if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
+            if(d['quantidade_casos'] == -1) return '#6a00ff'
+            d = d['quantidade_casos']
+            //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
+            let media = that.maiscasos / 2
+            return d >= Math.floor(media * 1) ? '#ff0000' : // * tons de vermelho
+                d >= Math.floor(media * 0.75)  ? '#ff2121' :
+                d >= Math.floor(media * 0.625)  ? '#ff4040' :
+                d >= Math.floor(media * 0.5)  ? '#ff5252' :
+                d >= Math.floor(media * 0.25)   ? '#ff8080' :
+                d >= Math.floor(media * 0.125)   ? '#ff9696' :
+                d >= Math.floor(media * 0.03125)   ? '#ffa8a8' : // * tons de amarelo
+                d >= Math.floor(media * 0.015625)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
+                    '#e6e6e6'
         }
         function style(feature) {
             return {
-                fillColor: getColor(feature.properties.NOME),
+                fillColor: getColor(feature.properties.NOME, this),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
@@ -135,57 +191,117 @@ module.exports ={
             };
         }
         var info = L.control();
+        info.setPosition('topleft')
         
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
             this.update();
             return this._div;
         };
-        console.log('ESTADO: ', this.estado)
+        
         // method that we will use to update the control based on feature properties passed
-        info.update = function (props) {
+        info.update = function (props, that) {
+            let casos = 0
+            let obitos = 0
+            let casos_diarios = 0,obitos_diarios = 0
+            
+            if (props) {
+                try {
+                    // console.log(props.NOME)
+                    let test = that.casos.find( elem => elem['municipio'] === props.NOME)
+                    casos = test['quantidade_casos']
+                    if(casos != -1){
+                        obitos = test['obitos']
+                        casos_diarios = test['quantidade_casos_diarios']
+                        obitos_diarios = test['quantidade_obitos_diarios']
+                        dados_dia = test['dados_dia_requisitado']
+                    }
+                    
+                } catch (error) {
+                    console.log(`sem dados para ${props.NOME}`)
+                    casos = -1
+                }    
+            }
+
             this._div.innerHTML = (props ?
-                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.NOME + 
                     `</h2>
                     <br /> 
                     <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
                         <div style="display: flex; flex-direction: column;">
-                            <h1 class="text-center" style="padding-top: 15px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDash(toString(estadoGlobal), props.NOME) + 
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? casos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
                                 Casos confirmados
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
-                            <h1 class="text-center" style="padding-top: 15px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
-                                + samDashObitos(toString(estadoGlobal), props.NOME) + 
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? obitos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
                                 Óbitos confirmados
                             </h4>
                         </div> 
                     </div>
-                    </div>`
+                    <br />
+                    <div style="width: 300px;display: flex; flex-direction: row; justify-content: space-evenly; align-items: center">
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? casos_diarios : `-`) + 
+                            `</h1>
+                            <h4  class="text-center" style="color: white; padding-top: 25px">
+                                Casos diários
+                            </h4>
+                        </div> 
+                        <div style="display: flex; flex-direction: column;">
+                            <h1 class="text-center" style="padding-top: 5px;color: white; font-family: Barlow, sans-serif;font-weight: 800">`
+                                + (casos != -1 ? obitos_diarios : `-`) + 
+                            `</h1>
+                            <h4  class="text-center" style="padding-top: 25px;color: white">
+                                Óbitos diários
+                            </h4>
+                        </div> 
+                    </div>
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``)) + `
+                </div>`
                 : 
                 `<h5 style="color: white" class="text-center">
                     Passe o mouse por uma cidade
                 </h5>`);
         };
         info.addTo(map);
+
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
             id: 'mapbox/light-v9',
             tileSize: 512,
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-        L.geoJson(eval(this.estado), {style: style, onEachFeature: onEachFeature}).addTo(map);
+
+
+        this.style = style.bind(this)
+        this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
+        this.geojson.addTo(map)
+        this.map = map
+        this.getCasos(this.estadoComp)
     },
     computed: {
-        
+        datewatch() {
+            return this.datedb;
+        },
+        estadoComp() {
+            return this.estado.slice(0,this.estado.length-5).split(' ').join('_')
+        }
     },
+    watch: {
+        datewatch() {
+            this.getCasos(this.estadoComp)
+        }
+    }
     
 }
 </script>
@@ -202,9 +318,12 @@ module.exports ={
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    right: 0vw;
+    border-radius: 5px;
+    /* right: 84vmin; */
     top: 10px;
-    width: 89% !important;
+    /* TODO fix this \/ */
+    left: 10vmin;
+    z-index: 1;
 }
 .info h4 {
     margin: 0 0 5px;
