@@ -172,10 +172,10 @@ def send_email(request):
         remetente = request.GET['remetente']
         
         response = send_mail(
-            assunto,
-            remetente + ' : ' + mensagem,
+            remetente + ' : ' + assunto,
+            mensagem,
             EMAIL_HOST_USER,
-            [EMAIL_HOST_USER],
+            ['contatosgis@live.cin.ufpe.br'],
             fail_silently=False,
         )
 
