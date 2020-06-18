@@ -567,8 +567,36 @@
                 return chart
             },
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
-                if(diaouacuLength > 1) label = informacao + ' ' + diaouacu + ' em '
-                else label = informacao + ' em '
+                if(diaouacuLength > 1){
+                    label = informacao + ' ' + diaouacu + ' em '
+                }
+                else{
+                    if(estado == 'Projecao de Confirmados no Brasil'){
+                        if(informacao == 'Projeção média esperada'){
+                            label = 'Prejeção Média de Casos Confirmados no '
+                        }
+                        else if(informacao == 'Melhor cenário'){
+                            label = 'Melhor Cenário de Casos Confirmados no '
+                        }
+                        else if(informacao == 'Pior cenário'){
+                            label = 'Pior Cenário de Casos Confirmados no '
+                        }
+                    }
+                    else if (estado == 'Projecao de Óbitos no Brasil'){
+                        if(informacao == 'Projeção média esperada'){
+                            label = 'Prejeção Média de Óbitos no '
+                        }
+                        else if(informacao == 'Melhor cenário'){
+                            label = 'Melhor Cenário de Óbitos no '
+                        }
+                        else if(informacao == 'Pior cenário'){
+                            label = 'Pior Cenário de Óbitos no '
+                        }
+                    }
+                    else{
+                        label = informacao + ' no '
+                    }
+                }
 
                 if(bairro != ''){
                     keyBusca = 'bairros'
@@ -584,7 +612,12 @@
                     if(base == 2) keyBusca = 'estados2'
                     else keyBusca = 'estados'
 
-                    label += estado
+                    if(estado == 'Projecao de Confirmados no Brasil' || estado == 'Projecao de Óbitos no Brasil'){
+                        label += 'Brasil'
+                    }
+                    else{
+                        label += estado
+                    }
                 }
                 else{
                     keyBusca = 'brasil'
