@@ -164,11 +164,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'App/static/dataCidade'),
     os.path.join(BASE_DIR, 'App/static/homeCityMap'),
     os.path.join(BASE_DIR, 'App/static/statesData'),
+    os.path.join(BASE_DIR, 'App/static/dialog'),
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = '' #ISSO PRECISA SER CONFIGURA
-EMAIL_HOST_PASSWORD = '' #ISSO PRECISA SER CONFIGURADO
+EMAIL_HOST_USER = 'sitecovidsgis@gmail.com' #ISSO PRECISA SER CONFIGURA
+EMAIL_HOST_PASSWORD = '32432025' #ISSO PRECISA SER CONFIGURADO

@@ -1,31 +1,3 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@gabrielsm0405 
-LIVE-UFPE
-/
-xocovid
-Private
-2
-00
- Code
- Issues 0
- Pull requests 0 Actions
- Projects 0
- Wiki
- Security 0
- Insights
- Settings
-xocovid/App/static/cityMap/CityMap.vue
-@sbjsouza sbjsouza Improved graphs responsivity and fixed MapCity data
-28d81d7 1 hour ago
-230 lines (222 sloc)  8.23 KB
-  
 <template>
     <div :key="componentKey" style="border-radius: 0px !important" id="mapcity">
 

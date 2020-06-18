@@ -16,7 +16,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-# import Levenshtein
+import Levenshtein
 from django.core.mail import send_mail
 from covidWeb.settings import EMAIL_HOST_USER
 
@@ -201,10 +201,10 @@ def send_email(request):
         remetente = request.GET['remetente']
         
         response = send_mail(
-            assunto,
-            remetente + ' : ' + mensagem,
+            remetente + ' : ' + assunto,
+            mensagem,
             EMAIL_HOST_USER,
-            [EMAIL_HOST_USER],
+            ['contatosgis@live.cin.ufpe.br'],
             fail_silently=False,
         )
 

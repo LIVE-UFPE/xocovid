@@ -1,5 +1,5 @@
 <template>
-    <div :key="componentKey" style="border-radius: 25px" id="mapcity">
+    <div :key="componentKey" style="border-radius: 0px" id="mapcity">
         <v-snackbar v-model="snackbar" top >
             {{ txtsnack }}
             <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
@@ -129,7 +129,7 @@ module.exports ={
         objectCoord.lat.push(resposta[0].data.features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(resposta[0].data.features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
-        var map = L.map('mapcity').setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
+        var map = L.map('mapcity',{zoomControl: false}).setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
         var estadoLocal = this.estadoComp
         // this.geojson = L.geoJson(eval(this.estado), {style: style});
@@ -153,20 +153,43 @@ module.exports ={
         function zoomToFeature(e) {
             map.fitBounds(e.target.getBounds());
         }
+        //TODO previousclick nao for num canto valido, resetar?
+        let previousClick = null
+        function clickHandler(e){
+            // console.log('Console: ',e.target)
+            if(previousClick){
+                resetHighlight.call(this,previousClick)
+                highlightFeature.call(this,e)
+            }else{
+                highlightFeature.call(this,e)
+            }
+            previousClick = e
+        }
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature.bind(this),
                 mouseout: resetHighlight.bind(this),
-                click: zoomToFeature.bind(this),
+                // click: zoomToFeature.bind(this),
+                click: clickHandler.bind(this)
             });
         }
         // TODO encontrar motivo de Acaraú, no Ceará, nao dar uma cor, pois atualmente NENHUMA ALTERAÇÃO FEITA AQUI MUDA NO SITE
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
-            // busque o municipio com nome mais similar ao municipio pedido
-            let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
-            // console.log(d)
-            if(d == undefined) return '#6a00ff' // TODO tirar esse placeholder
+            // DEBUG
+            // let test = that.casos.filter(elem => that.levenshtein(elem['municipio'], municipio) <= 2)
+            // if(test.length > 1){
+            //     console.log('array test:')
+            //     console.log(test)
+            // }
+            // busque o municipio com nome igual ao do municipio pedido
+            let d = that.casos.find( elem => elem['municipio'] == municipio )
+            if(d == undefined){
+                // busque o municipio com nome mais similar ao municipio pedido, c diferença de 1
+                d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 1 )    
+            }
+            // ? será q seria conveniente também ele não pegar municipios que existam, mesmo q passem no levenshtein? p isso, precisaria do JSON c somente o nome dos municipios
+            if(d == undefined) return '#6a00ff'
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
             //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
@@ -192,6 +215,7 @@ module.exports ={
             };
         }
         var info = L.control();
+        info.setPosition('topleft')
         
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -223,7 +247,7 @@ module.exports ={
                 }    
             }
             this._div.innerHTML = (props ?
-                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
+                `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.NOME + 
                     `</h2>
@@ -317,8 +341,19 @@ module.exports ={
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    right: 84vmin;
-    top: 10px;
+    /*right: 84vmin;*/
+    z-index: 1;
+}
+@media (max-width: 600px) {
+    .info {
+        top: 5px;
+    }
+}
+@media (min-width: 601px) {
+    .info {
+        left: 10vmin;
+        top: 10px;
+    }
 }
 .info h4 {
     margin: 0 0 5px;
