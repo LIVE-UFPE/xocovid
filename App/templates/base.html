@@ -565,9 +565,33 @@
             },
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
                 if(diaouacuLength > 1){
-                    label = informacao + ' ' + diaouacu + ' de '
+                    label = informacao + ' ' + diaouacu + ' em '
                 }
-                else label = informacao + ' de '
+                else{
+                    if (estado == 'Projecao de Óbitos no Brasil'){
+                        if(informacao == 'Projeção média esperada'){
+                            label = 'Prejeção Média de Óbitos no '
+                        }
+                        else if(informacao == 'Melhor cenário'){
+                            label = 'Melhor Cenário de Óbitos no '
+                        }
+                        else if(informacao == 'Pior cenário'){
+                            label = 'Pior Cenário de Óbitos no '
+                        }
+                    }
+                    else if(informacao == 'Projeção média esperada'){
+                        label = 'Prejeção Média de Casos Confirmados no '
+                    }
+                    else if(informacao == 'Melhor cenário'){
+                        label = 'Melhor Cenário de Casos Confirmados no '
+                    }
+                    else if(informacao == 'Pior cenário'){
+                        label = 'Pior Cenário de Casos Confirmados no '
+                    }
+                    else{
+                        label = informacao + ' no '
+                    }
+                }
 
                 if(bairro != ''){
                     keyBusca = 'bairros'
@@ -583,7 +607,12 @@
                     if(base == 2) keyBusca = 'estados2'
                     else keyBusca = 'estados'
 
-                    label += estado
+                    if(estado == 'Projecao de Confirmados no Brasil' || estado == 'Projecao de Óbitos no Brasil'){
+                        label += 'Brasil'
+                    }
+                    else{
+                        label += estado
+                    }
                 }
                 else{
                     keyBusca = 'brasil'
@@ -779,10 +808,9 @@
             },
             renderGraficoR: function (selecaoGraficoR){
                 var imgUrlR = []
-                
-                if(selecaoGraficoR != 'Confirmados no Brasil' && selecaoGraficoR != 'Óbitos no Brasil')
+                if(selecaoGraficoR != 'Projecao de Confirmados no Brasil' && selecaoGraficoR != 'Projecao de Óbitos no Brasil')
                     sigla = selecaoGraficoR.split("- ").pop()
-                else if(selecaoGraficoR == 'Confirmados no Brasil')
+                else if(selecaoGraficoR == 'Projecao de Confirmados no Brasil')
                     sigla = 'Brasil'
                 else
                     sigla = ''
@@ -1005,8 +1033,8 @@
     var folder = "../static/graficos/modelos/";
 
     //console.log(data.estados)
-    estadoS.push('Confirmados no Brasil')
-    estadoS.push('Óbitos no Brasil')
+    estadoS.push('Projecao de Confirmados no Brasil')
+    estadoS.push('Projecao de Óbitos no Brasil')
     data.estados.forEach(estado => {
         estadoS.push(estado.nome + ' - ' + estado.sigla)
     })

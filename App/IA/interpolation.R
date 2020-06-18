@@ -86,4 +86,4 @@ df <- data.frame("longitude" = day1_int[[1]]$x1,
 split_string <- unlist(strsplit(list_days[4],"_"))
 fileName <- paste0("predicao_covid19",state,"_",split_string[2])
 names(df)[1:6] <- c("longitude","latitude","day1","day2","day3","prediction")
-write.csv(df, paste0(paste(getwd(), "/bases predicao ", sep=""),state,"/",fileName),row.names = FALSE)
+write.csv(df, paste0(paste(getwd(), "/App/IA/bases predicao ", sep=""),state,"/",fileName),row.names = FALSE)
