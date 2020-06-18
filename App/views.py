@@ -8,7 +8,6 @@ from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
-from .tasks import listener
 import json
 import requests
 from datetime import date, datetime, timedelta

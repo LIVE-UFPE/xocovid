@@ -40,6 +40,8 @@
         <script type="text/javascript" src='../static/statesData/statesData.js'></script>
         <!-- * jQuery -->
 
+        <!--I18n (para tradução)-->
+        <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
 
         <script
             src="https://code.jquery.com/jquery-3.5.0.min.js"
@@ -86,6 +88,65 @@
     <body>
         <v-app id="app" >
             <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
+                <!-- --------TAB BAR------- -->
+                <template>
+                    <div>
+                    <v-app-bar
+                        color="#1E9CF8"
+                        dense
+                        dark
+                        flat
+                        style="z-index: 1"
+                    >
+                    <!-- style="" -->
+                        <v-row>
+                            <v-col cols="2" class="d-flex justify-begin">
+                                <about-dialog :dialog="dialog"></about-dialog>
+                            </v-col>
+
+                            <v-col class="d-flex justify-space-around">
+                                <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+                                    <img style="height: 25px; margin: auto;" src='../static/logo/logoWhite.png'/>
+                                </v-toolbar-title>
+                            </v-col>
+
+                            <v-col cols="2" class="d-flex justify-end">
+                                <v-btn 
+                                    outlined style="border-radius: 4px;border: 0;margin: auto;"
+                                    @click="mudar_idioma"
+                                >
+                                    <img v-if="local=='pt'" style="height: 25px;" src='../static/UK-flag.jpg'/>
+                                    <img v-else style="height: 25px;" src='../static/Flag_of_Brazil.png'/>
+                                </v-btn>
+                                <v-menu
+                                    left
+                                    bottom
+                                >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn outlined v-on="on" style="border-radius: 4px;border: 0; margin: auto;">
+                                    <v-icon>mdi-account-outline</v-icon>
+                                    [[ $t("perfil.nome") ]]
+                                    </v-btn>
+                                </template>
+                        
+                                <v-list class="mt-10">
+                                    <v-list-item
+                                    @click="load_option(n)"
+                                    href="logout"
+                                    >
+                                    <v-list-item-title href="logout">[[ $t("perfil.logout") ]]</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                                </v-menu>
+                                <!-- <v-btn href="logout" class="ma-2" text icon color="blue lighten-5">
+                                <v-icon  color="white">mdi-account-outline</v-icon>
+                                Conta
+                                </v-btn> -->
+                            </v-col>
+                        </v-row>
+                    </v-app-bar>
+                    </div>
+                </template>
                 {% block body_block %}
                 {% endblock %}
             </v-content>
@@ -94,7 +155,35 @@
 </html>
 
 <script>
-    
+    const messages = {
+        en: {
+            dialog: {
+                titulo: 'About Us',
+                conteudo: 'The COVID-SGIS platform was developed through a partnership between the Innovation Laboratory for Smart Cities (LIVE) and the Biological Sciences Laboratory (LCB) at UFPE. For suggestions, questions or new prospects, contact us via email:',
+                fechar: 'Close',
+            },
+            perfil: {
+                nome: 'Profile',
+                logout: 'Logout'
+            }
+        },
+        pt: {
+            dialog: {
+                titulo: 'Sobre a plataforma',
+                conteudo: 'A plataforma COVID-SGIS foi desenvolvida através de uma parceria do Laboratório de Inovação para Cidades Inteligentes (LIVE) e do Laboratório de Ciências Biológicas (LCB) da UFPE. Para sugestões, dúvidas ou novas prospecções, entrar em contato através do email: ',
+                fechar: 'Fechar'
+            },
+            perfil: {
+                nome: 'Perfil',
+                logout: 'Sair'
+            }
+        }
+    }
+
+    const i18n = new VueI18n({
+        locale: 'pt', // set locale
+        messages, // set locale messages    
+    })
 
     {% if items_json %}
         var pins = {{ items_json|safe }};
@@ -142,6 +231,7 @@
     var template = {{ template|safe }}
 
     const app = new Vue({
+        i18n,
         delimiters: ['[[', ']]'],
         el: '#app',
         vuetify: new Vuetify({
@@ -174,6 +264,7 @@
         },
         data: () => ({
             //? props da graphs
+            local : 'pt',
             dialog: false,
             radioMap: 'mapInit',
             isHomeComponentCollapsed: true,
@@ -361,6 +452,16 @@
             })
         },
         methods: {
+            mudar_idioma: function(){
+                if(this.local=='pt'){
+                    this.local='en'
+                    i18n.locale = 'en'
+                }
+                else{
+                    this.local = 'pt'
+                    i18n.locale = 'pt'
+                }
+            },
             send_email: function(assunto, mensagem, remetente){
                 var request = $.ajax({
                     context: this,

@@ -15,12 +15,12 @@
           class="headline lighten-2"
           primary-title
         >
-          <h1 style="#1E9CF8; font-size: x-large;font-family: Barlow; font-weight: 900">Sobre a plataforma</h1>
+          <h1 style="#1E9CF8; font-size: x-large;font-family: Barlow; font-weight: 900">{{ $t("dialog.titulo") }}</h1>
         </v-card-title>
         
         <v-card-text class="mt2">
             <br/>
-          <p>A plataforma COVID-SGIS foi desenvolvida através de uma parceria do Laboratório de Inovação para Cidades Inteligentes (LIVE) e do Laboratório de Ciências Biológicas (LCB) da UFPE. Para sugestões, dúvidas ou novas prospecções, entrar em contato através do email: <a href="mailto:contatosgis@live.cin.ufpe.br">contatosgis@live.cin.ufpe.br</a></p>
+          <p>{{ $t("dialog.conteudo") }}<a href="mailto:contatosgis@live.cin.ufpe.br">contatosgis@live.cin.ufpe.br</a></p>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -32,7 +32,7 @@
             text
             @click="dialog = false"
           >
-            Fechar
+            {{ $t("dialog.fechar") }}
           </v-btn>
         </v-card-actions>
       </v-card>
