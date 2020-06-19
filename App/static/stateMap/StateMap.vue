@@ -155,7 +155,7 @@ module.exports ={
                 d >= Math.floor(media * 0.25)   ? '#ff9696' :
                 d >= Math.floor(media * 0.125)   ? '#ffa8a8' : // * tons de amarelo
                 d >= Math.floor(media * 0.03125)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#e6e6e6'
+                    '#ffd9d9'
         }
         function style(feature) {
             return {
