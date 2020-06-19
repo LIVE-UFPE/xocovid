@@ -51,9 +51,7 @@
     </v-container fluid>
       <div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
         <v-card
-          class="mx-auto pb-2 d-none d-lg-block d-xl-none"
-          max-width="440"
-          max-height="500"
+          class="mx-auto pb-2 d-none d-md-block"
           width="auto"
           outlined
           style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
@@ -70,8 +68,8 @@
             </v-tooltip>
           </div>
 
-          <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
-            <v-list dense class="d-block">
+          <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;height:100%">
+            <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
               <!-- ? projecao de casos -->
               <v-list-item 
                 class="mx-2 mt-2 py-n1"
@@ -85,7 +83,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>Baixa Densidade</div>
+                    <div style="font-size: calc(13px - 0.12vw)">Baixa Densidade</div>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -102,7 +100,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>Média Densidade</div>
+                    <div style="font-size: calc(13px - 0.12vw)">Média Densidade</div>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -119,7 +117,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>Alta Densidade</div>
+                    <div style="font-size: calc(13px - 0.12vw)">Alta Densidade</div>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -133,11 +131,11 @@
                 style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
                 v-if="maxInt === 1">
                 
-                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #e6e6e6;"></v-list-item-icon>
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffd9d9;"></v-list-item-icon>
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>0-[[Math.floor(mediacasos * 0.03125)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">0-[[Math.floor(mediacasos * 0.03125)]]</div>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -154,7 +152,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos * 0.125)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos * 0.125)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>  
@@ -171,7 +169,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos * 0.25)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos * 0.25)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -188,7 +186,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos * 0.375)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos * 0.375)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -205,14 +203,14 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>Sem Dados</div>
+                    <div style="font-size: calc(13px - 0.12vw)">Sem Dados</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item> 
 
             </v-list>
 
-            <v-list dense class="d-block">
+            <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
 
               <v-list-item 
                 class="mx-2 mt-2 py-n1"
@@ -226,7 +224,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos * 0.5)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos * 0.5)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -243,7 +241,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos * 0.625)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos * 0.625)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -260,7 +258,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos * 0.75)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos * 0.75)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -277,7 +275,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title style="color: #1E9CF8 !important;" >
-                    <div>[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos * 0.875)]]</div>
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos * 0.875)]]</div style="font-size: calc(13px - 0.12vw)">
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -290,14 +288,14 @@
               style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
               v-if="maxInt === 1">
               
-              <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff0000;"></v-list-item-icon>
+                <v-list-item-icon left style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff0000;"></v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title style="color: #1E9CF8 !important;" >
-                  <div>[[Math.floor(mediacasos * 1.5)]]+</div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title style="color: #1E9CF8 !important;" >
+                    <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 1.5)]]+</div style="font-size: calc(13px - 0.12vw)">
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
 
             </v-list>
           </div>
@@ -393,7 +391,7 @@
       </div> {% endcomment %}
 
       <!-- Card legenda mobile -->
-      <div class="d-xs-flex d-lg-none">
+      <div class="d-xs-flex d-md-none">
         <v-list dense class="d-flex flex-row overflow-y-auto" style="position: absolute;bottom: 130px;right: 0vmin;left: 0vmin;z-index: 1;border-radius: 10px 10px 10px 10px">
           <v-list-item 
             class="mx-1 mt-2 py-n1"
@@ -622,7 +620,7 @@
 
       <!-- Card Menu mobile -->
       <container fluid>
-        <div class="text-center d-lg-none d-xl-block" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
+        <div class="text-center d-md-none" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
           <v-bottom-navigation
               v-if="isHomeComponentCollapsed === true"
               grow
@@ -727,23 +725,18 @@
       </container>
       <!-- --------Menu geral------- -->
       <container fluid>
-      <div class="text-center d-none d-lg-flex d-xl-none" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
+      <div class="text-center d-none d-md-flex" style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
           <v-bottom-navigation
             grow
             height="100"
             background-color="white"
             color="#1E9CF8"
             :value="activeBtn"
-            style="z-index: 1"
+            style="z-index: 1;justify-content: space-around"
           >
             <v-btn href='graphs'>
               <span style="color:#1E9CF8">Mais informações</span>
               <v-icon size="55" color="#1E9CF8">mdi-file</v-icon>
-            </v-btn>
-            <v-btn disabled style="background-color: white !important;" >
-              <div class="text-center">
-                <v-list-item-subtitle style="color:#1E9CF8;font-size: medium;">11/03/2020</v-list-item-subtitle>
-              </div> 
             </v-btn>
   
             <v-btn @click="dateBack">
@@ -760,11 +753,6 @@
             <v-btn @click="dateForward">
               <span style="color:#1E9CF8;">Avançar</span>
               <v-icon size="55" color="#1E9CF8">mdi-chevron-right-box</v-icon>
-            </v-btn>
-            <v-btn disabled style="background-color: white !important;" >
-              <div class="text-center">
-                <v-list-item-subtitle style="color:#1E9CF8;font-size: medium;">31/03/2020</v-list-item-subtitle>
-              </div> 
             </v-btn>
             
             <v-bottom-sheet v-model="sheet">
@@ -856,14 +844,12 @@
     </container>
     <!-- --------Seletor de casos confirmados e obitos------- -->
     
-    <div style="position: absolute;top: 95px;right: 10vmin;z-index: 1" v-if="maxInt === 1">
+    <div style="position: absolute;top: 95px;right: 10vmin;z-index: 1;display: flex;" v-if="maxInt === 1">
       <v-card
-      class="mx-auto pb-2 d-none d-lg-block d-xl-none"
-      max-width="220"
-      max-height="500"
-      width="220"
+      class="mx-auto pb-2 d-none d-md-block px-1"
       outlined
-      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1"
+      width="220px"
+      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1;flex: auto;"
       >
         <h3 v-if='maxInt === 1' style="color: #1E9CF8;font-size: medium;text-align: center;" class="mb-0 mt-3 mb-2">Casos confirmados e óbitos</h3>
         <h3 v-if='maxInt === 0' style="color: #1E9CF8;font-size: medium;text-align: center;" class="mb-0 mt-3">Mapa de projeção de casos</h3>
