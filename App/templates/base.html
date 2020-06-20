@@ -87,66 +87,51 @@
 
     <body>
         <v-app id="app" >
-            <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
+            <v-card tile>
                 <!-- --------TAB BAR------- -->
-                <template>
-                    <div>
-                    <v-app-bar
-                        color="#1E9CF8"
-                        dense
-                        dark
-                        flat
-                        style="z-index: 1"
-                    >
-                    <!-- style="" -->
-                        <v-row>
-                            <v-col cols="2" class="d-flex justify-begin">
-                                <about-dialog :dialog="dialog"></about-dialog>
-                            </v-col>
+                <v-app-bar color="#1E9CF8" dense dark flat style="z-index: 1">
+                    <v-row>
+                        <v-col cols="4" class="d-flex justify-start" style="margin: auto;">
+                            <about-dialog :dialog="dialog"></about-dialog>
+                        </v-col>
 
-                            <v-col class="d-flex justify-space-around">
-                                <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
-                                    <img style="height: 25px; margin: auto;" src='../static/logo/logoWhite.png'/>
-                                </v-toolbar-title>
-                            </v-col>
+                        <v-col cols="4" class="d-flex justify-space-around">
+                            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+                                <img style="height: 25px; margin: auto;" src='../static/logo/logoWhite.png' />
+                            </v-toolbar-title>
+                        </v-col>
 
-                            <v-col cols="2" class="d-flex justify-end">
-                                <v-btn 
-                                    outlined style="border-radius: 4px;border: 0;margin: auto;"
-                                    @click="mudar_idioma"
-                                >
-                                    <img v-if="local=='pt'" style="height: 25px;" src='../static/UK-flag.jpg'/>
-                                    <img v-else style="height: 25px;" src='../static/Flag_of_Brazil.png'/>
-                                </v-btn>
-                                <v-menu
-                                    left
-                                    bottom
-                                >
-                                <template v-slot:activator="{ on }">
-                                    <v-btn outlined v-on="on" style="border-radius: 4px;border: 0; margin: auto;">
-                                    <v-icon>mdi-account-outline</v-icon>
-                                    [[ $t("perfil.nome") ]]
-                                    </v-btn>
-                                </template>
-                        
-                                <v-list class="mt-10">
-                                    <v-list-item
-                                    @click="load_option(n)"
-                                    href="logout"
-                                    >
-                                    <v-list-item-title href="logout">[[ $t("perfil.logout") ]]</v-list-item-title>
-                                    </v-list-item>
-                                </v-list>
-                                </v-menu>
-                                <!-- <v-btn href="logout" class="ma-2" text icon color="blue lighten-5">
-                                <v-icon  color="white">mdi-account-outline</v-icon>
-                                Conta
-                                </v-btn> -->
-                            </v-col>
-                        </v-row>
-                    </v-app-bar>
-                    </div>
-                </template>
+                        <v-col cols="4" class="d-flex justify-end">
+                                <v-row class="d-flex justify-end">
+                                    <v-col cols="4" class="d-flex justify-end">
+                                        <v-btn outlined style="border: 0;margin: auto;" @click="mudar_idioma">
+                                            <img v-if="local=='pt'" style="max-height: 25px;" src='../static/UK-flag.jpg' />
+                                            <img v-else style="max-height: 25px;" src='../static/Flag_of_Brazil.png' />
+                                        </v-btn>
+                                    </v-col>
+
+                                    <v-col cols="4" class="d-flex justify-end">
+                                        <v-menu left bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn outlined v-on="on" style="border: 0; margin: auto;">
+                                                <v-icon>mdi-account-outline</v-icon>
+                                                [[ $t("perfil.nome") ]]
+                                                </v-btn>
+                                            </template>
+                
+                                            <v-list class="mt-10">
+                                                <v-list-item @click="load_option(n)" href="logout">
+                                                <v-list-item-title href="logout">[[ $t("perfil.logout") ]]</v-list-item-title>
+                                                </v-list-item>
+                                            </v-list>
+                                        </v-menu>
+                                    </v-col>
+                                </v-row>
+                        </v-col>
+                    </v-row>
+                </v-app-bar>
+            </v-card>
+            <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
                 {% block body_block %}
                 {% endblock %}
             </v-content>
@@ -205,7 +190,6 @@
                 selecionar: 'Select',
                 projecao_informacao: 'Visualization of the case projection map using Artificial Intelligence - AI',
                 casos_acumulados_obitos_informacao: 'View of the map of confirmed cases',
-                selecao_mapa: 'Seleção de mapa:',
                 selecao_mapa: 'Map selection:'
             }
         },
@@ -257,7 +241,8 @@
                 casos_acumulados_obitos_subtitulo: 'Exibe a quantidade de casos acumulados e óbitos por estado.',
                 selecionar: 'Selecionar',
                 projecao_informacao: 'Visualização do mapa de projeção de casos usando Inteligência Artificial - IA',
-                casos_acumulados_obitos_informacao: 'Visualização do mapa de casos confirmados'
+                casos_acumulados_obitos_informacao: 'Visualização do mapa de casos confirmados',
+                selecao_mapa: 'Seleção de mapa:'
             }
         }
     }
