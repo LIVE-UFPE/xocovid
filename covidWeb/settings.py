@@ -100,8 +100,8 @@ DATABASES = {
         'NAME': 'covidsgisdb',
         'USER': 'covidsgis',
         'PASSWORD': '32432025',
-        #'HOST': '127.0.0.1',
-        'HOST': '172.20.36.172',
+        'HOST': '127.0.0.1',
+        #'HOST': '172.20.36.172',
         'PORT': '5432'
     }
 }
