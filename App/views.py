@@ -4,7 +4,7 @@ from App.forms import UserForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco
+from .models import UserProfileInfo, Notification, PredictionBR, InterpolationBR, PredictionPE, InterpolationPE, CasosEstado, CasosEstadoHistorico, CasosCidade, Projecao, CasosPernambuco#, statesData
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import Manager, Q, F
 from django.db.models.query import QuerySet
@@ -16,7 +16,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-# import Levenshtein
+import Levenshtein
 from django.core.mail import send_mail
 from covidWeb.settings import EMAIL_HOST_USER
 
@@ -49,6 +49,36 @@ stateName = {
     'SP': 'São Paulo',
     'SE': 'Sergipe',
     'TO': 'Tocantins'
+}
+
+stateUF = {
+    'Acre': 'AC',
+    'Alagoas': 'AL',
+    'Amapá': 'AP',
+    'Amazonas': 'AM',
+    'Bahia': 'BA',
+    'Ceará': 'CE',
+    'Distrito Federal': 'DF',
+    'Espírito Santo': 'ES',
+    'Goiás': 'GO',
+    'Maranhão': 'MA',
+    'Mato Grosso': 'MT',
+    'Mato Grosso do Sul': 'MS',
+    'Minas Gerais': 'MG',
+    'Pará': 'PA',
+    'Paraíba': 'PB',
+    'Paraná': 'PR',
+    'Pernambuco': 'PE',
+    'Piauí': 'PI',
+    'Rio de Janeiro': 'RJ',
+    'Rio Grande do Norte': 'RN',
+    'Rio Grande do Sul': 'RS',
+    'Rondônia': 'RO',
+    'Roraima': 'RR',
+    'Santa Catarina': 'SC',
+    'São Paulo': 'SP',
+    'Sergipe': 'SE',
+    'Tocantins': 'TO'
 }
 
 LIBERAR_ACESSO = True
@@ -193,6 +223,7 @@ def get_data(request):
         cidade = request.GET['cidade']
         bairro = request.GET['bairro']
         response = []
+
         if informacao == 'PieChartData':
             response = list(CasosPernambuco.objects.all().values('data_atualizacao', 'obitos', 'recuperados', 'isolamento', 'internados'))
         elif informacao == 'Casos Estado':
@@ -274,7 +305,7 @@ def get_data(request):
                     response = CasosEstadoHistorico.objects.values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
 
-            # ? pega dados de todos os munícipios de um estado, dado o dia
+            # ? pega dados de todos os municipios de um estado, dado o dia!
             elif keyBusca == 'cidadesdia':
                 dia = datetime.strptime(request.GET['dia'],'%Y-%m-%d')
                 estado = request.GET['estado']
@@ -356,8 +387,6 @@ def get_data(request):
                     response = CasosCidade.objects.filter(estado_residencia=estado).values('quantidade_casos').order_by('-quantidade_casos').first()
                     response = response['quantidade_casos']
                     print('passando quantidade_casos',response)
-
-
         elif informacao == 'Casos Suspeitos':
             if keyBusca == 'estados':
                 response = list(Notification.objects.filter(Q(classificacao='Em Investigação')&Q(estado_notificacao=estado)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
@@ -399,6 +428,9 @@ def get_data(request):
                 response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(municipio=cidade)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
             elif keyBusca == 'bairros':
                 response = list(Notification.objects.filter(Q(internado='Sim')&Q(classificacao='Confirmado')&~Q(evolucao='Óbito')&~Q(evolucao='Recuperado')&Q(bairro=bairro)).values('data_notificacao').annotate(quantidade_casos=Count('data_notificacao')).order_by('data_notificacao'))
+        elif informacao == 'statesData':
+            print("CHEGUEI AQUIIIII")
+            response = list(statesData.objects.filter(uf=stateUF[estado]).values('data'))
 
         response = json.dumps(response, indent=4, sort_keys=True, default=str)
         

@@ -30,6 +30,20 @@ module.exports ={
         forceRerender() {
           this.componentKey += 1
         },
+        get_shapefile(estado){
+            resposta = []
+            this.request = $.ajax({
+                context: this,
+                type: 'GET',
+                url: "get_data",
+                async: false,
+                data: {"informacao": 'statesData', "keyBusca": '', "estado": estado, "cidade": '', "bairro": ''},
+                success: function (response) {
+                    resposta = JSON.parse(response)
+                }
+            })
+            return resposta
+        },
         getCasos(estado){
             if (this.request != null) {
                 this.request.abort();
@@ -111,6 +125,9 @@ module.exports ={
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
+        //resposta = this.get_shapefile(this.estado)
+        //objectCoord.lat.push(resposta[0].data.features[0].geometry.coordinates[0][0][0])
+        //objectCoord.lon.push(resposta[0].data.features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity',{zoomControl: false}).setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
@@ -285,6 +302,8 @@ module.exports ={
 
         this.style = style.bind(this)
         this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
+        //resposta = this.get_shapefile(this.estado)
+        //this.geojson = L.geoJson(resposta[0].data, {style: this.style, onEachFeature: onEachFeature.bind(this)})
         this.geojson.addTo(map)
         this.map = map
         this.getCasos(this.estadoComp)
