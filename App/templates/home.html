@@ -359,7 +359,7 @@
 
             <v-list-item-content>
               <v-list-item-title style="color: #1E9CF8 !important;" >
-                <div>Sem Dados</div>
+                <div>[[ $t("legenda.sem_dados") ]]</div>
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -377,7 +377,7 @@
 
             <v-list-item-content>
               <v-list-item-title style="color: #1E9CF8 !important;" >
-                <div>Baixa Densidade</div>
+                <div>[[ $t("legenda.baixa_densidade") ]]</div>
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -394,7 +394,7 @@
 
             <v-list-item-content>
               <v-list-item-title style="color: #1E9CF8 !important;" >
-                <div>Média Densidade</div>
+                <div>[[ $t("legenda.media_densidade") ]]</div>
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -411,7 +411,7 @@
 
             <v-list-item-content>
               <v-list-item-title style="color: #1E9CF8 !important;" >
-                <div>Alta Densidade</div>
+                <div>[[ $t("legenda.alta_densidade") ]]</div>
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -623,18 +623,18 @@
                 outlined
                 style="width: 90%;display: flex;flex-direction: column;justify-content: center;align-items: center;box-shadow: 0 0 2px 0px rgba(0, 0, 0, 0.1);border-radius: 20px;z-index: 1; margin-bottom: 20px;"
                 > 
-                    <p class="body-1 text-center d-block mt-4"> Seleção de mapa: </p>
+                    <p class="body-1 text-center d-block mt-4"> [[ $t("menu.selecao_mapa") ]] </p>
                     <v-card-actions class="pt-0 text-center">
                       <v-radio-group v-model="radioMap" class="pa-0">
-                          <v-radio label="Projeção de casos" value="mapEnd" name="maxInt=1" @change="maxInt=0"></v-radio>
-                          <v-radio label="Número de casos" value="mapInit" name="maxInt=0" @change="maxInt=1"></v-radio>
+                          <v-radio :label="[[ $t('menu.projecao_casos') ]]" value="mapEnd" name="maxInt=1" @change="maxInt=0"></v-radio>
+                          <v-radio :label="[[ $t('menu.casos_acumulados_obitos') ]]" value="mapInit" name="maxInt=0" @change="maxInt=1"></v-radio>
                       </v-radio-group>
                     </v-card-actions>
-                    <p v-if="maxInt === 1" class="body-1 text-center d-block mt-4"> Dados do: </p>
+                    <p v-if="maxInt === 1" class="body-1 text-center d-block mt-4"> [[ $t("seletor_casos_obitos.subtitulo") ]] </p>
                     <v-card-actions v-if="maxInt === 1" class="pt-0 text-center">
                       <v-radio-group v-model="radioheat" class="pa-0">
-                          <v-radio label="Brasil" value="brasil"></v-radio>
-                          <v-radio label="Estados" value="pernambuco"></v-radio>
+                          <v-radio :label="[[ $t('seletor_casos_obitos.brasil') ]]" value="brasil"></v-radio>
+                          <v-radio :label="[[ $t('seletor_casos_obitos.estados') ]]" value="pernambuco"></v-radio>
                       </v-radio-group>
                     </v-card-actions>
                     <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
@@ -645,17 +645,17 @@
                         dense
                         chips
                         small-chips
-                        label="Selecione o estado"
+                        :label="[[ $t('seletor_casos_obitos.selecione_estado') ]]"
                         width="auto"
                         class="pl-2 pr-2"
                       ></v-autocomplete>
                       <v-btn v-if="maxInt === 1" style="border-radius: 5px;color: white !important;" @click="keychange += 1;isHomeComponentCollapsed = true" height="40" color="#1E9CF8">
-                        Selecionar
+                        [[ $t("menu.selecionar") ]]
                       </v-btn>
                     </div>
                 </v-card> 
                 <v-btn class="pb2" href='graphs'>
-                  <span style="color:#1E9CF8">Mais informações</span>
+                  <span style="color:#1E9CF8">[[ $t("menu.mais_informacoes") ]]</span>
                   <v-icon size="35" color="#1E9CF8">mdi-file</v-icon>
                 </v-btn>
                 <div style="width: 100%;display: flex;flex-direction: row;justify-content:space-around;align-items: center;">
