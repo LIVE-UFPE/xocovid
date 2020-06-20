@@ -235,7 +235,7 @@ module.exports ={
                             </h4>
                         </div> 
                     </div>
-                    ` + (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`` : ``) + `
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`</h5>` : ``)) + `
                 </div>`
                 : '<h5 style="color: white" class="text-center">'+i18n.t("mapBox.subtitulo")+'</h5>');
         };
