@@ -165,6 +165,46 @@
             perfil: {
                 nome: 'Profile',
                 logout: 'Logout'
+            },
+            mapBox: {
+                titulo: 'Number of confirmed cases',
+                subtitulo: 'Mouse over a state',
+                casos_acumulados: 'Accumulated cases',
+                obitos_acumulados: 'Accumulated deaths',
+                casos_diarios: 'Daily cases',
+                obitos_diarios: 'Daily deaths',
+                dia_nao_desejado: 'The displayed data is not from the desired day'
+            },
+            legenda: {
+                titulo: 'Labels',
+                informacoes_stateMap: 'Colors indicate the number of confirmed cases',
+                informacoes_heatmap: 'Colors indicate the density of cases',
+                baixa_densidade: 'Low Density',
+                media_densidade: 'Medium Density',
+                alta_densidade: 'High Density',
+                sem_dados: 'No Data'
+            },
+            seletor_casos_obitos: {
+                titulo_stateMap: 'Confirmed cases and deaths',
+                titulo_heatmap: 'Case projection map',
+                subtitulo: 'Data from:',
+                brasil: 'Brazil',
+                estados: 'States',
+                selecione_estado: 'Select the state',
+                botao: 'Select'
+            },
+            menu: {
+                mais_informacoes: 'More informations',
+                voltar: 'Back',
+                avancar: 'Forward',
+                alterar_mapa: 'Change Map',
+                projecao_casos: 'Projection of Cases',
+                casos_acumulados_obitos: 'Accumulated cases and Deaths',
+                projecao_subtitulo: 'Heatmap showing the projection of cases in Brazil or Pernambuco.',
+                casos_acumulados_obitos_subtitulo: 'Displays the number of accumulated cases and deaths by state.',
+                selecionar: 'Select',
+                projecao_informacao: 'Visualization of the case projection map using Artificial Intelligence - AI',
+                casos_acumulados_obitos_informacao: 'View of the map of confirmed cases'
             }
         },
         pt: {
@@ -176,12 +216,72 @@
             perfil: {
                 nome: 'Perfil',
                 logout: 'Sair'
+            },
+            mapBox: {
+                titulo: 'Número de casos confirmados',
+                subtitulo: 'Passe o mouse por um estado',
+                casos_acumulados: 'Casos acumulados',
+                obitos_acumulados: 'Óbitos acumulados',
+                casos_diarios: 'Casos diários',
+                obitos_diarios: 'Óbitos diários',
+                dia_nao_desejado: 'Os dados exibidos não são do dia desejado'
+            },
+            legenda: {
+                titulo: 'Legenda',
+                informacoes_stateMap: 'As cores indicam a quantidade de casos confirmados',
+                informacoes_heatmap: 'As cores indicam a densidade de casos',
+                baixa_densidade: 'Baixa Densidade',
+                media_densidade: 'Média Densidade',
+                alta_densidade: 'Alta Densidade',
+                sem_dados: 'Sem Dados'
+            },
+            seletor_casos_obitos: {
+                titulo_stateMap: 'Casos confirmados e óbitos',
+                titulo_heatmap: 'Mapa de projeção de casos',
+                subtitulo: 'Dados do:',
+                brasil: 'Brasil',
+                estados: 'Estados',
+                selecione_estado: 'Selecione o estado',
+                botao: 'Selecionar'
+            },
+            menu: {
+                mais_informacoes: 'Mais informações',
+                voltar: 'Voltar',
+                avancar: 'Avançar',
+                alterar_mapa: 'Alterar Mapa',
+                projecao_casos: 'Projeção de Casos',
+                casos_acumulados_obitos: 'Casos Acumulados e Óbitos',
+                projecao_subtitulo: 'Mapa de calor que exibe a projeção de casos no Brasil ou Pernambuco.',
+                casos_acumulados_obitos_subtitulo: 'Exibe a quantidade de casos acumulados e óbitos por estado.',
+                selecionar: 'Selecionar',
+                projecao_informacao: 'Visualização do mapa de projeção de casos usando Inteligência Artificial - IA',
+                casos_acumulados_obitos_informacao: 'Visualização do mapa de casos confirmados'
             }
         }
     }
 
+    function getCookie(cname){
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+            }
+        }
+
+        return "";
+    }
+
+    var idioma = getCookie("idioma")
+    if(idioma == '') idioma = 'pt'
+
     const i18n = new VueI18n({
-        locale: 'pt', // set locale
+        locale: idioma, // set locale
         messages, // set locale messages    
     })
 
@@ -264,7 +364,7 @@
         },
         data: () => ({
             //? props da graphs
-            local : 'pt',
+            local : i18n.locale,
             dialog: false,
             radioMap: 'mapInit',
             isHomeComponentCollapsed: true,
@@ -454,13 +554,13 @@
         methods: {
             mudar_idioma: function(){
                 if(this.local=='pt'){
-                    this.local='en'
-                    i18n.locale = 'en'
+                    document.cookie = 'idioma=en;path=/'
                 }
                 else{
-                    this.local = 'pt'
-                    i18n.locale = 'pt'
+                    document.cookie = 'idioma=pt;path=/'
                 }
+
+                window.location.reload()
             },
             send_email: function(assunto, mensagem, remetente){
                 var request = $.ajax({
