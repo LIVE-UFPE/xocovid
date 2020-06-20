@@ -59,7 +59,6 @@ module.exports ={
                     if(resposta.length != 0){
                         this.casos = resposta
                         // console.log('Casos: ',this.casos)
-
                         this.geojson.setStyle(this.style)
                         let legenda = [this.maiscasos,0]
                         this.$emit('dados-legenda',legenda) 
@@ -89,21 +88,17 @@ module.exports ={
         levenshtein(a,b){
             if(a.length == 0) return b.length; 
             if(b.length == 0) return a.length; 
-
             var matrix = [];
-
             // increment along the first column of each row
             var i;
             for(i = 0; i <= b.length; i++){
                 matrix[i] = [i];
             }
-
             // increment each column in the first row
             var j;
             for(j = 0; j <= a.length; j++){
                 matrix[0][j] = j;
             }
-
             // Fill in the rest of the matrix
             for(i = 1; i <= b.length; i++){
                 for(j = 1; j <= a.length; j++){
@@ -116,7 +111,6 @@ module.exports ={
                     }
                 }
             }
-
             return matrix[b.length][a.length];
         }
     },
@@ -125,16 +119,14 @@ module.exports ={
         var objectCoord = {lat: [], lon: []}
         objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
-        //resposta = this.get_shapefile(this.estado)
+        //resposta = this.get_shapefile(this.estadoComp.split('_').join(' '))
         //objectCoord.lat.push(resposta[0].data.features[0].geometry.coordinates[0][0][0])
         //objectCoord.lon.push(resposta[0].data.features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
         var map = L.map('mapcity',{zoomControl: false}).setView([parseFloat(objectCoord.lon), parseFloat(objectCoord.lat)], 6);
         // var geojson;
         var estadoLocal = this.estadoComp
-
         // this.geojson = L.geoJson(eval(this.estado), {style: style});
-
         function highlightFeature(e) {
             var layer = e.target;
             layer.setStyle({
@@ -178,7 +170,6 @@ module.exports ={
         // TODO encontrar motivo de Acaraú, no Ceará, nao dar uma cor, pois atualmente NENHUMA ALTERAÇÃO FEITA AQUI MUDA NO SITE
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
-
             // busque o municipio com nome mais similar ao municipio pedido
             let d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 2 )
             // console.log(d)
@@ -239,7 +230,6 @@ module.exports ={
                     casos = -1
                 }    
             }
-
             this._div.innerHTML = (props ?
                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
@@ -291,18 +281,15 @@ module.exports ={
                 </h5>`);
         };
         info.addTo(map);
-
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
             id: 'mapbox/light-v9',
             tileSize: 512,
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
-
-
         this.style = style.bind(this)
         this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
-        //resposta = this.get_shapefile(this.estado)
+        //resposta = this.get_shapefile(this.estadoComp.split('_').join(' '))
         //this.geojson = L.geoJson(resposta[0].data, {style: this.style, onEachFeature: onEachFeature.bind(this)})
         this.geojson.addTo(map)
         this.map = map
