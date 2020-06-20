@@ -155,7 +155,7 @@ module.exports ={
                 d >= Math.floor(media * 0.25)   ? '#ff9696' :
                 d >= Math.floor(media * 0.125)   ? '#ffa8a8' : // * tons de amarelo
                 d >= Math.floor(media * 0.03125)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#e6e6e6'
+                    '#ffd9d9'
         }
         function style(feature) {
             return {
@@ -169,6 +169,7 @@ module.exports ={
         }
         var info = L.control();
         info.setPosition('topleft')
+
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
             this.update();
@@ -191,7 +192,7 @@ module.exports ={
                     console.log(`sem dados para ${props.name}`)
                 }    
             }
-            this._div.innerHTML = '<h4 class="text-center" >Número de casos confirmados</h4>' +  (props ?
+            this._div.innerHTML = '<h4 class="text-center" >'+i18n.t("mapBox.titulo")+'</h4>' +  (props ?
                 `<div style="display:flex; justify-content: center; align-items: center; flex-direction: column">
                     <h2 class="text-center" style="padding-top: 10px;color: white; font-family: Barlow, sans-serif;font-weight: 900">`
                         + props.name + 
@@ -203,7 +204,7 @@ module.exports ={
                                 + casos + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos acumulados
+                                `+i18n.t("mapBox.casos_acumulados")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -211,7 +212,7 @@ module.exports ={
                                 + obitos + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos acumulados
+                                `+i18n.t("mapBox.obitos_acumulados")+`
                             </h4>
                         </div> 
                     </div>
@@ -222,7 +223,7 @@ module.exports ={
                                 + casos_diarios + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos diários
+                                `+i18n.t("mapBox.casos_diarios")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -230,13 +231,13 @@ module.exports ={
                                 + obitos_diarios + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos diários
+                                `+i18n.t("mapBox.obitos_diarios")+`
                             </h4>
                         </div> 
                     </div>
-                    ` + (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``) + `
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`</h5>` : ``)) + `
                 </div>`
-                : '<h5 style="color: white" class="text-center">Passe o mouse por um estado</h5>');
+                : '<h5 style="color: white" class="text-center">'+i18n.t("mapBox.subtitulo")+'</h5>');
         };
         info.addTo(map);
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
@@ -254,7 +255,7 @@ module.exports ={
     computed: {
         datewatch() {
             return this.datedb;
-        },
+        }
     },
     watch: {
         datewatch() {
@@ -271,6 +272,7 @@ module.exports ={
     width: 100%;
     z-index: 0;
 }
+
 .info {
     /* align-self: center; */
     /* margin: auto; */
@@ -282,6 +284,7 @@ module.exports ={
     border-radius: 5px;
     
     z-index: 1;
+
 }
 @media (max-width: 600px) {
     .info {
@@ -294,6 +297,7 @@ module.exports ={
         top: 10px;
     }
 }
+
 .info h4 {
     margin: 0 0 5px;
     color: rgb(255, 255, 255);

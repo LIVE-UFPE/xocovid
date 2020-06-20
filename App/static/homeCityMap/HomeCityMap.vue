@@ -37,12 +37,11 @@ module.exports ={
                 type: 'GET',
                 url: "graphs/get_data",
                 async: false,
-                data: {"informacao": 'statesData', "keyBusca": '', "estado": estado.slice(0, estado.length-5).split(' ').join(' '), "cidade": '', "bairro": ''},
+                data: {"informacao": 'statesData', "keyBusca": '', "estado": estado, "cidade": '', "bairro": ''},
                 success: function (response) {
                     resposta = JSON.parse(response)
                 }
             })
-
             return resposta
         },
         getCasos(estado){
@@ -124,8 +123,9 @@ module.exports ={
     mounted() {
         this.getMaiorCaso(this.estadoComp)
         var objectCoord = {lat: [], lon: []}
-
-        resposta = this.get_shapefile(this.estado)
+        //objectCoord.lat.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][0])
+        //objectCoord.lon.push(eval(this.estadoComp).features[0].geometry.coordinates[0][0][1])
+        resposta = this.get_shapefile(this.estadoComp.split('_').join(' '))
         objectCoord.lat.push(resposta[0].data.features[0].geometry.coordinates[0][0][0])
         objectCoord.lon.push(resposta[0].data.features[0].geometry.coordinates[0][0][1])
         var mapboxAccessToken = "pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw";
@@ -189,6 +189,7 @@ module.exports ={
                 d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 1 )    
             }
             // ? será q seria conveniente também ele não pegar municipios que existam, mesmo q passem no levenshtein? p isso, precisaria do JSON c somente o nome dos municipios
+            
             if(d == undefined) return '#6a00ff'
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
@@ -202,7 +203,7 @@ module.exports ={
                 d >= Math.floor(media * 0.125)   ? '#ff9696' :
                 d >= Math.floor(media * 0.03125)   ? '#ffa8a8' : // * tons de amarelo
                 d >= Math.floor(media * 0.015625)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#e6e6e6'
+                    '#ffd9d9'
         }
         function style(feature) {
             return {
@@ -258,7 +259,7 @@ module.exports ={
                                 + (casos != -1 ? casos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos confirmados
+                                `+i18n.t("mapBox.casos_acumulados")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -266,7 +267,7 @@ module.exports ={
                                 + (casos != -1 ? obitos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos confirmados
+                                `+i18n.t("mapBox.obitos_acumulados")+`
                             </h4>
                         </div> 
                     </div>
@@ -277,7 +278,7 @@ module.exports ={
                                 + (casos != -1 ? casos_diarios : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos diários
+                                `+i18n.t("mapBox.casos_diarios")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -285,15 +286,15 @@ module.exports ={
                                 + (casos != -1 ? obitos_diarios : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos diários
+                                `+i18n.t("mapBox.obitos_diarios")+`
                             </h4>
                         </div> 
                     </div>
-                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``)) + `
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`</h5>` : ``)) + `
                 </div>`
                 : 
                 `<h5 style="color: white" class="text-center">
-                    Passe o mouse por uma cidade
+                    `+i18n.t("mapBox.subtitulo")+`
                 </h5>`);
         };
         info.addTo(map);
@@ -304,9 +305,8 @@ module.exports ={
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
         this.style = style.bind(this)
-
-        resposta = this.get_shapefile(this.estado)
         //this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
+        resposta = this.get_shapefile(this.estadoComp.split('_').join(' '))
         this.geojson = L.geoJson(resposta[0].data, {style: this.style, onEachFeature: onEachFeature.bind(this)})
         this.geojson.addTo(map)
         this.map = map
@@ -325,6 +325,7 @@ module.exports ={
             this.getCasos(this.estadoComp)
         }
     }
+    
 }
 </script>
 
@@ -341,7 +342,7 @@ module.exports ={
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    /*right: 84vmin;*/
+    /* right: 84vmin; */
     z-index: 1;
 }
 @media (max-width: 600px) {

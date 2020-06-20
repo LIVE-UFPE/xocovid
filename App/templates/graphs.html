@@ -1,56 +1,5 @@
 {% extends "base.html" %}
 {% block body_block %}
-
-<div id="app">
-  <!-- app Bar -->
-  <v-app>
-    <template>
-        <div>
-          <v-app-bar
-            color="#1E9CF8"
-            dense
-            dark
-            flat
-            style="z-index: 1"
-          >
-          <!-- style="" -->
-          <about-dialog :dialog="dialog"></about-dialog>
-            
-            <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
-              <img style="margin-left: 30px;height: 25px;" src='../static/logo/logoWhite.png'/>
-            </v-toolbar-title>
-      
-            <v-spacer></v-spacer>
-
-            <v-menu
-              left
-              bottom
-            >
-              <template v-slot:activator="{ on }">
-                <v-btn outlined v-on="on" style="border-radius: 4px;border: 0;">
-                  <v-icon>mdi-account-outline</v-icon>
-                  Perfil
-                </v-btn>
-              </template>
-      
-              <v-list class="mt-10">
-                <v-list-item
-                  @click="load_option(n)"
-                  href="/logout"
-                >
-                  <v-list-item-title href="/logout">Sair</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <!-- <v-btn href="logout" class="ma-2" text icon color="blue lighten-5">
-              <v-icon  color="white">mdi-account-outline</v-icon>
-              Conta
-            </v-btn> -->
-          </v-app-bar>
-        </div>
-      </template>
-      <v-container fluid>
-      <template>
         <v-card
               class="mx-auto mt-6 pa-4"
               max-width="1044"
@@ -380,7 +329,6 @@
 
       <!-- Dashboard -->
       
-
     <v-container fluid>
       <template>
         <v-card
@@ -397,7 +345,6 @@
       </template>
     </v-container>
 
-
     <v-container fluid>
       <template>
         <v-card
@@ -411,6 +358,75 @@
             <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</h1>
           </div>
           <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
+        </v-card>
+      </template>
+    </v-container>
+
+    <v-container fluid>
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="auto"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</h1>
+          </div>
+          <ve-line :data="chartData" ></ve-line>
+          <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
+              <v-autocomplete
+                v-model="personalizadoPaises"
+                :items="personalizadoPaises"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o país"
+                width="400"
+                multiple
+                disabled
+                class="pl-4 pr-4"
+              ></v-autocomplete>
+              <v-autocomplete
+                v-model="valuesCE"
+                :items="itemsChips"
+                outlined
+                dense
+                chips
+                small-chips
+                label="Selecione o estado"
+                width="400"
+                @click="printName(values)"
+                @change="setCity(valuesCE, 'itemsChipsC', valuesC)"
+                multiple
+                class="pl-4 pr-4"
+              ></v-autocomplete>
+                <v-autocomplete
+                  v-model="valuesC"
+                  :items="itemsChipsC"
+                  outlined
+                  dense
+                  chips
+                  small-chips
+                  label="Selecione a cidade"
+                  width="400"
+                  @change="setDistrict(valuesC, 'itemsChipsD')"
+                  @click="printName(valuesC)"
+                  @mousedown="setCity(valuesCE, 'itemsChipsC')"
+                  multiple
+                  class="pl-4 pr-4"
+                ></v-autocomplete>
+              <div>
+                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
+                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados', 'Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários', 'acumulados'])">
+                    <v-icon class="pr-2">mdi-download-outline</v-icon>
+                     Filtrar
+                  </v-btn>
+                </div>
+              </div>
+            </div>
         </v-card>
       </template>
     </v-container>
@@ -477,75 +493,6 @@
                   <v-icon class="pr-2">mdi-download-outline</v-icon>
                    Filtrar
                 </v-btn>
-              </div>
-            </div>
-        </v-card>
-      </template>
-    </v-container>
-
-      <v-container fluid>
-      <template>
-        <v-card
-          class="mx-auto mt-6 mb-8"
-          max-width="1044"
-          width="auto"
-          height="auto"
-          outlined
-        >
-          <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</h1>
-          </div>
-          <ve-line :data="chartData" ></ve-line>
-          <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
-              <v-autocomplete
-                v-model="personalizadoPaises"
-                :items="personalizadoPaises"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o país"
-                width="400"
-                multiple
-                disabled
-                class="pl-4 pr-4"
-              ></v-autocomplete>
-              <v-autocomplete
-                v-model="valuesCE"
-                :items="itemsChips"
-                outlined
-                dense
-                chips
-                small-chips
-                label="Selecione o estado"
-                width="400"
-                @click="printName(values)"
-                @change="setCity(valuesCE, 'itemsChipsC', valuesC)"
-                multiple
-                class="pl-4 pr-4"
-              ></v-autocomplete>
-                <v-autocomplete
-                  v-model="valuesC"
-                  :items="itemsChipsC"
-                  outlined
-                  dense
-                  chips
-                  small-chips
-                  label="Selecione a cidade"
-                  width="400"
-                  @change="setDistrict(valuesC, 'itemsChipsD')"
-                  @click="printName(valuesC)"
-                  @mousedown="setCity(valuesCE, 'itemsChipsC')"
-                  multiple
-                  class="pl-4 pr-4"
-                ></v-autocomplete>
-              <div>
-                <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
-                  <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados', 'Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários', 'acumulados'])">
-                    <v-icon class="pr-2">mdi-download-outline</v-icon>
-                     Filtrar
-                  </v-btn>
-                </div>
               </div>
             </div>
         </v-card>
@@ -724,9 +671,6 @@
           </v-card>
         </v-footer>
       </template>
-      
-  </v-app>
-</div>
 <style>
   
 </style>

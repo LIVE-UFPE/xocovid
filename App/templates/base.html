@@ -40,6 +40,8 @@
         <!--<script type="text/javascript" src='../static/statesData/statesData.js'></script>-->
         <!-- * jQuery -->
 
+        <!--I18n (para tradução)-->
+        <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
 
         <script
             src="https://code.jquery.com/jquery-3.5.0.min.js"
@@ -86,6 +88,65 @@
     <body>
         <v-app id="app" >
             <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
+                <!-- --------TAB BAR------- -->
+                <template>
+                    <div>
+                    <v-app-bar
+                        color="#1E9CF8"
+                        dense
+                        dark
+                        flat
+                        style="z-index: 1"
+                    >
+                    <!-- style="" -->
+                        <v-row>
+                            <v-col cols="2" class="d-flex justify-begin">
+                                <about-dialog :dialog="dialog"></about-dialog>
+                            </v-col>
+
+                            <v-col class="d-flex justify-space-around">
+                                <v-toolbar-title style="width: 100%;display: flex;flex-direction: row;justify-content: center;">
+                                    <img style="height: 25px; margin: auto;" src='../static/logo/logoWhite.png'/>
+                                </v-toolbar-title>
+                            </v-col>
+
+                            <v-col cols="2" class="d-flex justify-end">
+                                <v-btn 
+                                    outlined style="border-radius: 4px;border: 0;margin: auto;"
+                                    @click="mudar_idioma"
+                                >
+                                    <img v-if="local=='pt'" style="height: 25px;" src='../static/UK-flag.jpg'/>
+                                    <img v-else style="height: 25px;" src='../static/Flag_of_Brazil.png'/>
+                                </v-btn>
+                                <v-menu
+                                    left
+                                    bottom
+                                >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn outlined v-on="on" style="border-radius: 4px;border: 0; margin: auto;">
+                                    <v-icon>mdi-account-outline</v-icon>
+                                    [[ $t("perfil.nome") ]]
+                                    </v-btn>
+                                </template>
+                        
+                                <v-list class="mt-10">
+                                    <v-list-item
+                                    @click="load_option(n)"
+                                    href="logout"
+                                    >
+                                    <v-list-item-title href="logout">[[ $t("perfil.logout") ]]</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                                </v-menu>
+                                <!-- <v-btn href="logout" class="ma-2" text icon color="blue lighten-5">
+                                <v-icon  color="white">mdi-account-outline</v-icon>
+                                Conta
+                                </v-btn> -->
+                            </v-col>
+                        </v-row>
+                    </v-app-bar>
+                    </div>
+                </template>
                 {% block body_block %}
                 {% endblock %}
             </v-content>
@@ -94,7 +155,135 @@
 </html>
 
 <script>
-    
+    const messages = {
+        en: {
+            dialog: {
+                titulo: 'About Us',
+                conteudo: 'The COVID-SGIS platform was developed through a partnership between the Innovation Laboratory for Smart Cities (LIVE) and the Biological Sciences Laboratory (LCB) at UFPE. For suggestions, questions or new prospects, contact us via email:',
+                fechar: 'Close',
+            },
+            perfil: {
+                nome: 'Profile',
+                logout: 'Logout'
+            },
+            mapBox: {
+                titulo: 'Number of confirmed cases',
+                subtitulo: 'Mouse over a state',
+                casos_acumulados: 'Accumulated cases',
+                obitos_acumulados: 'Accumulated deaths',
+                casos_diarios: 'Daily cases',
+                obitos_diarios: 'Daily deaths',
+                dia_nao_desejado: 'The displayed data is not from the desired day'
+            },
+            legenda: {
+                titulo: 'Labels',
+                informacoes_stateMap: 'Colors indicate the number of confirmed cases',
+                informacoes_heatmap: 'Colors indicate the density of cases',
+                baixa_densidade: 'Low Density',
+                media_densidade: 'Medium Density',
+                alta_densidade: 'High Density',
+                sem_dados: 'No Data'
+            },
+            seletor_casos_obitos: {
+                titulo_stateMap: 'Confirmed cases and deaths',
+                titulo_heatmap: 'Case projection map',
+                subtitulo: 'Data from:',
+                brasil: 'Brazil',
+                estados: 'States',
+                selecione_estado: 'Select the state',
+                botao: 'Select'
+            },
+            menu: {
+                mais_informacoes: 'More informations',
+                voltar: 'Back',
+                avancar: 'Forward',
+                alterar_mapa: 'Change Map',
+                projecao_casos: 'Projection of Cases',
+                casos_acumulados_obitos: 'Accumulated cases and Deaths',
+                projecao_subtitulo: 'Heatmap showing the projection of cases in Brazil or Pernambuco.',
+                casos_acumulados_obitos_subtitulo: 'Displays the number of accumulated cases and deaths by state.',
+                selecionar: 'Select',
+                projecao_informacao: 'Visualization of the case projection map using Artificial Intelligence - AI',
+                casos_acumulados_obitos_informacao: 'View of the map of confirmed cases'
+            }
+        },
+        pt: {
+            dialog: {
+                titulo: 'Sobre a plataforma',
+                conteudo: 'A plataforma COVID-SGIS foi desenvolvida através de uma parceria do Laboratório de Inovação para Cidades Inteligentes (LIVE) e do Laboratório de Ciências Biológicas (LCB) da UFPE. Para sugestões, dúvidas ou novas prospecções, entrar em contato através do email: ',
+                fechar: 'Fechar'
+            },
+            perfil: {
+                nome: 'Perfil',
+                logout: 'Sair'
+            },
+            mapBox: {
+                titulo: 'Número de casos confirmados',
+                subtitulo: 'Passe o mouse por um estado',
+                casos_acumulados: 'Casos acumulados',
+                obitos_acumulados: 'Óbitos acumulados',
+                casos_diarios: 'Casos diários',
+                obitos_diarios: 'Óbitos diários',
+                dia_nao_desejado: 'Os dados exibidos não são do dia desejado'
+            },
+            legenda: {
+                titulo: 'Legenda',
+                informacoes_stateMap: 'As cores indicam a quantidade de casos confirmados',
+                informacoes_heatmap: 'As cores indicam a densidade de casos',
+                baixa_densidade: 'Baixa Densidade',
+                media_densidade: 'Média Densidade',
+                alta_densidade: 'Alta Densidade',
+                sem_dados: 'Sem Dados'
+            },
+            seletor_casos_obitos: {
+                titulo_stateMap: 'Casos confirmados e óbitos',
+                titulo_heatmap: 'Mapa de projeção de casos',
+                subtitulo: 'Dados do:',
+                brasil: 'Brasil',
+                estados: 'Estados',
+                selecione_estado: 'Selecione o estado',
+                botao: 'Selecionar'
+            },
+            menu: {
+                mais_informacoes: 'Mais informações',
+                voltar: 'Voltar',
+                avancar: 'Avançar',
+                alterar_mapa: 'Alterar Mapa',
+                projecao_casos: 'Projeção de Casos',
+                casos_acumulados_obitos: 'Casos Acumulados e Óbitos',
+                projecao_subtitulo: 'Mapa de calor que exibe a projeção de casos no Brasil ou Pernambuco.',
+                casos_acumulados_obitos_subtitulo: 'Exibe a quantidade de casos acumulados e óbitos por estado.',
+                selecionar: 'Selecionar',
+                projecao_informacao: 'Visualização do mapa de projeção de casos usando Inteligência Artificial - IA',
+                casos_acumulados_obitos_informacao: 'Visualização do mapa de casos confirmados'
+            }
+        }
+    }
+
+    function getCookie(cname){
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+            }
+        }
+
+        return "";
+    }
+
+    var idioma = getCookie("idioma")
+    if(idioma == '') idioma = 'pt'
+
+    const i18n = new VueI18n({
+        locale: idioma, // set locale
+        messages, // set locale messages    
+    })
 
     {% if items_json %}
         var pins = {{ items_json|safe }};
@@ -142,6 +331,7 @@
     var template = {{ template|safe }}
 
     const app = new Vue({
+        i18n,
         delimiters: ['[[', ']]'],
         el: '#app',
         vuetify: new Vuetify({
@@ -174,6 +364,7 @@
         },
         data: () => ({
             //? props da graphs
+            local : i18n.locale,
             dialog: false,
             radioMap: 'mapInit',
             isHomeComponentCollapsed: true,
@@ -361,6 +552,16 @@
             })
         },
         methods: {
+            mudar_idioma: function(){
+                if(this.local=='pt'){
+                    document.cookie = 'idioma=en;path=/'
+                }
+                else{
+                    document.cookie = 'idioma=pt;path=/'
+                }
+
+                window.location.reload()
+            },
             send_email: function(assunto, mensagem, remetente){
                 var request = $.ajax({
                     context: this,
@@ -573,7 +774,7 @@
                 else{
                     if (estado == 'Projecao de Óbitos no Brasil'){
                         if(informacao == 'Projeção média esperada'){
-                            label = 'Prejeção Média de Óbitos no '
+                            label = 'Projeção Média de Óbitos no '
                         }
                         else if(informacao == 'Melhor cenário'){
                             label = 'Melhor Cenário de Óbitos no '
@@ -583,7 +784,7 @@
                         }
                     }
                     else if(informacao == 'Projeção média esperada'){
-                        label = 'Prejeção Média de Casos Confirmados no '
+                        label = 'Projeção Média de Casos Confirmados no '
                     }
                     else if(informacao == 'Melhor cenário'){
                         label = 'Melhor Cenário de Casos Confirmados no '
