@@ -355,6 +355,23 @@
           outlined
         >
           <div  class="text-center">
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</h1>
+          </div>
+          <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
+        </v-card>
+      </template>
+    </v-container>
+
+    <v-container fluid>
+      <template>
+        <v-card
+          class="mx-auto mt-6 mb-8"
+          max-width="1044"
+          width="auto"
+          height="auto"
+          outlined
+        >
+          <div  class="text-center">
             <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</h1>
           </div>
           <ve-line :data="chartData" ></ve-line>
@@ -413,25 +430,6 @@
         </v-card>
       </template>
     </v-container>
-  
-
-    <v-container fluid>
-      <template>
-        <v-card
-          class="mx-auto mt-6 mb-8"
-          max-width="1044"
-          width="auto"
-          height="auto"
-          outlined
-        >
-          <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</h1>
-          </div>
-          <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
-        </v-card>
-      </template>
-    </v-container>
-
 
     <v-container fluid>
       <template>
