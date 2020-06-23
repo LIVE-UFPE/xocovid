@@ -16,7 +16,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-import Levenshtein
+# import Levenshtein
 from django.core.mail import send_mail
 from covidWeb.settings import EMAIL_HOST_USER
 
