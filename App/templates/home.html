@@ -1,5 +1,30 @@
 {% extends "base.html" %}
 {% block body_block %}
+  <!-- Map -->
+  <home-city-map 
+    v-if='radioheat === "pernambuco" && maxInt === 1'
+    :key="keychange" 
+    :estado="homeSelecao" 
+    :datedb="datedb"
+    v-on:dados-legenda="updatelegenda" 
+    style="height: 100%;">
+  </home-city-map>
+  <state-map 
+    v-if="maxInt === 1 && radioheat === 'brasil'" 
+    :datedb="datedb" 
+    v-on:dados-legenda="updatelegenda">
+  </state-map>
+  <covid-map 
+    v-if="maxInt === 0" 
+    :radioheat="radioheat" 
+    :datedb="datedb"
+    :predictspe="useIa ? predictspe : []" 
+    :predicts="useIa ? predicts : []" 
+    :lastinterpol="lastinterpol"
+    :maiorintbr="maiorint" 
+    :maiorintpe="maiorintpe">
+  </covid-map>
+
   <!-- Card legenda -->
   <div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
     <v-card class="mx-auto pb-2 d-none d-lg-block" width="auto" outlined
@@ -632,15 +657,6 @@
       </div>
     </v-card>
   </div>
-
-  <!-- Map -->
-  <home-city-map v-if='radioheat === "pernambuco" && maxInt === 1' :key="keychange" :estado="homeSelecao" :datedb="datedb"
-    v-on:dados-legenda="updatelegenda" style="height: 100%;"></home-city-map>
-  <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" v-on:dados-legenda="updatelegenda">
-  </state-map>
-  <covid-map v-if="maxInt === 0" :radioheat="radioheat" :datedb="datedb"
-    :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol"
-    :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
 
     <!-- Card Popup-->
   <!-- Esse componente deverá ser colocado como popup na api do mapa -->
