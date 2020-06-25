@@ -763,7 +763,7 @@
             },
             buildChart(informacao, estado, cidade, bairro, diaouacu, diaouacuLength, base = 2){
                 if(diaouacuLength > 1){
-                    label = informacao + ' ' + diaouacu + ' em '
+                    label = informacao + ' ' + diaouacu + ' no '
                 }
                 else{
                     if (estado == 'Projecao de Óbitos no Brasil'){
@@ -897,9 +897,9 @@
                 else if (estado != '') localName = estado
                 else localName = 'Brasil'
                 
-                colunaTaxa = informacao + ' em ' + localName
-                colunaFuncao = funcao + ' em ' + localName
-                colunaConfirmado = 'Casos Confirmados em ' + localName
+                colunaTaxa = informacao + ' no ' + localName
+                colunaFuncao = funcao + ' no ' + localName
+                colunaConfirmado = 'Casos Confirmados no ' + localName
                 
                 chart5.columns[1] = colunaTaxa
                 chart5.columns.pop()
