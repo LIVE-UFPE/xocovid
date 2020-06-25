@@ -90,7 +90,7 @@
             <v-card tile>
                 <!-- --------TAB BAR------- -->
                 <v-app-bar color="#1E9CF8" dense dark flat style="z-index: 1">
-                    <v-row class="d-flex justify-space-between">
+                    <v-row>
                         <v-col cols="4" class="d-flex justify-start" style="margin: auto;">
                             <about-dialog :dialog="dialog"></about-dialog>
                         </v-col>
@@ -102,10 +102,12 @@
                         </v-col>
 
                         <v-col cols="4" class="d-flex justify-end">
-                            <v-btn outlined style="border: 0;margin: auto;" @click="mudar_idioma">
-                                <img v-if="local=='pt'" style="max-height: 25px;" src='../static/UK-flag.jpg' />
-                                <img v-else style="max-height: 25px;" src='../static/Flag_of_Brazil.png' />
-                            </v-btn>
+                            <div class="d-flex justify-end">
+                                <v-btn outlined style="border: 0;margin: auto;" @click="mudar_idioma">
+                                    <img v-if="local=='pt'" style="max-height: 25px;" src='../static/UK-flag.jpg' />
+                                    <img v-else style="max-height: 25px;" src='../static/Flag_of_Brazil.png' />
+                                </v-btn>
+                            </div>
                                 <!--<v-row class="d-flex justify-end">
                                     <v-col cols="4" class="d-flex justify-end mr-4">
                                         <v-btn outlined style="border: 0;margin: auto;" @click="mudar_idioma">
