@@ -45,7 +45,7 @@ module.exports ={
             return resposta
         },
         getCasos(estado){
-            this.txtsnack = "Coletando dados..."
+            this.txtsnack = i18n.t("txtsnack.coletando_dados")
             this.snackbar = true
             if (this.request != null) {
                 this.request.abort();
@@ -65,7 +65,7 @@ module.exports ={
                         let legenda = [this.maiscasos,0]
                         this.$emit('dados-legenda',legenda) 
                     }else {
-                        this.txtsnack = 'Não há casos pra esse dia, mantendo os números do último dia com dados'
+                        this.txtsnack = i18n.t("txtsnack.nenhum_dado")
                         this.snackbar = true
                         // console.log(this.ultimoscasos)
                     }

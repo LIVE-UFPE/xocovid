@@ -114,7 +114,7 @@ module.exports = {
                     console.log(`adicionando um total de ${pinsLen} no mapa`)
                     console.log(`maior intensidade global é ${this.brasilheat ? this.maiorintbr : this.maiorintpe}, a local é de ${maior_int}. menor intensidade local é ${menor_int}`)
                     
-                    this.txtsnack = "Mapa de calor atualizado!"
+                    this.txtsnack = i18n.t("txtsnack.mapa_calor_atualizado")
                     this.snackbar = true
                 },
                 error: function (response) {
@@ -139,7 +139,7 @@ module.exports = {
         // DEBUG check zoom level
         console.log(`zoom level: ${this.mymap.getZoom()}`)
         this.getpins()
-        this.txtsnack = 'Carregando pontos...'
+        this.txtsnack = i18n.t("txtsnack.carregando_pontos")
         this.snackbar = true
         this.heatmap = new HeatmapOverlay({
             gradient: {
@@ -234,11 +234,11 @@ module.exports = {
                 console.log(`lastinterpol é ${this.lastinterpol} e data ${data.toISOString()}`);
                 if( this.datedb < data ){
                     data_intensidade = '1';
-                    this.txtsnack = 'Os dados agora são previstos pela IA';
+                    this.txtsnack = i18n.t("txtsnack.dados_previstos_ia")
                     this.snackbar = true;
                 }else{
                     data.setDate( data.getDate() + 1 );
-                    this.txtsnack = 'Previsões além de um dia podem ter uma flutuação mais significativa';
+                    this.txtsnack = i18n.t("txtsnack.previsoes");
                     this.snackbar = true;
                     if( this.datedb < data ) data_intensidade = '2'; 
                     else data_intensidade = '3';
@@ -290,7 +290,7 @@ module.exports = {
                 console.log(cons_log)
             }else{
                 this.getpins()
-                this.txtsnack = 'Carregando pontos...'
+                this.txtsnack = i18n.t("txtsnack.carregando_pontos")
                 this.snackbar = true
             }
         }
