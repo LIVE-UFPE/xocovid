@@ -1,8 +1,33 @@
 {% extends "base.html" %}
 {% block body_block %}
+  <!-- Map -->
+  <home-city-map 
+    v-if='radioheat === "pernambuco" && maxInt === 1'
+    :key="keychange" 
+    :estado="homeSelecao" 
+    :datedb="datedb"
+    v-on:dados-legenda="updatelegenda" 
+    style="height: 100%;">
+  </home-city-map>
+  <state-map 
+    v-if="maxInt === 1 && radioheat === 'brasil'" 
+    :datedb="datedb" 
+    v-on:dados-legenda="updatelegenda">
+  </state-map>
+  <covid-map 
+    v-if="maxInt === 0" 
+    :radioheat="radioheat" 
+    :datedb="datedb"
+    :predictspe="useIa ? predictspe : []" 
+    :predicts="useIa ? predicts : []" 
+    :lastinterpol="lastinterpol"
+    :maiorintbr="maiorint" 
+    :maiorintpe="maiorintpe">
+  </covid-map>
+
   <!-- Card legenda -->
   <div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
-    <v-card class="mx-auto pb-2 d-none d-md-block" width="auto" outlined
+    <v-card class="mx-auto pb-2 d-none d-lg-block" width="auto" outlined
       style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1">
       <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
         <span style="font-weight: 800;color: #1E9CF8;" class="headline mt-4 mb-3">[[ $t("legenda.titulo") ]]</span>
@@ -221,61 +246,9 @@
       </div>
     </v-card>
   </div>
-  <!-- Card Popup-->
-  <!-- Esse componente deverá ser colocado como popup na api do mapa -->
-  {% comment %} <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
-    <v-card class="mx-auto pb-2" max-height="500" height="400" width="500" outlined
-      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1">
-      <v-list-item three-line>
-        <v-list-item-content>
-          <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;">
-            <v-list-item-title style="font-weight: 800;color: #1E9CF8;" class="headline mt-2 mb-4">Nome do Bairro,
-              cidade, estado</v-list-item-title>
-
-            <div class="mt-8"
-              style="display: flex;flex-direction: row;justify-content: center;align-items: center;width: 100%;">
-              <v-list :disabled="disabled" :dense="dense" :two-line="twoLine" :three-line="threeLine" :shaped="shaped"
-                :flat="flat" :subheader="subheader" :sub-group="subGroup" :nav="nav" :avatar="avatar" :rounded="rounded"
-                disabled>
-                <v-subheader>REPORTS</v-subheader>
-                <v-list-item-group v-model="item" color="primary">
-                  <v-list-item v-for="(item, i) in items" :key="i" :inactive="inactive">
-                    <v-list-item-avatar v-if="avatar">
-                      <v-img :src="item.avatar"></v-img>
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title v-html="item.title"></v-list-item-title>
-                      <v-list-item-subtitle v-if="twoLine || threeLine" v-html="item.subtitle"></v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-              <v-list :disabled="disabled" :dense="dense" :two-line="twoLine" :three-line="threeLine" :shaped="shaped"
-                :flat="flat" :subheader="subheader" :sub-group="subGroup" :nav="nav" :avatar="avatar" :rounded="rounded"
-                disabled>
-                <v-subheader>REPORTS</v-subheader>
-                <v-list-item-group v-model="item" color="primary">
-                  <v-list-item v-for="(item, i) in items" :key="i" :inactive="inactive">
-                    <v-list-item-avatar v-if="avatar">
-                      <v-img :src="item.avatar"></v-img>
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title v-html="item.title"></v-list-item-title>
-                      <v-list-item-subtitle v-if="twoLine || threeLine" v-html="item.subtitle"></v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </div>
-          </div>
-
-        </v-list-item-content>
-      </v-list-item>
-    </v-card>
-  </div> {% endcomment %}
 
   <!-- Card legenda mobile -->
-  <div class="d-xs-flex d-md-none">
+  <div class="d-xs-flex d-lg-none">
     <v-list dense class="d-flex flex-row overflow-y-auto"
       style="position: absolute;bottom: 130px;right: 0vmin;left: 0vmin;z-index: 1;border-radius: 10px 10px 10px 10px">
       <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
@@ -465,8 +438,8 @@
   </div>
 
   <!-- Card Menu mobile -->
-  <container fluid>
-    <div class="text-center d-md-none" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
+  <v-container fluid>
+    <div class="text-center d-lg-none" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
       <v-bottom-navigation v-if="isHomeComponentCollapsed === true" grow height="120" background-color="white"
         color="#1E9CF8" :value="activeBtn" style="z-index: 1;border-radius: 20px 20px 0px 0px">
         <div style="width: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;">
@@ -475,7 +448,7 @@
           </v-btn>
           <div style="width: 100%;display: flex;flex-direction: row;justify-content:space-around;align-items: center;">
             <v-btn width="50" @click="dateBack" style="margin-left: 10px;">
-              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">11/03/2020</v-list-item-subtitle>
+              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;"> [[ $t("menu.voltar") ]] </v-list-item-subtitle>
               <v-icon size="45" color="#1E9CF8">mdi-chevron-left-box</v-icon>
             </v-btn>
             <v-btn disabled style="background-color: white !important;">
@@ -485,7 +458,7 @@
               </div>
             </v-btn>
             <v-btn width="50" @click="dateForward" style="margin-right: 10px;">
-              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">31/03/2020</v-list-item-subtitle>
+              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;"> [[ $t("menu.avancar") ]] </v-list-item-subtitle>
               <v-icon size="45" color="#1E9CF8">mdi-chevron-right-box</v-icon>
             </v-btn>
           </div>
@@ -503,9 +476,9 @@
             <p class="body-1 text-center d-block mt-4"> [[ $t("menu.selecao_mapa") ]] </p>
             <v-card-actions class="pt-0 text-center">
               <v-radio-group v-model="radioMap" class="pa-0">
-                <v-radio :label="[[ $t('menu.projecao_casos') ]]" value="mapEnd" name="maxInt=1" @change="maxInt=0">
+                <v-radio :label="$t('menu.projecao_casos')" value="mapEnd" name="maxInt=1" @change="maxInt=0">
                 </v-radio>
-                <v-radio :label="[[ $t('menu.casos_acumulados_obitos') ]]" value="mapInit" name="maxInt=0"
+                <v-radio :label="$t('menu.casos_acumulados_obitos')" value="mapInit" name="maxInt=0"
                   @change="maxInt=1"></v-radio>
               </v-radio-group>
             </v-card-actions>
@@ -513,13 +486,13 @@
             </p>
             <v-card-actions v-if="maxInt === 1" class="pt-0 text-center">
               <v-radio-group v-model="radioheat" class="pa-0">
-                <v-radio :label="[[ $t('seletor_casos_obitos.brasil') ]]" value="brasil"></v-radio>
-                <v-radio :label="[[ $t('seletor_casos_obitos.estados') ]]" value="pernambuco"></v-radio>
+                <v-radio :label="$t('seletor_casos_obitos.brasil')" value="brasil"></v-radio>
+                <v-radio :label="$t('seletor_casos_obitos.estados')" value="pernambuco"></v-radio>
               </v-radio-group>
             </v-card-actions>
-            <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
+            <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco" && maxInt == 1'>
               <v-autocomplete v-model="homeSelecao" :items="estadosSiglaDashboard" outlined dense chips small-chips
-                :label="[[ $t('seletor_casos_obitos.selecione_estado') ]]" width="auto" class="pl-2 pr-2">
+                :label="$t('seletor_casos_obitos.selecione_estado')" width="auto" class="pl-2 pr-2">
               </v-autocomplete>
               <v-btn v-if="maxInt === 1" style="border-radius: 5px;color: white !important;"
                 @click="keychange += 1;isHomeComponentCollapsed = true" height="40" color="#1E9CF8">
@@ -533,7 +506,7 @@
           </v-btn>
           <div style="width: 100%;display: flex;flex-direction: row;justify-content:space-around;align-items: center;">
             <v-btn width="50" @click="dateBack" style="margin-left: 10px;">
-              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">11/03/2020</v-list-item-subtitle>
+              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;"> [[ $t("menu.voltar") ]] </v-list-item-subtitle>
               <v-icon size="45" color="#1E9CF8">mdi-chevron-left-box</v-icon>
             </v-btn>
             <v-btn disabled style="background-color: white !important;">
@@ -543,17 +516,17 @@
               </div>
             </v-btn>
             <v-btn width="50" @click="dateForward" style="margin-right: 10px;">
-              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;">31/03/2020</v-list-item-subtitle>
+              <v-list-item-subtitle style="color:#1E9CF8;font-size: small;"> [[ $t("menu.avancar") ]] </v-list-item-subtitle>
               <v-icon size="45" color="#1E9CF8">mdi-chevron-right-box</v-icon>
             </v-btn>
           </div>
         </div>
       </v-bottom-navigation>
     </div>
-  </container>
+  </v-container>
   <!-- --------Menu geral------- -->
-  <container fluid>
-    <div class="text-center d-none d-md-flex"
+  <v-container fluid>
+    <div class="text-center d-none d-lg-flex"
       style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
       <v-bottom-navigation grow height="100" background-color="white" color="#1E9CF8" :value="activeBtn"
         style="z-index: 1;justify-content: space-around">
@@ -660,10 +633,10 @@
         </v-bottom-sheet>
       </v-bottom-navigation>
     </div>
-  </container>
+  </v-container>
   <!-- --------Seletor de casos confirmados e obitos------- -->
   <div style="position: absolute;top: 95px;right: 10vmin;z-index: 1;display: flex;" v-if="maxInt === 1">
-    <v-card class="mx-auto pb-2 d-none d-md-block px-1" outlined width="220px"
+    <v-card class="mx-auto pb-2 d-none d-lg-block px-1" outlined width="220px"
       style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1;flex: auto;">
       <h3 v-if='maxInt === 1' style="color: #1E9CF8;font-size: medium;text-align: center;" class="mb-0 mt-3 mb-2">[[
         $t("seletor_casos_obitos.titulo_stateMap") ]]</h3>
@@ -672,25 +645,69 @@
       <p class="body-1 mb-0 pt-2 text-center d-block"> [[ $t("seletor_casos_obitos.subtitulo") ]] </p>
       <v-card-actions v-if="maxInt === 1" class="pt-0 text-center">
         <v-radio-group v-model="radioheat" class="pa-0">
-          <v-radio :label="[[ $t('seletor_casos_obitos.brasil') ]]" value="brasil"></v-radio>
-          <v-radio :label="[[ $t('seletor_casos_obitos.estados') ]]" value="pernambuco"></v-radio>
+          <v-radio :label="$t('seletor_casos_obitos.brasil')" value="brasil"></v-radio>
+          <v-radio :label="$t('seletor_casos_obitos.estados')" value="pernambuco"></v-radio>
         </v-radio-group>
       </v-card-actions>
       <div style="display: flex;flex-direction: column;align-items: center;" v-if='radioheat === "pernambuco"'>
         <v-autocomplete v-model="homeSelecao" :items="estadosSiglaDashboard" outlined dense chips small-chips
-          :label="[[ $t('seletor_casos_obitos.selecione_estado') ]]" width="400" class="pl-2 pr-2"></v-autocomplete>
+          :label="$t('seletor_casos_obitos.selecione_estado')" width="400" class="pl-2 pr-2"></v-autocomplete>
         <v-btn v-if="maxInt === 1" @click="keychange += 1; " class="mb-2" width='110' color='#1E9CF8'
           style="color: white;">[[ $t("seletor_casos_obitos.botao") ]]</v-btn>
       </div>
     </v-card>
   </div>
 
-  <!-- Map -->
-  <home-city-map v-if='radioheat === "pernambuco"' :key="keychange" :estado="homeSelecao" :datedb="datedb"
-    v-on:dados-legenda="updatelegenda" style="height: 100%;"></home-city-map>
-  <state-map v-if="maxInt === 1 && radioheat === 'brasil'" :datedb="datedb" v-on:dados-legenda="updatelegenda">
-  </state-map>
-  <covid-map v-if="maxInt === 0 && radioheat === 'brasil'" :radioheat="radioheat" :datedb="datedb"
-    :predictspe="useIa ? predictspe : []" :predicts="useIa ? predicts : []" :lastinterpol="lastinterpol"
-    :maiorintbr="maiorint" :maiorintpe="maiorintpe"></covid-map>
+    <!-- Card Popup-->
+  <!-- Esse componente deverá ser colocado como popup na api do mapa -->
+  {% comment %} <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
+    <v-card class="mx-auto pb-2" max-height="500" height="400" width="500" outlined
+      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1">
+      <v-list-item three-line>
+        <v-list-item-content>
+          <div style="display: flex;flex-direction: column;justify-content: center;align-items: center;">
+            <v-list-item-title style="font-weight: 800;color: #1E9CF8;" class="headline mt-2 mb-4">Nome do Bairro,
+              cidade, estado</v-list-item-title>
+
+            <div class="mt-8"
+              style="display: flex;flex-direction: row;justify-content: center;align-items: center;width: 100%;">
+              <v-list :disabled="disabled" :dense="dense" :two-line="twoLine" :three-line="threeLine" :shaped="shaped"
+                :flat="flat" :subheader="subheader" :sub-group="subGroup" :nav="nav" :avatar="avatar" :rounded="rounded"
+                disabled>
+                <v-subheader>REPORTS</v-subheader>
+                <v-list-item-group v-model="item" color="primary">
+                  <v-list-item v-for="(item, i) in items" :key="i" :inactive="inactive">
+                    <v-list-item-avatar v-if="avatar">
+                      <v-img :src="item.avatar"></v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-html="item.title"></v-list-item-title>
+                      <v-list-item-subtitle v-if="twoLine || threeLine" v-html="item.subtitle"></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+              <v-list :disabled="disabled" :dense="dense" :two-line="twoLine" :three-line="threeLine" :shaped="shaped"
+                :flat="flat" :subheader="subheader" :sub-group="subGroup" :nav="nav" :avatar="avatar" :rounded="rounded"
+                disabled>
+                <v-subheader>REPORTS</v-subheader>
+                <v-list-item-group v-model="item" color="primary">
+                  <v-list-item v-for="(item, i) in items" :key="i" :inactive="inactive">
+                    <v-list-item-avatar v-if="avatar">
+                      <v-img :src="item.avatar"></v-img>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-html="item.title"></v-list-item-title>
+                      <v-list-item-subtitle v-if="twoLine || threeLine" v-html="item.subtitle"></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </div>
+          </div>
+
+        </v-list-item-content>
+      </v-list-item>
+    </v-card>
+  </div> {% endcomment %}
 {% endblock %}

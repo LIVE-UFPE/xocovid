@@ -242,7 +242,7 @@ module.exports ={
                                 + (casos != -1 ? casos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos confirmados
+                                `+i18n.t("mapBox.casos_acumulados")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -250,7 +250,7 @@ module.exports ={
                                 + (casos != -1 ? obitos : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos confirmados
+                                `+i18n.t("mapBox.obitos_acumulados")+`
                             </h4>
                         </div> 
                     </div>
@@ -261,7 +261,7 @@ module.exports ={
                                 + (casos != -1 ? casos_diarios : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="color: white; padding-top: 25px">
-                                Casos diários
+                                `+i18n.t("mapBox.casos_diarios")+`
                             </h4>
                         </div> 
                         <div style="display: flex; flex-direction: column;">
@@ -269,15 +269,15 @@ module.exports ={
                                 + (casos != -1 ? obitos_diarios : `-`) + 
                             `</h1>
                             <h4  class="text-center" style="padding-top: 25px;color: white">
-                                Óbitos diários
+                                `+i18n.t("mapBox.obitos_diarios")+`
                             </h4>
                         </div> 
                     </div>
-                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >Os dados exibidos não são do dia desejado</h5>` : ``)) + `
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`</h5>` : ``)) + `
                 </div>`
                 : 
                 `<h5 style="color: white" class="text-center">
-                    Passe o mouse por uma cidade
+                    `+i18n.t("mapBox.subtitulo_cidades")+`
                 </h5>`);
         };
         info.addTo(map);

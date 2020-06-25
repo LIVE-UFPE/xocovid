@@ -9,7 +9,7 @@
               
         >
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard do Brasil</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[ $t("dashboards.titulo_brasil") ]]</v-list-item-title>
           </div>
           <v-container fluid>
           <div style="display: flex;flex-direction: row;flex-flow: row wrap;">
@@ -21,12 +21,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Óbitos Totais
+                [[$t("dashboards.obitos_totais")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nObitosBrasil ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.numeros_somados")]]</div>
             </v-card>
             <v-card
                   class="mx-auto mt-6 pa-4"
@@ -36,12 +36,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Casos Confirmados
+                [[$t("dashboards.casos_confirmados")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ nConfirmadosBrasil ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.ultimo_valor")]]</div>
             </v-card>
             <v-card
                   class="mx-auto mt-6 pa-4"
@@ -51,12 +51,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Confirmados Relativo
+                [[$t("dashboards.confirmados_relativos")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ n100kBrasil ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.valores_100000")]]</div>
             </v-card>
           </div>
           <v-card
@@ -67,7 +67,7 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Taxa de Letalidade no Brasil
+                [[$t("dashboards.letalidade_brasil")]]
               </p>
               <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
                 <v-progress-circular
@@ -80,7 +80,7 @@
                   [[ nLetalidadeBrasil]]%
                 </v-progress-circular>
               </div>
-              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
+              <div class="pa-0 mt-4" style="text-align: center;">[[$t("dashboards.excplicacao_letalidade")]] </div>
             </v-card>
           </v-container>
         </v-card>
@@ -99,7 +99,7 @@
 
           {% comment %} nObitos nCasos nRecuperados nConf {% endcomment %}
           <div  class="text-center">
-            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Dashboard Personalizado</v-list-item-title>
+            <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("dashboards.titulo_personalizado")]]</v-list-item-title>
           </div>
           <div style="display: flex;flex-direction: row;width: 100%;flex-flow: row wrap;justify-content: center;" class="pr-4 mb-4 mt-6" >
             <v-autocomplete
@@ -109,10 +109,10 @@
               dense
               chips
               small-chips
-              label="Selecione o estado"
+              :label="$t('dashboards.selecione_estado')"
               width="400"
             ></v-autocomplete>
-            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>Confirmar Estado</v-btn>
+            <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='jobDash(selecaoDashboard);keychange += 1' dark>[[$t("dashboards.confirmar_estado")]]</v-btn>
           </div>
           <div class="">
             <city-map :datedb="datedb" :key="keychange" :estado="selecaoDashboard" style="height: 600px;"></city-map>
@@ -126,12 +126,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Óbitos Totais
+                [[$t("dashboards.obitos_totais")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobObitosTotais ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Números totais somados</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.numeros_somados")]]</div>
             </v-card>
             <v-card
                   class="mx-auto mt-6 pa-4"
@@ -141,12 +141,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Casos Confirmados
+                [[$t("dashboards.casos_confirmados")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobConf ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Último valor registrado Acumulado</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.ultimo_valor")]]</div>
             </v-card>
             <v-card
                   class="mx-auto mt-6 pa-4"
@@ -156,12 +156,12 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Confirmados Relativo
+                [[$t("dashboards.confirmados_relativos")]]
               </p>
               <p style="text-align: center;color:rgb(113, 113, 113) !important; font-weight: 900;font-size: 50px">
                 [[ jobConfRel.toFixed(3) ]]
               </p>
-              <div class="pa-0 mt-0" style="text-align: center;">Valores para cada 100.000 habitantes</div>
+              <div class="pa-0 mt-0" style="text-align: center;">[[$t("dashboards.valores_100000")]]</div>
             </v-card>
             
           </div>
@@ -173,7 +173,7 @@
                   style='box-shadow:0px 0px 5px 2px rgba(28, 28, 28, 0.091)'
             >
               <p style="text-align: center;color:#1E9CF8 !important; font-weight: 700;font-size: x-large;">
-                Letalidade no Estado
+                [[$t("dashboards.letalidade_estado")]]
               </p>
               <div style="display: flex;flex-direction: row;justify-content:space-evenly;">
                 <v-progress-circular
@@ -186,7 +186,7 @@
                   [[ jobLetalidade.toFixed(3) ]]%
                 </v-progress-circular>
               </div>
-              <div class="pa-0 mt-4" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, de acordo com a razão nº Óbitos &divide; nºCasos Confirmados </div>
+              <div class="pa-0 mt-4" style="text-align: center;">[[$t("dashboards.excplicacao_letalidade")]]</div>
             </v-card>
         </v-card>
       </template>
@@ -205,7 +205,7 @@
   
             <div style="display: block;flex-direction: row;">
               <div  class="text-center">
-                <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Relatório por Estado</v-list-item-title>
+                <v-list-item-title style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_relatorio")]]</v-list-item-title>
               </div>
             <!-- <div style="display:flex;flex-direction:row;justify-content: center">
               <div style="width: 900px;" class="pr-4 pl-4 mt-4"> 
@@ -255,10 +255,10 @@
                       dense
                       chips
                       small-chips
-                      label="Selecione"
+                      :label="$t('graficos.selecione')"
                       width="400"
                     ></v-autocomplete>
-                    <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>Confirmar</v-btn>
+                    <v-btn height='40' width='200px' class="ml-2" large color="#1E9CF8" @click='renderGraficoR(selecaoGraficoR); valueChipR = selecaoGraficoR' dark>[[$t("graficos.confirmar")]]</v-btn>
                   </div> 
                   <!-- <v-textarea
                     label="Selecione uma data"
@@ -319,7 +319,7 @@
                   </v-pagination>
                 </div>
               </div>
-              <div v-if="page==1" class="pa-0 mt-0 pt-4" style="text-align: center;">Obs.: Predição temporal com intervalo de confiança de 95%</div>
+              <div v-if="page==1" class="pa-0 mt-0 pt-4" style="text-align: center;">[[$t("graficos.obs_relatorio")]]</div>
             <!-- </v-card> -->
   
           </v-card>
@@ -338,9 +338,9 @@
           height="auto"
           outlined
         > 
-          <h1 style="color: #1E9CF8; font-weight: 900;text-align: center;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados Acumulados em Pernambuco</h1>
+          <h1 style="color: #1E9CF8; font-weight: 900;text-align: center;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_pizza")]]</h1>
           <ve-pie :data="chartDataPie"></ve-pie>
-          <div class="pa-0 mt-4 mb-8" style="text-align: center;">Números percentuais baseados no número total de casos confirmados, em que a soma das 4 distribuições equivale a 100% do total.  </div>
+          <div class="pa-0 mt-4 mb-8" style="text-align: center;">[[$t("graficos.obs_pizza")]]  </div>
         </v-card>
       </template>
     </v-container>
@@ -355,7 +355,7 @@
           outlined
         >
           <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Distribuição de Casos Confirmados e Óbitos no Brasil</h1>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_histograma")]]</h1>
           </div>
           <ve-histogram :data="chartDistribuicaoBrasil"></ve-histogram>
         </v-card>
@@ -372,7 +372,7 @@
           outlined
         >
           <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Casos Confirmados Diários e Acumulados</h1>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_confirmados")]]</h1>
           </div>
           <ve-line :data="chartData" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
@@ -383,7 +383,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione o país"
+                :label="$t('graficos.selecione_pais')"
                 width="400"
                 multiple
                 disabled
@@ -396,7 +396,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione o estado"
+                :label="$t('graficos.selecione_estado')"
                 width="400"
                 @click="printName(values)"
                 @change="setCity(valuesCE, 'itemsChipsC', valuesC)"
@@ -410,7 +410,7 @@
                   dense
                   chips
                   small-chips
-                  label="Selecione a cidade"
+                  :label="$t('graficos.selecione_cidade')"
                   width="400"
                   @change="setDistrict(valuesC, 'itemsChipsD')"
                   @click="printName(valuesC)"
@@ -422,7 +422,7 @@
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
                   <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Casos Confirmados', 'Casos Confirmados'], valuesCE, valuesC, valuesD, 'chartData', ['diários', 'acumulados'])">
                     <v-icon class="pr-2">mdi-download-outline</v-icon>
-                     Filtrar
+                     [[$t("graficos.filtrar")]]
                   </v-btn>
                 </div>
               </div>
@@ -441,7 +441,7 @@
           outlined
         >
           <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Número de Óbitos Diários e Acumulados</h1>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_obitos")]]</h1>
           </div>
           <ve-line :data="chartDataO" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
@@ -452,7 +452,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione o país"
+                :label="$t('graficos.selecione_pais')"
                 width="100"
                 multiple
                 disabled
@@ -465,7 +465,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione o estado"
+                :label="$t('graficos.selecione_estado')"
                 width="100"
                 @click="printName(values)"
                 @change="setCity(values, 'itemsChipsC', 'valuesCS')"
@@ -479,7 +479,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione a cidade"
+                :label="$t('graficos.selecione_cidade')"
                 width="100"
                 @change="setDistrict(valuesCS, 'itemsChipsDS')"
                 @click="printName(valuesCS)"
@@ -491,7 +491,7 @@
               <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
                 <v-btn height='40' width='200px' color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(['Óbitos', 'Óbitos'], values, valuesCS, null, 'chartDataO', ['diários', 'acumulados'])">
                   <v-icon class="pr-2">mdi-download-outline</v-icon>
-                   Filtrar
+                  [[$t('graficos.filtrar')]]
                 </v-btn>
               </div>
             </div>
@@ -510,7 +510,7 @@
           outlined
         >
           <div  class="text-center">
-            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Gráfico Personalizado</h1>
+            <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_personalizado")]]</h1>
           </div>
 
           <ve-line v-if="linhaOuHist === 'linhas'" :data="chartDataSA"></ve-line>
@@ -527,16 +527,14 @@
                 width="auto"
                 height="auto"
               >
-                <div class="text-center pt-2">
-                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Dado</h1>
-                </div>
                 <v-radio-group class=" text-center" v-model="diaOUAcu" :mandatory="false">
+                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.tipo_dado")]]</h1>
                   <div style="display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;padding-left: 50px !important;">
                     <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
-                      <v-radio label="Diários" value="diários"></v-radio>
+                      <v-radio :label="$t('graficos.diarios')" value="diários"></v-radio>
                     </div>
                     <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
-                      <v-radio label="Acumulados"  value="acumulados"></v-radio>
+                      <v-radio :label="$t('graficos.acumulados')"  value="acumulados"></v-radio>
                     </div>
                   </div>              
                 </v-radio-group>
@@ -552,16 +550,14 @@
                 width="auto"
                 height="auto"
               >
-                <div class="text-center pt-2">
-                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">Tipo de Gráfico</h1>
-                </div>
                 <v-radio-group class="text-center" v-model="linhaOuHist" :mandatory="false">
+                  <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.tipo_grafico")]]</h1>
                   <div style="display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;flex-direction: column;">
                     <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
-                      <v-radio label="Gráfico de linhas" value="linhas"></v-radio>
+                      <v-radio :label="$t('graficos.grafico_linhas')" value="linhas"></v-radio>
                     </div>
                     <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content:flex-start; align-items:flex-end;">
-                      <v-radio label="Histograma"  value="histograma"></v-radio>
+                      <v-radio :label="$t('graficos.histograma')"  value="histograma"></v-radio>
                     </div>
                   </div>              
                 </v-radio-group>
@@ -577,7 +573,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione uma informação"
+                :label="$t('graficos.selecione_informacao')"
                 multiple
                 max-width='200'
                 width="400"
@@ -607,7 +603,7 @@
                 dense
                 chips
                 small-chips
-                label="Selecione o estado"
+                :label="$t('graficos.selecione_estado')"
                 max-width='200'
                 width="100"
                 @change="setCity(valuesA, 'itemsChipsCA', 'valuesCA')"
@@ -622,7 +618,7 @@
                   dense
                   chips
                   small-chips
-                  label="Selecione a cidade"
+                  :label="$t('graficos.selecione_cidade')"
                   width="100"
                   @mousedown="setCity(valuesA, 'itemsChipsCA')"
                   @change="setDistrict(valuesCA, 'itemsChipsDA')"
@@ -632,7 +628,7 @@
               
                 <v-btn color="#1E9CF8" style="background-color:#1E9CF8;color: white;" text @click="filtro(valuesSelect, valuesA, valuesCA, valuesDA, 'chartDataSA', [diaOUAcu])">
                   <v-icon class="pr-2">mdi-download-outline</v-icon>
-                    Filtrar
+                    [[$t("graficos.filtrar")]]
                 </v-btn>
               <div>
                 <div class="ml-4" style="height: 40px;display: flex;flex-direction: row;justify-content: flex-end;">
@@ -654,14 +650,15 @@
             tile
             class="lighten-1 white--text text-center"
             color="#1E9CF8"
+            style="width:100%"
           >
             <v-card-text>
               <img style="height: 55px;" src='../static/logo/logoWhite.png'/>
             </v-card-text>
       
-            <v-card-text style="width:100%" class="white--text pt-0">
+            <!--<v-card-text style="width:100%" class="white--text pt-0">
               The Smart Cities Innovation Laboratory (LIVE) is a laboratory of the UFPE Informatics Center and was created in 2015 with the objective of developing innovation projects in the context of smart cities. We carry out research and development projects in partnership with industry and funding agencies in various segments such as Automotive, IoT, Embedded Systems, Energy, High Performance Computing, Electronics, Urban Mobility, Connectivity and Artificial Intelligence. 
-            </v-card-text>
+            </v-card-text>-->
       
             <v-divider></v-divider>
       
