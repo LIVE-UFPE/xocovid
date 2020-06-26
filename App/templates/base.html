@@ -498,6 +498,23 @@
         },
         data: () => ({
             //? props da graphs
+            toolbox : {
+                feature: {
+                    saveAsImage: {title: 'Download'}
+                }
+            },
+            dataZoom : [
+                {
+                    type: 'slider'
+                }
+            ],
+            legend: {
+                type: 'scroll',
+                pageButtonPosition: 'start',
+                align: 'auto',
+                left: 20,
+                right: 20
+            },
             local : i18n.locale,
             dialog: false,
             radioMap: 'mapInit',
