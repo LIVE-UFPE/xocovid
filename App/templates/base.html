@@ -115,6 +115,7 @@
                                             <img v-else style="max-height: 25px;" src='../static/Flag_of_Brazil.png' />
                                         </v-btn>
                                     </v-col>
+
                                     
                                     <v-col cols="4" class="d-flex justify-end mr-n4">
                                         <v-menu left bottom>
@@ -137,7 +138,7 @@
                     </v-row>
                 </v-app-bar>
             </v-card>
-            <v-content class="pa-0 ma-0" style="background-color: 'transparent'" fluid fill-height >
+            <v-content class="pa-0 ma-0" style="background-color: 'transparent';" fluid fill-height >
                 {% block body_block %}
                 {% endblock %}
             </v-content>
@@ -497,6 +498,23 @@
         },
         data: () => ({
             //? props da graphs
+            toolbox : {
+                feature: {
+                    saveAsImage: {title: 'Download'}
+                }
+            },
+            dataZoom : [
+                {
+                    type: 'slider'
+                }
+            ],
+            legend: {
+                type: 'scroll',
+                pageButtonPosition: 'start',
+                align: 'auto',
+                left: 20,
+                right: 20
+            },
             local : i18n.locale,
             dialog: false,
             radioMap: 'mapInit',
