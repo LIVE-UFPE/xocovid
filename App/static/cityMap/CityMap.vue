@@ -1,9 +1,154 @@
 <template>
-    <div :key="componentKey" style="border-radius: 0px" id="mapcity">
-        <v-snackbar v-model="snackbar" top >
-            {{ txtsnack }}
-            <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
-        </v-snackbar>
+    <div>
+        <div :key="componentKey" style="border-radius: 0px" id="mapcity">
+            <v-snackbar v-model="snackbar" top >
+                {{ txtsnack }}
+                <v-btn text color="white" @click="snackbar = false" >Ok</v-btn>
+            </v-snackbar>
+        </div>
+        <v-list dense class="d-flex flex-row overflow-y-auto"
+        style="position: relative;bottom: 100px;z-index: 1;border-radius: 10px 10px 10px 10px"
+        >
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);">
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #6a00ff;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{ $t("legenda.sem_dados") }}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <!-- ? quantidade de casos -->
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffd9d9;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div>0- {{Math.floor(mediacasos * 0.03125)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffc2c2;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.03125)}}- {{Math.floor(mediacasos * 0.125)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffa8a8;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.125)}}- {{Math.floor(mediacasos * 0.25)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff9696;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.25)}}- {{Math.floor(mediacasos * 0.375)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff8080;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.375)}}- {{Math.floor(mediacasos * 0.5)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff5252;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.5)}}- {{Math.floor(mediacasos * 0.625)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff4040;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.625)}}- {{Math.floor(mediacasos * 0.75)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff2121;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 0.75)}}- {{Math.floor(mediacasos * 0.875)}}</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
+                >
+
+                <v-list-item-icon left
+                style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff0000;">
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                <v-list-item-title style="color: #1E9CF8 !important;">
+                    <div> {{Math.floor(mediacasos * 1.5)}}+</div>
+                </v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>  
+        </v-list>
     </div>
 </template>
 <script>
@@ -14,7 +159,7 @@ module.exports ={
             request: null,
             componentKey: 0,
             casos: [],
-            maiscasos: 0,
+            mediacasos: 0,
             txtsnack: '',
             snackbar: false,
             geojson: null,
@@ -60,8 +205,8 @@ module.exports ={
                         this.casos = resposta
                         // console.log('Casos: ',this.casos)
                         this.geojson.setStyle(this.style)
-                        let legenda = [this.maiscasos,0]
-                        this.$emit('dados-legenda',legenda) 
+                        // let legenda = [this.maiscasos,0]
+                        // this.$emit('dados-legenda',legenda) 
                     }
                 }
             })
@@ -79,8 +224,9 @@ module.exports ={
                 data: {"informacao": 'Casos Confirmados', "keyBusca": 'cidadesdia', "dia": this.datedb.toISOString().substring(0,10), "estado": estado, "cidade": '', "bairro": '',"maiorcaso": true},
                 success: function (response) {
                     // let resposta = JSON.parse(response)
-                    this.maiscasos = Number(response)
-                    console.log(`passando a maior quantidade de casos ${this.maiscasos} tipo é ${typeof(this.maiscasos)}`)
+                    let maiscasos = Number(response)
+                    this.mediacasos = maiscasos / 2
+                    console.log(`passando a maior quantidade de casos ${this.mediacasos} tipo é ${typeof(this.mediacasos)}`)
                     
                 },
             })  
@@ -177,7 +323,7 @@ module.exports ={
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
             //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
-            let media = that.maiscasos / 2
+            let media = that.mediacasos
             return d >= Math.floor(media * 1) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff2121' :
                 d >= Math.floor(media * 0.625)  ? '#ff4040' :
@@ -186,7 +332,7 @@ module.exports ={
                 d >= Math.floor(media * 0.125)   ? '#ff9696' :
                 d >= Math.floor(media * 0.03125)   ? '#ffa8a8' : // * tons de amarelo
                 d >= Math.floor(media * 0.015625)   ? '#ffc2c2' : // * AMARELO MEMSO TUDO AMARELO NISSO AQ
-                    '#e6e6e6'
+                    '#ffd9d9'
         }
         function style(feature) {
             return {
