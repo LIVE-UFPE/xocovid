@@ -160,7 +160,7 @@ module.exports ={
             highlightFeature.call(this,e)
             this.geoJsonClick = true
         }
-        
+
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature.bind(this),
@@ -234,6 +234,8 @@ module.exports ={
                         obitos = test['obitos']
                         casos_diarios = test['quantidade_casos_diarios']
                         obitos_diarios = test['quantidade_obitos_diarios']
+                        if (!isNaN(casos_diarios)) if(casos_diarios < 0) casos_diarios = '-'
+                        if (!isNaN(obitos_diarios)) if(obitos_diarios < 0) obitos_diarios = '-'
                         dados_dia = test['dados_dia_requisitado']
                     }
                     
