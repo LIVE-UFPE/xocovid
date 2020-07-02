@@ -485,7 +485,6 @@
                   <v-list-item three-line>
                     <v-list-item-content>
                       <!-- <div class="overline mb-2">OVERLINE</div> -->
-                      <!-- TODO ajeitar essas datas do lado dos botoes de avançar e voltar -->
                       <v-list-item>
                         <v-tooltip right color="#1E9CF8">
                           <template v-slot:activator="{ on }">
@@ -682,6 +681,7 @@
   </div> {% endcomment %}
 
   <!-- Map -->
+  <!-- TODO implementar "tap handler" pra caso o usuário "tap" fora do geoJSON(mas ainda dentro do mapa) -->
   <home-city-map 
     v-if='radioheat === "pernambuco" && maxInt === 1'
     :key="keychange" 

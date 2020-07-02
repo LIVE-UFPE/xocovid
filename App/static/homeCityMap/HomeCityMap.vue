@@ -19,6 +19,7 @@ module.exports ={
             snackbar: false,
             geojson: null,
             style: null,
+            geoJsonClick: false
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -153,18 +154,13 @@ module.exports ={
         function zoomToFeature(e) {
             map.fitBounds(e.target.getBounds());
         }
-        //TODO previousclick nao for num canto valido, resetar?
-        let previousClick = null
+        
         function clickHandler(e){
-            // console.log('Console: ',e.target)
-            if(previousClick){
-                resetHighlight.call(this,previousClick)
-                highlightFeature.call(this,e)
-            }else{
-                highlightFeature.call(this,e)
-            }
-            previousClick = e
+            this.geojson.resetStyle();
+            highlightFeature.call(this,e)
+            this.geoJsonClick = true
         }
+        
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature.bind(this),
@@ -173,7 +169,6 @@ module.exports ={
                 click: clickHandler.bind(this)
             });
         }
-        // TODO encontrar motivo de Acaraú, no Ceará, nao dar uma cor, pois atualmente NENHUMA ALTERAÇÃO FEITA AQUI MUDA NO SITE
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
             // DEBUG
@@ -304,6 +299,19 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
+
+        function clickMap(e) {
+            console.log('cliquei no mapa')
+            if(!this.geoJsonClick){
+                this.geojson.resetStyle();
+                info.update();
+                
+            }
+            this.geoJsonClick = false
+                
+        }
+        map.on('click', clickMap, this)
+
         this.style = style.bind(this)
         this.geojson = L.geoJson(eval(this.estadoComp), {style: this.style, onEachFeature: onEachFeature.bind(this)})
         //resposta = this.get_shapefile(this.estadoComp.split('_').join(' '))
