@@ -93,22 +93,50 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 @background(schedule=None)
 def listener():
     print("Executando listener")
-    
-    print("Extraindo informações de outras bases")
-    bot.processingData()
-    storeBot()
-    
-    print("Executando predicoes do Arima")
-    stateCityData.main()
-    pipelineArima.main()
-    saveImages()
-    storeProjections()
 
-    getCasosPernambuco()
-
-    prediction()
-    store_base()
-    send_prediction_to_db()
+    taksDone = False
+    while taksDone == False:
+        try:
+            print("Extraindo informações de outras bases")
+            bot.processingData()
+            storeBot()
+            taksDone = True
+        except Exception as e:
+            print("Erro na extração de outras bases")
+            print(e)
+    
+    taksDone = False
+    while taksDone == False:
+        try:
+            print("Executando predicoes do Arima")
+            stateCityData.main()
+            pipelineArima.main()
+            saveImages()
+            storeProjections()
+            taksDone = True
+        except Exception as e:
+            print("Erro na execução do arima")
+            print(e)
+    
+    taksDone = False
+    while taksDone == False:
+        try:
+            getCasosPernambuco()
+            taksDone = True
+        except Exception as e:
+            print("Erro na extração dos casos de Pernambuco")
+            print(e)
+    
+    taksDone = False
+    while taksDone == False:
+        try:
+            prediction()
+            store_base()
+            send_prediction_to_db()
+            taksDone = True
+        except Exception as e:
+            print("Erro na execução dos algoritmos espaciais")
+            print(e)
     
     print("Listener parado")
 
