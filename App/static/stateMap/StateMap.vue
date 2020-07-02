@@ -20,7 +20,8 @@ module.exports ={
             style: null,
             txtsnack: 'Oi',
             snackbar: false,
-            blockrequest: true
+            blockrequest: true,
+            geoJsonClick: false
         } 
     },
     // ? como props aq é um objeto, não é possível dar watch diretamente nas propriedades de prop, para isso, usamos uma computed property e damos watch nela. vale citar também que as props são acessadas por "this.pins", por exemplo, diretamente em qualquer porção de código no script
@@ -28,9 +29,6 @@ module.exports ={
         datedb: Date,
     },
     methods: {
-        // TODO saber ultimo dia que se tem dados, pois não tem a partir de um certo dia
-        // TODO snackbar informando
-        // TODO informar na legenda que existe cor para ausencia de dados
         getCasos(){
             console.log(`datedb é ${this.datedb.toISOString()}`)
             if (this.request != null) {
@@ -112,17 +110,11 @@ module.exports ={
         function zoomToFeature(e) {
             this.map.fitBounds(e.target.getBounds());
         }
-        //TODO previousclick nao for num canto valido, resetar?
-        let previousClick = null
+        
         function clickHandler(e){
-            // console.log('Console: ',e.target)
-            if(previousClick){
-                resetHighlight.call(this,previousClick)
-                highlightFeature.call(this,e)
-            }else{
-                highlightFeature.call(this,e)
-            }
-            previousClick = e
+            this.geojson.resetStyle();
+            highlightFeature.call(this,e)
+            this.geoJsonClick = true
         }
         function onEachFeature(feature, layer) {
             layer.on({
@@ -169,7 +161,6 @@ module.exports ={
         }
         var info = L.control();
         info.setPosition('topleft')
-
         info.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
             this.update();
@@ -187,6 +178,8 @@ module.exports ={
                     obitos = test['obitos']
                     casos_diarios = test['quantidade_casos_diarios']
                     obitos_diarios = test['quantidade_obitos_diarios']
+                    if (!isNaN(casos_diarios)) if(casos_diarios < 0) casos_diarios = '-'
+                    if (!isNaN(obitos_diarios)) if(obitos_diarios < 0) obitos_diarios = '-'
                     dados_dia = test['dados_dia_requisitado']
                 } catch (error) {
                     console.log(`sem dados para ${props.name}`)
@@ -246,6 +239,17 @@ module.exports ={
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoibHVjYXNqb2IiLCJhIjoiY2s4Z2dxbmF1MDFmdjNkbzlrdzR5ajBqbCJ9.HlQrZzNxyOKpsIwn6DmvKw',
         }).addTo(map);
+        function clickMap(e) {
+            console.log('cliquei no mapa')
+            if(!this.geoJsonClick){
+                this.geojson.resetStyle();
+                info.update();
+                
+            }
+            this.geoJsonClick = false
+                
+        }
+        map.on('click', clickMap, this)
         this.style = style.bind(this)
         this.geojson = L.geoJson(statesData, {style: this.style, onEachFeature: onEachFeature.bind(this)})
         this.geojson.addTo(map)
@@ -272,7 +276,6 @@ module.exports ={
     width: 100%;
     z-index: 0;
 }
-
 .info {
     /* align-self: center; */
     /* margin: auto; */
@@ -284,7 +287,6 @@ module.exports ={
     border-radius: 5px;
     
     z-index: 1;
-
 }
 @media (max-width: 600px) {
     .info {
@@ -297,7 +299,6 @@ module.exports ={
         top: 10px;
     }
 }
-
 .info h4 {
     margin: 0 0 5px;
     color: rgb(255, 255, 255);
