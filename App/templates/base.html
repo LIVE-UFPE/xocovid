@@ -508,7 +508,9 @@
             toolbox : {
                 feature: {
                     saveAsImage: {title: 'Download'}
-                }
+                },
+                itemSize: 15,
+                top: 25
             },
             dataZoom : [
                 {
@@ -516,11 +518,14 @@
                 }
             ],
             legend: {
-                type: 'scroll',
-                pageButtonPosition: 'start',
-                align: 'auto',
-                left: 20,
-                right: 20
+                type:'scroll',
+                orient:'vertical',
+                height:'40',
+                selectedMode:'multiple',
+                textStyle:{
+                    fontSize: 10
+                },
+                itemWidth: 2
             },
             local : i18n.locale,
             dialog: false,
