@@ -115,7 +115,6 @@
                                             <img v-else style="max-height: 25px;" src='../static/Flag_of_Brazil.png' />
                                         </v-btn>
                                     </v-col>
-
                                     
                                     <v-col cols="4" class="d-flex justify-end mr-n4">
                                         <v-menu left bottom>
@@ -397,6 +396,7 @@
             rodape: {
                 labs: 'Laboratório de Inovação para Cidades Inteligentes (LIVE) e Laboratório de Computação Biomédica (LCB)'
             }
+
         }
     }
 
@@ -507,7 +507,9 @@
             toolbox : {
                 feature: {
                     saveAsImage: {title: 'Download'}
-                }
+                },
+                itemSize: 15,
+                top: 25
             },
             dataZoom : [
                 {
@@ -515,11 +517,14 @@
                 }
             ],
             legend: {
-                type: 'scroll',
-                pageButtonPosition: 'start',
-                align: 'auto',
-                left: 20,
-                right: 20
+                type:'scroll',
+                orient:'vertical',
+                height:'40',
+                selectedMode:'multiple',
+                textStyle:{
+                    fontSize: 10
+                },
+                itemWidth: 2
             },
             local : i18n.locale,
             dialog: false,
