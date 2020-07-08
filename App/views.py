@@ -360,7 +360,7 @@ def get_data(request):
                     
                     # * coleta casos e obitos diarios, se possivel
                     for item in response:
-                        print(item)
+                        # print(item)
                         item['dados_dia_requisitado'] = True
                         dia_anterior = dia - timedelta(1)
                         casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=item['municipio'])).values('quantidade_casos','obitos').first()
@@ -386,7 +386,6 @@ def get_data(request):
 
                         for municipio in municipios:
                             # ? se nao houver nenhum municipio em response com o nome similar ao municipio atual da lista de municipios
-                            # TODO levenshtein no client-side por causa desse statement \/, que permite que municipios com nomes irregulares passem pro client
                             if not any( distance(municipio, cidade_response['municipio']) <= 1 for cidade_response in response):
                                 # busca o nome usado pelo DB, caso a diferença no nome seja de no maximo 1 caractere
                                 # TODO substituir por um algoritmo que pegue o nome MAIS similar?
