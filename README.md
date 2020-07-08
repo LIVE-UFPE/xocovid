@@ -12,6 +12,8 @@
         pip3 install -r requirements.txt
     ```
     OBS: https://stackoverflow.com/questions/13200330/how-to-install-python-levenshtein-on-windows
+    https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-levenshtein
+    https://stackoverflow.com/questions/28568070/filename-whl-is-not-supported-wheel-on-this-platform
 
 2. Digite o comando
 

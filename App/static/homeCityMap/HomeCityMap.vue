@@ -169,26 +169,27 @@ module.exports ={
                 click: clickHandler.bind(this)
             });
         }
+        // ? a cada click, percebe-se que ele roda o getcolor, mas como e pq?
         function getColor(municipio, that) {
             if(that.casos.length == 0) return '#800026'
+
             // DEBUG
             // let test = that.casos.filter(elem => that.levenshtein(elem['municipio'], municipio) <= 2)
             // if(test.length > 1){
             //     console.log('array test:')
             //     console.log(test)
             // }
+            
             // busque o municipio com nome igual ao do municipio pedido
             let d = that.casos.find( elem => elem['municipio'] == municipio )
             if(d == undefined){
                 // busque o municipio com nome mais similar ao municipio pedido, c diferença de 1
                 d = that.casos.find( elem => that.levenshtein(elem['municipio'], municipio) <= 1 )    
             }
-            // ? será q seria conveniente também ele não pegar municipios que existam, mesmo q passem no levenshtein? p isso, precisaria do JSON c somente o nome dos municipios
-            
+
             if(d == undefined) return '#6a00ff'
             if(d['quantidade_casos'] == -1) return '#6a00ff'
             d = d['quantidade_casos']
-            //DEBUG se der certo, tirar mais e menoscasos e deixar so a media
             let media = that.maiscasos / 2
             return d >= Math.floor(media * 1) ? '#ff0000' : // * tons de vermelho
                 d >= Math.floor(media * 0.75)  ? '#ff2121' :
@@ -227,9 +228,12 @@ module.exports ={
             
             if (props) {
                 try {
-                    // console.log(props.NOME)
                     let test = that.casos.find( elem => elem['municipio'] === props.NOME)
-                    casos = test['quantidade_casos']
+                    if(test == undefined){
+                        // busque o municipio com nome mais similar ao municipio pedido, c diferença de 1
+                        test = that.casos.find( elem => that.levenshtein(elem['municipio'], props.NOME) <= 1 )    
+                    }
+                    casos = test['quantidade_casos'] // ! levanta o error aqui, quando test é undefined
                     if(casos != -1){
                         obitos = test['obitos']
                         casos_diarios = test['quantidade_casos_diarios']
@@ -241,6 +245,7 @@ module.exports ={
                     
                 } catch (error) {
                     console.log(`sem dados para ${props.NOME}`)
+                    // console.log(error)
                     casos = -1
                 }    
             }
