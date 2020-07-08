@@ -1,189 +1,10 @@
 {% extends "base.html" %}
 {% block body_block %}
-  <!-- Card legenda -->
-  <!--<div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
-    <v-card class="mx-auto pb-2 d-none d-lg-block" width="auto" outlined
-      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1">
-      <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
-        <span style="font-weight: 800;color: #1E9CF8;" class="headline mt-4 mb-3">[[ $t("legenda.titulo") ]]</span>
-        <v-tooltip right color="#1E9CF8" class="mt-2 pr-4 mb-4">
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon>
-              <v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon>
-            </v-btn>
-          </template>
-          <span v-if="maxInt===0">[[ $t("legenda.informacoes_heatmap") ]]</span>
-          <span v-else>[[ $t("legenda.informacoes_stateMap") ]]</span>
-        </v-tooltip>
-      </div>
-      <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;height:100%">
-        <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
-          <!- ? projecao de casos --><!--
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #00d60e;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.baixa_densidade") ]]</div>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ede500;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.media_densidade") ]]</div>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #d91d00;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.alta_densidade") ]]</div>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <!- ? quantidade de casos --><!--
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffd9d9;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">0-[[Math.floor(mediacasos * 0.03125)]]</div>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffc2c2;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos
-                  * 0.125)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffa8a8;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos *
-                  0.25)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff9696;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos *
-                  0.375)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #6a00ff;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.sem_dados") ]]</div
-                  style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff8080;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos *
-                  0.5)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff5252;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos *
-                  0.625)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff4040;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos *
-                  0.75)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff2121;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos *
-                  0.875)]]</div style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
-            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
-            <v-list-item-icon left
-              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff0000;">
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title style="color: #1E9CF8 !important;">
-                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 1.5)]]+</div
-                  style="font-size: calc(13px - 0.12vw)">
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </div>
-    </v-card>
-  </div>-->
-  
   <div class="text-center"
-    style="position: absolute;bottom: 30px;right: 10vmin;left: 10vmin;z-index: 1">
+    style="position: absolute;bottom: 20px;right: 10vmin;left: 10vmin;z-index: 1">
     <!-- Card legenda mobile -->
     <v-list dense class="d-flex flex-row overflow-y-auto"
-      style="position: absolute;bottom: 130px;right: 0vmin;left: 0vmin;z-index: 1;border-radius: 10px 10px 10px 10px">
+      style="position: absolute;bottom: 95px;right: 0vmin;left: 0vmin;z-index: 1;border-radius: 10px 10px 10px 10px">
       <v-list-item class="mx-1 mt-2 py-n1" color="white" label outlined style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);"
         v-if="maxInt === 1">
 
@@ -369,7 +190,7 @@
       </v-list-item>  
     </v-list>
     <!-- --------Menu geral------- -->
-    <v-bottom-navigation class="d-none d-lg-flex" grow height="100" background-color="white" color="#1E9CF8" :value="activeBtn"
+    <v-bottom-navigation class="d-none d-lg-flex" grow height="80px" background-color="white" color="#1E9CF8" :value="activeBtn"
       style="z-index: 1;justify-content: space-around">
       <v-btn href='graphs'>
         <span style="color:#1E9CF8">[[ $t("menu.mais_informacoes") ]]</span>
@@ -476,8 +297,8 @@
 
   <!-- Card Menu mobile -->
   <div class="text-center d-lg-none" style="position: absolute;bottom: 0px;right: 0vmin;left: 0vmin;z-index: 1;">
-    <v-bottom-navigation v-if="isHomeComponentCollapsed === true" grow height="120" background-color="white"
-      color="#1E9CF8" :value="activeBtn" style="z-index: 1;border-radius: 20px 20px 0px 0px">
+    <v-bottom-navigation v-if="isHomeComponentCollapsed === true" grow height="100" background-color="white"
+      color="#1E9CF8" :value="activeBtn" style="z-index: 1;border-radius: 20px 20px 0px 0px" class="pb-3">
       <div style="width: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;">
         <v-btn width="30" style="margin: 0" @click="isHomeComponentCollapsed = false">
           <v-icon size="35" color="#1E9CF8">mdi-chevron-up</v-icon>
@@ -583,8 +404,214 @@
       </div>
     </v-card>
   </div>
+  
+  <!-- Map -->
+  <!-- TODO implementar "tap handler" pra caso o usuário "tap" fora do geoJSON(mas ainda dentro do mapa) -->
+  <home-city-map 
+    v-if='radioheat === "pernambuco" && maxInt === 1'
+    :key="keychange" 
+    :estado="homeSelecao" 
+    :datedb="datedb"
+    v-on:dados-legenda="updatelegenda" 
+    style="height: 100%;">
+  </home-city-map>
+  <state-map 
+    v-if="maxInt === 1 && radioheat === 'brasil'" 
+    :datedb="datedb" 
+    v-on:dados-legenda="updatelegenda">
+  </state-map>
+  <covid-map 
+    v-if="maxInt === 0" 
+    :radioheat="radioheat" 
+    :datedb="datedb"
+    :predictspe="useIa ? predictspe : []" 
+    :predicts="useIa ? predicts : []" 
+    :lastinterpol="lastinterpol"
+    :maiorintbr="maiorint" 
+    :maiorintpe="maiorintpe">
+  </covid-map>
+{% endblock %}
 
-    <!-- Card Popup-->
+<!-- Card legenda -->
+  <!--<div style="position: absolute;bottom: 150px;left: 10vmin;z-index: 1">
+    <v-card class="mx-auto pb-2 d-none d-lg-block" width="auto" outlined
+      style="box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.084);z-index: 1">
+      <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;">
+        <span style="font-weight: 800;color: #1E9CF8;" class="headline mt-4 mb-3">[[ $t("legenda.titulo") ]]</span>
+        <v-tooltip right color="#1E9CF8" class="mt-2 pr-4 mb-4">
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" icon>
+              <v-icon size="30" color="#1E9CF8">mdi-information-outline</v-icon>
+            </v-btn>
+          </template>
+          <span v-if="maxInt===0">[[ $t("legenda.informacoes_heatmap") ]]</span>
+          <span v-else>[[ $t("legenda.informacoes_stateMap") ]]</span>
+        </v-tooltip>
+      </div>
+      <div style="display: flex; flex-direction: row;justify-content: center;align-items: center;height:100%">
+        <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
+          <!- ? projecao de casos --><!--
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #00d60e;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.baixa_densidade") ]]</div>
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ede500;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.media_densidade") ]]</div>
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 0">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #d91d00;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.alta_densidade") ]]</div>
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <!- ? quantidade de casos --><!--
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffd9d9;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">0-[[Math.floor(mediacasos * 0.03125)]]</div>
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffc2c2;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.03125)]]-[[Math.floor(mediacasos
+                  * 0.125)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ffa8a8;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.125)]]-[[Math.floor(mediacasos *
+                  0.25)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff9696;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.25)]]-[[Math.floor(mediacasos *
+                  0.375)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #6a00ff;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[ $t("legenda.sem_dados") ]]</div
+                  style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-list dense class="d-flex flex-column" width="9vw" min-width="170px">
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff8080;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.375)]]-[[Math.floor(mediacasos *
+                  0.5)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff5252;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.5)]]-[[Math.floor(mediacasos *
+                  0.625)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff4040;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.625)]]-[[Math.floor(mediacasos *
+                  0.75)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff2121;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 0.75)]]-[[Math.floor(mediacasos *
+                  0.875)]]</div style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="mx-2 mt-2 py-n1" color="white" label outlined
+            style="box-shadow: 0 0 4px 0 rgba(0, 0, 0,0.2);" v-if="maxInt === 1">
+            <v-list-item-icon left
+              style="width: 20px !important;min-width: 20px !important;height: 20px !important;border-radius: 4px;background-color: #ff0000;">
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title style="color: #1E9CF8 !important;">
+                <div style="font-size: calc(13px - 0.12vw)">[[Math.floor(mediacasos * 1.5)]]+</div
+                  style="font-size: calc(13px - 0.12vw)">
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+    </v-card>
+  </div>-->
+
+<!-- Card Popup-->
   <!-- Esse componente deverá ser colocado como popup na api do mapa -->
   {% comment %} <div style="position: absolute;bottom: 150px;left: 42vmin;width: 700px;height: 500px;">
     <v-card class="mx-auto pb-2" max-height="500" height="400" width="500" outlined
@@ -636,30 +663,3 @@
       </v-list-item>
     </v-card>
   </div> {% endcomment %}
-
-  <!-- Map -->
-  <!-- TODO implementar "tap handler" pra caso o usuário "tap" fora do geoJSON(mas ainda dentro do mapa) -->
-  <home-city-map 
-    v-if='radioheat === "pernambuco" && maxInt === 1'
-    :key="keychange" 
-    :estado="homeSelecao" 
-    :datedb="datedb"
-    v-on:dados-legenda="updatelegenda" 
-    style="height: 100%;">
-  </home-city-map>
-  <state-map 
-    v-if="maxInt === 1 && radioheat === 'brasil'" 
-    :datedb="datedb" 
-    v-on:dados-legenda="updatelegenda">
-  </state-map>
-  <covid-map 
-    v-if="maxInt === 0" 
-    :radioheat="radioheat" 
-    :datedb="datedb"
-    :predictspe="useIa ? predictspe : []" 
-    :predicts="useIa ? predicts : []" 
-    :lastinterpol="lastinterpol"
-    :maiorintbr="maiorint" 
-    :maiorintpe="maiorintpe">
-  </covid-map>
-{% endblock %}

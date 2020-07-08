@@ -94,18 +94,12 @@ APIKEY = 'AIzaSyA9py_5Ave_r37HxH4694TpCHQJC6B63HI'
 def listener():
     print("Executando listener")
 
-    taksDone = False
-    while taksDone == False:
-        try:
-            print("Extraindo informações de outras bases")
-            bot.processingData()
-            storeBot()
-            taksDone = True
-        except Exception as e:
-            print("Erro na extração de outras bases")
-            print(e)
     
-    taksDone = False
+    print("Extraindo informações de outras bases")
+    #bot.processingData()
+    storeBot()
+    
+    """taksDone = False
     while taksDone == False:
         try:
             print("Executando predicoes do Arima")
@@ -137,7 +131,7 @@ def listener():
         except Exception as e:
             print("Erro na execução dos algoritmos espaciais")
             print(e)
-    
+    """
     print("Listener parado")
 
 def statesDataToDB():

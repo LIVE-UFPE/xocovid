@@ -16,7 +16,7 @@ from django.conf import settings
 from App import views
 from django.contrib.auth.models import User
 import os
-# import Levenshtein
+from Levenshtein import distance
 from django.core.mail import send_mail
 from covidWeb.settings import EMAIL_HOST_USER
 
@@ -315,6 +315,8 @@ def get_data(request):
                 if maiorcaso == 'true': maiorcaso = True
                 else: maiorcaso = False
                 print('maiorcaso é',maiorcaso)
+                # DEBUG
+                json_dump = {}
                 if not maiorcaso:
                     municipios = []
                     # * pegando lista de municipios no JSON
@@ -326,15 +328,39 @@ def get_data(request):
                             print('estou buscando por',estado,'e estou, no momento atual, olhando para',state['nome'])
                             if estado == state['nome']:
                                 municipios = state['cidades'].copy()
-                                # print(municipios)
                                 break
+
+                    # DEBUG algoritmo usado uma vez para complementar o filter.json com os aliases de municipios
+                        # * pega todos os municipios de todos os estados, coloca na seguinte ordem:
+                        #   "estados_alias": [
+                        #   {
+                        #     "sigla": "CE",
+                        #     "nome": "Ceará",
+                        #     "cidades_alias": [
+                        #       "cidade a",
+                        #       "cidade b"
+                        #      ]
+                        #   },
+                        # ]
+                        # * no filter.json. esse objeto vai se encarregar de fazer o comparativo do shapefile com o DB
+                        # json_dump["estados_alias"] = []
+                        # for state in data['estados']:
+                        #     print('atualmente em',state['nome'])
+                        #     lista = list(CasosCidade.objects.filter(estado_residencia=state['nome']).distinct().values_list('municipio',flat=True))
+                        #     json_dump["estados_alias"].append({
+                        #         "sigla": state['sigla'],
+                        #         "nome": state['nome'],
+                        #         "cidades_alias": lista
+                        #     })
+                    # with open(os.path.join(os.path.dirname(__file__))+'/static/filter/test.json', 'w', encoding="utf8") as f:
+                    #     json.dump(json_dump,f, ensure_ascii=False,indent=2)
 
                     # * todos os objetos no dia dado, no estado solicitado
                     response = list(CasosCidade.objects.filter(data_notificacao=dia).filter(estado_residencia=estado).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao'))
                     
                     # * coleta casos e obitos diarios, se possivel
                     for item in response:
-                        print(item)
+                        # print(item)
                         item['dados_dia_requisitado'] = True
                         dia_anterior = dia - timedelta(1)
                         casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=item['municipio'])).values('quantidade_casos','obitos').first()
@@ -352,15 +378,30 @@ def get_data(request):
                     if(len(response) != len(municipios)):
                         # DEBUG
                         print('nao existem dados para todos os dias')
+                        printable = ""
+                        estados_alias = {}
+                        # ? abre filter.json para futuras referencias
+                        with open(os.path.join(os.path.dirname(__file__))+'/static/filter/filter.json',encoding="utf8") as f:
+                            estados_alias = json.load(f)
+
                         for municipio in municipios:
-                            # ? se nao houver nenhum municipio em response com o nome atual da lista de municipios
-                            if not any(municipio == cidade_response['municipio'] for cidade_response in response):
-                                # busque o dia com dados do municipio mais recente a data desejada
-                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
+                            # ? se nao houver nenhum municipio em response com o nome similar ao municipio atual da lista de municipios
+                            if not any( distance(municipio, cidade_response['municipio']) <= 1 for cidade_response in response):
+                                # busca o nome usado pelo DB, caso a diferença no nome seja de no maximo 1 caractere
+                                # TODO substituir por um algoritmo que pegue o nome MAIS similar?
+                                municipio_db = ''
+                                for state in estados_alias['estados_alias']:
+                                    if state['nome'] == estado:
+                                        #pega o municipio com nome mais proximo(levenshtein) do nome atual do municipio
+                                        for city in state['cidades_alias']:
+                                            if distance(city, municipio) <= 1: municipio_db = city
+                                        break
+
+                                antigo = CasosCidade.objects.filter(data_notificacao__lte=dia).filter(estado_residencia=estado).filter(municipio=municipio_db).values('estado_residencia','obitos','quantidade_casos','municipio','data_notificacao').first()
                                 if antigo is not None:
                                     dia_anterior = antigo['data_notificacao'] - timedelta(1)
                                     antigo['dados_dia_requisitado'] = False
-                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=municipio)).values('quantidade_casos','obitos').first()
+                                    casos_antes = CasosCidade.objects.filter(data_notificacao=dia_anterior).filter(Q(estado_residencia=estado)&Q(municipio=municipio_db)).values('quantidade_casos','obitos').first()
                                     if casos_antes is not None:
                                         obitos_antes = casos_antes['obitos']
                                         casos_antes = casos_antes['quantidade_casos']
@@ -370,18 +411,16 @@ def get_data(request):
                                         antigo['quantidade_casos_diarios'] = '-'
                                         antigo['quantidade_obitos_diarios'] = '-'
                                     response.append(antigo)
-                                    print('inserindo dados antigos para',municipio)
+                                    printable += municipio + ' tem dados antigos\n'
                                 else:
-                                    print('não existem dados para',municipio)
+                                    printable += municipio + ' não tem dados \n'
                                     response.append({'municipio': municipio, 'quantidade_casos': -1})
                                     # ! PASSANDO -1 NO QUANTIDADE_CASOS CASO NAO EXISTAM DADOS SOBRE O MUNICIPIO NO DB
                                     
                                     # ? caso nao tenha dados anteriores para esse municipio?
                                     # ! atualmente nada, pois iremos buscar por similaridade
                                     # ! CASO NAO TENHA NEM POR SIMILARIDADE, será feito como está atualmente aqui para informar que não existem dados, ou coisa do tipo
-                    
-                    # TODO montar sistema de busca POR SIMILARIDADE(do nome da cidade) de dados em dias anteriores para cidades
-                    # ! não é necessário implementar similaridade aqui, pois tecnicamente os nomes são similares, mas caso seja, Levenshtein está aqui
+                        print(printable)
 
                 else:
                     response = CasosCidade.objects.filter(estado_residencia=estado).values('quantidade_casos').order_by('-quantidade_casos').first()
