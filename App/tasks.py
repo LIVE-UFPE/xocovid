@@ -96,42 +96,22 @@ def listener():
 
     
     print("Extraindo informações de outras bases")
-    #bot.processingData()
+    bot.processingData()
     storeBot()
     
-    """taksDone = False
-    while taksDone == False:
-        try:
-            print("Executando predicoes do Arima")
-            stateCityData.main()
-            pipelineArima.main()
-            saveImages()
-            storeProjections()
-            taksDone = True
-        except Exception as e:
-            print("Erro na execução do arima")
-            print(e)
+    print("Executando predicoes do Arima")
+    stateCityData.main()
+    pipelineArima.main()
+    saveImages()
+    storeProjections()
+
     
-    taksDone = False
-    while taksDone == False:
-        try:
-            getCasosPernambuco()
-            taksDone = True
-        except Exception as e:
-            print("Erro na extração dos casos de Pernambuco")
-            print(e)
+    getCasosPernambuco()
     
-    taksDone = False
-    while taksDone == False:
-        try:
-            prediction()
-            store_base()
-            send_prediction_to_db()
-            taksDone = True
-        except Exception as e:
-            print("Erro na execução dos algoritmos espaciais")
-            print(e)
-    """
+    prediction()
+    store_base()
+    send_prediction_to_db()
+
     print("Listener parado")
 
 def statesDataToDB():
