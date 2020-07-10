@@ -32,4 +32,4 @@ urlpatterns = [
     path('send_email',views.send_email, name="send_email"),
 ]
 
-#listener(repeat=10, repeat_until=None)
+#listener(repeat=24*3600, repeat_until=None)

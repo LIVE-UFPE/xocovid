@@ -352,7 +352,7 @@ module.exports ={
         info.update = function (props, that) {
             let casos = 0
             let obitos = 0
-            let casos_diarios = 0,obitos_diarios = 0
+            let casos_diarios = 0,obitos_diarios = 0,dados_dia = false, data_antiga = ''
             
             if (props) {
                 try {
@@ -369,6 +369,7 @@ module.exports ={
                         if (!isNaN(casos_diarios)) if(casos_diarios < 0) casos_diarios = '-'
                         if (!isNaN(obitos_diarios)) if(obitos_diarios < 0) obitos_diarios = '-'
                         dados_dia = test['dados_dia_requisitado']
+                        if(!dados_dia) data_antiga = test["data_notificacao"]
                     }
                     
                 } catch (error) {
@@ -419,7 +420,7 @@ module.exports ={
                             </h4>
                         </div> 
                     </div>
-                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`</h5>` : ``)) + `
+                    ` + (casos == -1 ? `` : (!dados_dia ? `<br /><h5 class="text-center" style="color: white" >`+i18n.t("mapBox.dia_nao_desejado")+`:</h5><br /><h4 class="text-center" style="color: white" >`+data_antiga+`</h4>` : ``)) + `
                 </div>`
                 : 
                 `<h5 style="color: white" class="text-center">
