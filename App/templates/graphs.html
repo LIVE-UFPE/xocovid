@@ -309,7 +309,7 @@
                   </v-chip>
                 </div> -->
                 <div  class="text-center pt-4">
-                  <ve-line v-if="page==1" :data="chartProjecao" :toolbox="toolbox" :legend="legend"></ve-line>
+                  <ve-line v-if="page==1" :data="chartProjecao" :toolbox="toolbox" ></ve-line>
                   <img v-else class="mb-4" style="border-radius: 20px;" :src= "imageData[page-1]" width="auto" height="480">
                   <!-- <img class="mb-4" style="border-radius: 20px;" src= "../static/graficos/modelos/modelo_AL.png" width="640" height="480"> -->
                   <v-pagination
@@ -374,7 +374,7 @@
           <div  class="text-center">
             <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_confirmados")]]</h1>
           </div>
-          <ve-line :data="chartData" :data-zoom="dataZoom" :toolbox="toolbox" :legend="legend"></ve-line>
+          <ve-line :data="chartData" :data-zoom="dataZoom" :toolbox="toolbox" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
               <v-autocomplete
                 v-model="personalizadoPaises"
@@ -443,7 +443,7 @@
           <div  class="text-center">
             <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_obitos")]]</h1>
           </div>
-          <ve-line :data="chartDataO" :data-zoom="dataZoom" :toolbox="toolbox" :legend="legend"></ve-line>
+          <ve-line :data="chartDataO" :data-zoom="dataZoom" :toolbox="toolbox" ></ve-line>
           <div style="display: flex;flex-direction: row;width: 100%; flex-flow: row wrap;justify-content: center;" class="mt-4 pl-6 pr-6 mb-4">
               <v-autocomplete
                 v-model="personalizadoPaises"
@@ -513,7 +513,7 @@
             <h1 style="color: #1E9CF8; font-weight: 900;" class="headline mb-1 mt-4 pb-4">[[$t("graficos.titulo_personalizado")]]</h1>
           </div>
 
-          <ve-line v-if="linhaOuHist === 'linhas'" :data="chartDataSA" :data-zoom="dataZoom" :toolbox="toolbox" :legend="legend"></ve-line>
+          <ve-line v-if="linhaOuHist === 'linhas'" :data="chartDataSA" :data-zoom="dataZoom" :toolbox="toolbox" ></ve-line>
           <ve-histogram v-else :data="chartDataSA" :data-zoom="dataZoom" :toolbox="toolbox"></ve-histogram>
 
           <div style="width: 100%;display: flex;flex-flow:wrap !important; justify-content: space-around; align-items: center;">
