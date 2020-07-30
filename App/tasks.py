@@ -106,7 +106,7 @@ def listener():
     storeProjections()
 
     
-    getCasosPernambuco()
+    #getCasosPernambuco()
     
     prediction()
     store_base()

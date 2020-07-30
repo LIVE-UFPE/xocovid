@@ -10,7 +10,7 @@ def getYesterday():
     last_date = datetime(1990, 1, 1)
     for fileName in os.listdir(os.path.join(os.path.dirname(__file__))+'/dados'):
         try:
-            fileName = fileName.split("Casos por Estado ")[1].split(".csv")[0]
+            fileName = fileName.split("ConfirmadosBrazil ")[1].split(".csv")[0]
         
             if(datetime.strptime(fileName, '%Y-%m-%d') > last_date):
                 last_date = datetime.strptime(fileName, '%Y-%m-%d')
